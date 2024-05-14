@@ -52,6 +52,7 @@ private:
 
 	unique_ptr<SelectStatement> GenerateSelect();
 	unique_ptr<CreateStatement> GenerateCreate();
+	unique_ptr<AttachStatement> GenerateAttach();
 	unique_ptr<QueryNode> GenerateQueryNode();
 
 	unique_ptr<CreateInfo> GenerateCreateInfo();

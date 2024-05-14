@@ -13,12 +13,14 @@
 #include "duckdb/parser/parsed_expression_iterator.hpp"
 #include "duckdb/parser/query_node/select_node.hpp"
 #include "duckdb/parser/query_node/set_operation_node.hpp"
+#include "duckdb/parser/statement/attach_statement.hpp"
 #include "duckdb/parser/statement/create_statement.hpp"
 #include "duckdb/parser/statement/delete_statement.hpp"
 #include "duckdb/parser/statement/insert_statement.hpp"
 #include "duckdb/parser/statement/select_statement.hpp"
 #include "duckdb/parser/statement/update_statement.hpp"
 #include "duckdb/parser/tableref/list.hpp"
+#include "iostream"
 
 namespace duckdb {
 
@@ -80,18 +82,23 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 	if (RandomPercentage(80)) {
 		return GenerateStatement(StatementType::SELECT_STATEMENT);
 	}
+	if (RandomPercentage(60)) {
+		return GenerateStatement(StatementType::ATTACH_STATEMENT);
+	}
 	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType type) {
-	switch (type) {
-	case StatementType::SELECT_STATEMENT:
-		return GenerateSelect();
-	case StatementType::CREATE_STATEMENT:
-		return GenerateCreate();
-	default:
-		throw InternalException("Unsupported type");
-	}
+	// switch (type) {
+	// case StatementType::SELECT_STATEMENT:
+	// 	return GenerateSelect();
+	// case StatementType::CREATE_STATEMENT:
+	// 	return GenerateCreate();
+	// case StatementType::ATTACH_STATEMENT:
+		return GenerateAttach();
+	// default:
+	// 	throw InternalException("Unsupported type");
+	// }
 }
 
 //===--------------------------------------------------------------------===//
@@ -107,6 +114,13 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 	auto create = make_uniq<CreateStatement>();
 	create->info = GenerateCreateInfo();
 	return create;
+}
+
+unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
+	auto attach = make_uniq<AttachStatement>();
+	attach->info = make_uniq<AttachInfo>();
+	attach->info->name = "foo.db";
+	return attach;
 }
 
 //===--------------------------------------------------------------------===//
