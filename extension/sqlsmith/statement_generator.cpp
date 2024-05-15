@@ -78,13 +78,14 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
-	if (RandomPercentage(80)) {
-		return GenerateStatement(StatementType::SELECT_STATEMENT);
-	}
-	if (RandomPercentage(60)) {
-		return GenerateStatement(StatementType::ATTACH_STATEMENT);
-	}
-	return GenerateStatement(StatementType::CREATE_STATEMENT);
+	return GenerateStatement(StatementType::ATTACH_STATEMENT);
+//	if (RandomPercentage(80)) {
+//		return GenerateStatement(StatementType::SELECT_STATEMENT);
+//	}
+//	if (RandomPercentage(60)) {
+//		return GenerateStatement(StatementType::ATTACH_STATEMENT);
+//	}
+//	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
 
 
@@ -117,10 +118,12 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 	return create;
 }
 
-unique_ptr<CreateStatement> StatementGenerator::GenerateAttach() {
+unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	auto attach = make_uniq<AttachStatement>();
 	attach->info = make_uniq<AttachInfo>();
-	attach->info->name = 'boooga.db';
+	attach->info->name = "attached_db";
+	attach->info->path = "attached_db_path.db";
+	auto what = attach->ToString();
 	return attach;
 }
 
