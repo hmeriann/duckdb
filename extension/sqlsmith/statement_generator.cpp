@@ -82,23 +82,23 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 	if (RandomPercentage(80)) {
 		return GenerateStatement(StatementType::SELECT_STATEMENT);
 	}
-	if (RandomPercentage(60)) {
+	if (RandomPercentage(10)) {
 		return GenerateStatement(StatementType::ATTACH_STATEMENT);
 	}
 	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType type) {
-	// switch (type) {
-	// case StatementType::SELECT_STATEMENT:
-	// 	return GenerateSelect();
-	// case StatementType::CREATE_STATEMENT:
-	// 	return GenerateCreate();
-	// case StatementType::ATTACH_STATEMENT:
+	switch (type) {
+	case StatementType::SELECT_STATEMENT:
+		return GenerateSelect();
+	case StatementType::CREATE_STATEMENT:
+		return GenerateCreate();
+	case StatementType::ATTACH_STATEMENT:
 		return GenerateAttach();
-	// default:
-	// 	throw InternalException("Unsupported type");
-	// }
+	default:
+		throw InternalException("Unsupported type");
+	}
 }
 
 //===--------------------------------------------------------------------===//
@@ -119,7 +119,8 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	auto attach = make_uniq<AttachStatement>();
 	attach->info = make_uniq<AttachInfo>();
-	attach->info->name = "foo.db";
+	attach->info->name = RandomString(10);
+	attach->info->path = "fuzz_gen_db_" + attach->info->name + ".db";
 	return attach;
 }
 
