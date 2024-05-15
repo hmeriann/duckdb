@@ -119,10 +119,12 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 }
 
 unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
+	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
 	attach->info = make_uniq<AttachInfo>();
 	attach->info->name = "attached_db";
 	attach->info->path = "attached_db_path.db";
+	attach->info->options["read_only"] = Value(true);
 	auto what = attach->ToString();
 	return attach;
 }

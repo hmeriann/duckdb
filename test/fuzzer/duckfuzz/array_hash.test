@@ -4,7 +4,7 @@
 require sqlsmith
 
 statement ok
-call fuzzyduck(max_queries=1, seed=1, verbose_output=1, log='log.txt', complete_log='complete_log.txt')
+call fuzzyduck(max_queries=3, seed=1, verbose_output=1, log='log.txt', complete_log='complete_log.txt')
 
 mode skip
 
