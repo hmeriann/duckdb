@@ -20,6 +20,8 @@
 #include "duckdb/parser/statement/select_statement.hpp"
 #include "duckdb/parser/statement/update_statement.hpp"
 #include "duckdb/parser/tableref/list.hpp"
+#include "duckdb/main/attached_database.hpp"
+#include "duckdb/main/database_manager.hpp"
 
 namespace duckdb {
 
@@ -29,6 +31,7 @@ struct GeneratorContext {
 	vector<reference<CatalogEntry>> table_functions;
 	vector<reference<CatalogEntry>> pragma_functions;
 	vector<reference<CatalogEntry>> tables_and_views;
+	vector<reference<AttachedDatabase>> attached_databases;
 };
 
 StatementGenerator::StatementGenerator(ClientContext &context) : context(context), parent(nullptr), depth(0) {
@@ -49,6 +52,8 @@ StatementGenerator::~StatementGenerator() {
 std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientContext &context) {
 	auto result = std::make_shared<GeneratorContext>();
 	result->test_types = TestAllTypesFun::GetTestTypes();
+	auto &db_manager = DatabaseManager::Get(context);
+	result->attached_databases = db_manager.GetDatabases(context);
 
 	auto schemas = Catalog::GetAllSchemas(context);
 	// extract the functions
@@ -119,12 +124,16 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 }
 
 unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
+
 	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
+	auto &db_manager = context.db->GetDatabaseManager();
+	auto my_dbs = db_manager.GetDatabases(context);
+
 	attach->info = make_uniq<AttachInfo>();
 	attach->info->name = "attached_db";
 	attach->info->path = "attached_db_path.db";
-	attach->info->options["read_only"] = Value(true);
+//	attach->info->options["read_only"] = Value(true);
 	auto what = attach->ToString();
 	return attach;
 }
