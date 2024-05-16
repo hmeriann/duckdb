@@ -89,16 +89,16 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType type) {
-	switch (type) {
-	case StatementType::SELECT_STATEMENT:
-		return GenerateSelect();
-	case StatementType::CREATE_STATEMENT:
-		return GenerateCreate();
-	case StatementType::ATTACH_STATEMENT:
+	// switch (type) {
+	// case StatementType::SELECT_STATEMENT:
+	// 	return GenerateSelect();
+	// case StatementType::CREATE_STATEMENT:
+	// 	return GenerateCreate();
+	// case StatementType::ATTACH_STATEMENT:
 		return GenerateAttach();
-	default:
-		throw InternalException("Unsupported type");
-	}
+	// default:
+	// 	throw InternalException("Unsupported type");
+	// }
 }
 
 //===--------------------------------------------------------------------===//
@@ -123,22 +123,15 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 }
 
 //===--------------------------------------------------------------------===//
-// Create Info Node
+// Create Attach Info
 //===--------------------------------------------------------------------===//
 
 unique_ptr<AttachInfo> StatementGenerator::GenerateAttachInfo() {
-	switch (RandomValue(2)) {
-		case 0: { // ATTACH 'file.db' AS file.db
-			auto info = make_uniq<AttachInfo>();
-			info->name = RandomString(10);
-			info->path = "fuzz_gen_db_" + info->name + ".db";
-		}
-		case 1: { // ATTACH 'file.db' (READ_ONLY)
-			auto info = make_uniq<AttachInfo>();
-			info->name = RandomString(10);
-			info->options["read_only"] = Value(true);
-		}
-	}
+	auto info = make_uniq<AttachInfo>();
+	info->name = RandomString(10);
+	info->path = "fuzz_gen_db_" + info->name + ".db";
+	info->options["read_only"] = Value(true);
+	return info;
 }
 
 //===--------------------------------------------------------------------===//
