@@ -118,10 +118,27 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 
 unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	auto attach = make_uniq<AttachStatement>();
-	attach->info = make_uniq<AttachInfo>();
-	attach->info->name = RandomString(10);
-	attach->info->path = "fuzz_gen_db_" + attach->info->name + ".db";
+	attach->info = GenerateAttachInfo();
 	return attach;
+}
+
+//===--------------------------------------------------------------------===//
+// Create Info Node
+//===--------------------------------------------------------------------===//
+
+unique_ptr<AttachInfo> StatementGenerator::GenerateAttachInfo() {
+	switch (RandomValue(2)) {
+		case 0: { // ATTACH 'file.db' AS file.db
+			auto info = make_uniq<AttachInfo>();
+			info->name = RandomString(10);
+			info->path = "fuzz_gen_db_" + info->name + ".db";
+		}
+		case 1: { // ATTACH 'file.db' (READ_ONLY)
+			auto info = make_uniq<AttachInfo>();
+			info->name = RandomString(10);
+			info->options["read_only"] = Value(true);
+		}
+	}
 }
 
 //===--------------------------------------------------------------------===//
