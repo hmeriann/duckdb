@@ -3,12 +3,25 @@
 
 # this was added to understand how to test
 
+require noforcestorage
+
+require skip_reload
+
 require sqlsmith
 
 statement ok
-call fuzzyduck( max_queries=1, seed=0, verbose_output=1, log='log.txt', complete_log='clog.txt');
+call fuzzyduck( max_queries=1, seed=42, verbose_output=1, log='log.txt', complete_log='clog.txt');
 
+mode skip 
+statement ok
+CREATE TABLE seed + ".db".tbl AS SELECT 1 AS i;
 
+query I
+FROM seed + ".db".tbl;
+----
+1
+
+mode skip
 
 statement ok
 PRAGMA threads = 1
