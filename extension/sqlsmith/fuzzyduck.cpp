@@ -62,18 +62,25 @@ void FuzzyDuck::FuzzAllFunctions() {
 	EndFuzzing();
 }
 
-string FuzzyDuck::GenerateQuery() {
-	LogTask("Generating query with seed " + to_string(seed));
+idx_t FuzzyDuck::GenerateRandomNuber() {
 	auto &engine = RandomEngine::Get(context);
-	// set the seed
 	engine.SetSeed(seed);
-	// get the next seed
 	seed = engine.NextRandomInteger();
+	return seed;
+}
+
+string FuzzyDuck::GenerateQuery(idx_t number_of_statements) {
+	LogTask("Generating multi statement query with seed " + to_string(seed));
+	seed = GenerateRandomNuber();
 
 	// generate the statement
 	StatementGenerator generator(context);
-	auto statement = generator.GenerateStatement();
-	return statement->ToString();
+	// accumulate statement(s)
+	string statement = "";
+	for (idx_t i = 0; i < number_of_statements; i++) {
+		statement += generator.GenerateStatement()->ToString() + "; ";
+	}
+	return statement;
 }
 
 void sleep_thread(Connection *con, atomic<bool> *is_active, atomic<bool> *timed_out, idx_t timeout_duration) {
