@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <random>
 #include <thread>
+#include <iostream>
 
 namespace duckdb {
 
@@ -39,7 +40,7 @@ void FuzzyDuck::Fuzz() {
 	BeginFuzzing();
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
-		auto query = GenerateQuery();
+		auto query = GenerateQuery(20);
 		RunQuery(std::move(query));
 	}
 	EndFuzzing();
@@ -62,7 +63,7 @@ void FuzzyDuck::FuzzAllFunctions() {
 	EndFuzzing();
 }
 
-string FuzzyDuck::GenerateQuery() {
+string FuzzyDuck::GenerateQuery(idx_t number_of_statements) {
 	LogTask("Generating query with seed " + to_string(seed));
 	auto &engine = RandomEngine::Get(context);
 	// set the seed
@@ -72,8 +73,13 @@ string FuzzyDuck::GenerateQuery() {
 
 	// generate the statement
 	StatementGenerator generator(context);
-	auto statement = generator.GenerateStatement();
-	return statement->ToString();
+	auto statement = generator.GenerateStatement()-> ToString() + "; ";
+	std::cout << "1) " << statement << std::endl;
+	for (size_t i = 0; i < (size_t)number_of_statements; i++) {
+		statement += generator.GenerateStatement()->ToString() + "; ";
+		std::cout << i << ") " << statement << "\n" << std::endl;
+	}
+	return statement;
 }
 
 void sleep_thread(Connection *con, atomic<bool> *is_active, atomic<bool> *timed_out, idx_t timeout_duration) {
