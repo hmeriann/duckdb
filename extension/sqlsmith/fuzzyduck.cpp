@@ -39,7 +39,7 @@ void FuzzyDuck::Fuzz() {
 	BeginFuzzing();
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
-		auto query = GenerateQuery();
+		auto query = GenerateQuery(GenerateRandomNuber() % 10);
 		RunQuery(std::move(query));
 	}
 	EndFuzzing();

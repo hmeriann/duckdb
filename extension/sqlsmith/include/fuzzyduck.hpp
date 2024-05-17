@@ -47,6 +47,8 @@ private:
 
 	void TryRemoveFile(const string &path);
 
+	idx_t GenerateRandomNuber();
+
 private:
 	unique_ptr<FileHandle> complete_log_handle;
 };
