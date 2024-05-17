@@ -651,9 +651,6 @@ void CatalogSet::Scan(CatalogTransaction transaction, const std::function<void(C
 		if (!entry_for_transaction.deleted) {
 			callback(entry_for_transaction);
 		}
-		if (entry_for_transaction.deleted) {
-			auto break_here = 0;
-		}
 	}
 }
 

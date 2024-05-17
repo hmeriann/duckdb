@@ -38,7 +38,7 @@ public:
 	friend class WindowChecker;
 
 public:
-	StatementGenerator(ClientContext &context);
+	StatementGenerator(Connection &con);
 	StatementGenerator(StatementGenerator &parent);
 	~StatementGenerator();
 
