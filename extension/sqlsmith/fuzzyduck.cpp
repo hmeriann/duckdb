@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <random>
 #include <thread>
-#include <iostream>
 
 namespace duckdb {
 
@@ -40,7 +39,7 @@ void FuzzyDuck::Fuzz() {
 	BeginFuzzing();
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
-		auto query = GenerateQuery(20);
+		auto query = GenerateQuery(GenerateRandomNuber() % 10);
 		RunQuery(std::move(query));
 	}
 	EndFuzzing();
@@ -63,21 +62,23 @@ void FuzzyDuck::FuzzAllFunctions() {
 	EndFuzzing();
 }
 
+idx_t FuzzyDuck::GenerateRandomNuber() {
+	auto &engine = RandomEngine::Get(context);
+	engine.SetSeed(seed);
+	seed = engine.NextRandomInteger();
+	return seed;
+}
+
 string FuzzyDuck::GenerateQuery(idx_t number_of_statements) {
 	LogTask("Generating query with seed " + to_string(seed));
-	auto &engine = RandomEngine::Get(context);
-	// set the seed
-	engine.SetSeed(seed);
-	// get the next seed
-	seed = engine.NextRandomInteger();
+	seed = GenerateRandomNuber();
 
 	// generate the statement
 	StatementGenerator generator(context);
-	auto statement = generator.GenerateStatement()-> ToString() + "; ";
-	std::cout << "1) " << statement << std::endl;
+	// accumulate statement(s)
+	string statement = "";
 	for (size_t i = 0; i < (size_t)number_of_statements; i++) {
 		statement += generator.GenerateStatement()->ToString() + "; ";
-		std::cout << i << ") " << statement << "\n" << std::endl;
 	}
 	return statement;
 }
