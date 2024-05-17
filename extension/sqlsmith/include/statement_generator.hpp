@@ -47,6 +47,9 @@ public:
 
 	vector<string> GenerateAllFunctionCalls();
 
+	//! Returns true with a percentage change (0-100)
+	bool RandomPercentage(idx_t percentage);
+
 private:
 	unique_ptr<SQLStatement> GenerateStatement(StatementType type);
 
@@ -95,8 +98,6 @@ private:
 
 	idx_t RandomValue(idx_t max);
 	bool RandomBoolean();
-	//! Returns true with a percentage change (0-100)
-	bool RandomPercentage(idx_t percentage);
 	string RandomString(idx_t length);
 	unique_ptr<ParsedExpression> RandomExpression(idx_t percentage);
 

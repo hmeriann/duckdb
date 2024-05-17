@@ -37,9 +37,10 @@ void FuzzyDuck::EndFuzzing() {
 
 void FuzzyDuck::Fuzz() {
 	BeginFuzzing();
+	StatementGenerator generator(context);
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
-		auto query = GenerateQuery(GenerateRandomNuber() % 10);
+		auto query = GenerateQuery(generator.RandomPercentage(50));
 		RunQuery(std::move(query));
 	}
 	EndFuzzing();
@@ -76,7 +77,7 @@ string FuzzyDuck::GenerateQuery(idx_t number_of_statements) {
 	// generate the statement
 	StatementGenerator generator(context);
 	// accumulate statement(s)
-	string statement = "";
+	auto statement = string("");
 	for (idx_t i = 0; i < number_of_statements; i++) {
 		statement += generator.GenerateStatement()->ToString() + "; ";
 	}

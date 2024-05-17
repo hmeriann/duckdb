@@ -35,7 +35,7 @@ private:
 	void BeginFuzzing();
 	void EndFuzzing();
 
-	string GenerateQuery();
+	string GenerateQuery(idx_t number_of_statements);
 	void RunQuery(string query);
 
 	void LogMessage(const string &message);
