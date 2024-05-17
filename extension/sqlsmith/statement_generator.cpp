@@ -128,7 +128,10 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
 	auto &db_manager = context.db->GetDatabaseManager();
-	auto my_dbs = db_manager.GetDatabases(context);
+	Connection con(*context.db);
+	con.BeginTransaction();
+	auto my_dbs = db_manager.GetDatabases(*con.context);
+	con.Commit();
 
 	attach->info = make_uniq<AttachInfo>();
 	attach->info->name = "attached_db";
