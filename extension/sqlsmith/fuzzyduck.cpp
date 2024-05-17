@@ -70,14 +70,14 @@ idx_t FuzzyDuck::GenerateRandomNuber() {
 }
 
 string FuzzyDuck::GenerateQuery(idx_t number_of_statements) {
-	LogTask("Generating query with seed " + to_string(seed));
+	LogTask("Generating multi statement query with seed " + to_string(seed));
 	seed = GenerateRandomNuber();
 
 	// generate the statement
 	StatementGenerator generator(context);
 	// accumulate statement(s)
 	string statement = "";
-	for (size_t i = 0; i < (size_t)number_of_statements; i++) {
+	for (idx_t i = 0; i < number_of_statements; i++) {
 		statement += generator.GenerateStatement()->ToString() + "; ";
 	}
 	return statement;
