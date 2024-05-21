@@ -8,16 +8,19 @@
 namespace duckdb {
 
 FuzzyDuck::FuzzyDuck(ClientContext &context) : context(context) {
+	auto &engine = RandomEngine::Get(context);
+	if (seed == 0) {
+		seed = engine.NextRandomInteger();
+	}
+	engine.SetSeed(seed);
 }
 
 FuzzyDuck::~FuzzyDuck() {
 }
 
 void FuzzyDuck::BeginFuzzing() {
-	auto &random_engine = RandomEngine::Get(context);
-	if (seed == 0) {
-		seed = random_engine.NextRandomInteger();
-	}
+	// auto &random_engine = RandomEngine::Get(context);
+	
 	if (max_queries == 0) {
 		throw BinderException("Provide a max_queries argument greater than 0");
 	}
@@ -37,10 +40,9 @@ void FuzzyDuck::EndFuzzing() {
 
 void FuzzyDuck::Fuzz() {
 	BeginFuzzing();
-	StatementGenerator generator(context);
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
-		auto query = GenerateQuery(generator.RandomPercentage(50));
+		auto query = GenerateQuery();
 		RunQuery(std::move(query));
 	}
 	EndFuzzing();
@@ -63,23 +65,27 @@ void FuzzyDuck::FuzzAllFunctions() {
 	EndFuzzing();
 }
 
-idx_t FuzzyDuck::GenerateRandomNuber() {
+idx_t FuzzyDuck::GenerateRandomNumber() {
 	auto &engine = RandomEngine::Get(context);
-	engine.SetSeed(seed);
-	seed = engine.NextRandomInteger();
-	return seed;
+	return engine.NextRandomInteger() % 1000;
 }
 
-string FuzzyDuck::GenerateQuery(idx_t number_of_statements) {
-	LogTask("Generating multi statement query with seed " + to_string(seed));
-	seed = GenerateRandomNuber();
-
+string FuzzyDuck::GenerateQuery() {
 	// generate the statement
 	StatementGenerator generator(context);
 	// accumulate statement(s)
 	auto statement = string("");
-	for (idx_t i = 0; i < number_of_statements; i++) {
-		statement += generator.GenerateStatement()->ToString() + "; ";
+	if (generator.RandomPercentage(10)) {
+		// multi statement
+		idx_t number_of_statements = GenerateRandomNumber();
+		LogTask("Generating multi statement query with seed " + to_string(seed));
+		for (idx_t i = 0; i < number_of_statements; i++) {
+			statement += generator.GenerateStatement()->ToString() + "; ";
+		}
+	} else {
+		// normal statement
+		LogTask("Generating normal statement query with seed " + to_string(seed));
+		statement = generator.GenerateStatement()->ToString();
 	}
 	return statement;
 }
