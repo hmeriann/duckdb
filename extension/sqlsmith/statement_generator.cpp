@@ -15,12 +15,14 @@
 #include "duckdb/parser/query_node/set_operation_node.hpp"
 #include "duckdb/parser/statement/attach_statement.hpp"
 #include "duckdb/parser/statement/create_statement.hpp"
+#include "duckdb/parser/statement/attach_statement.hpp"
 #include "duckdb/parser/statement/delete_statement.hpp"
 #include "duckdb/parser/statement/insert_statement.hpp"
 #include "duckdb/parser/statement/select_statement.hpp"
 #include "duckdb/parser/statement/update_statement.hpp"
 #include "duckdb/parser/tableref/list.hpp"
-#include "iostream"
+#include "duckdb/main/attached_database.hpp"
+#include "duckdb/main/database_manager.hpp"
 
 namespace duckdb {
 
@@ -30,9 +32,10 @@ struct GeneratorContext {
 	vector<reference<CatalogEntry>> table_functions;
 	vector<reference<CatalogEntry>> pragma_functions;
 	vector<reference<CatalogEntry>> tables_and_views;
+	vector<reference<AttachedDatabase>> attached_databases;
 };
 
-StatementGenerator::StatementGenerator(ClientContext &context) : context(context), parent(nullptr), depth(0) {
+StatementGenerator::StatementGenerator(Connection &con) : context(*con.context), parent(nullptr), depth(0) {
 	generator_context = GetDatabaseState(context);
 }
 
@@ -48,8 +51,14 @@ StatementGenerator::~StatementGenerator() {
 }
 
 std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientContext &context) {
+	// start a transaction so that catalog scans can take place.
+	if (!context.transaction.HasActiveTransaction()) {
+		context.transaction.BeginTransaction();
+	}
 	auto result = std::make_shared<GeneratorContext>();
 	result->test_types = TestAllTypesFun::GetTestTypes();
+	auto &db_manager = DatabaseManager::Get(context);
+	result->attached_databases = db_manager.GetDatabases(context);
 
 	auto schemas = Catalog::GetAllSchemas(context);
 	// extract the functions
@@ -75,30 +84,36 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 			result->tables_and_views.push_back(entry);
 		});
 	}
+	if (context.transaction.HasActiveTransaction()) {
+		context.transaction.Commit();
+	}
 	return result;
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
-	if (RandomPercentage(80)) {
-		return GenerateStatement(StatementType::SELECT_STATEMENT);
-	}
-	if (RandomPercentage(10)) {
-		return GenerateStatement(StatementType::ATTACH_STATEMENT);
-	}
-	return GenerateStatement(StatementType::CREATE_STATEMENT);
+	return GenerateStatement(StatementType::ATTACH_STATEMENT);
+//	if (RandomPercentage(80)) {
+//		return GenerateStatement(StatementType::SELECT_STATEMENT);
+//	}
+//	if (RandomPercentage(60)) {
+//		return GenerateStatement(StatementType::ATTACH_STATEMENT);
+//	}
+//	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
 
+
+
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType type) {
-	// switch (type) {
-	// case StatementType::SELECT_STATEMENT:
-	// 	return GenerateSelect();
-	// case StatementType::CREATE_STATEMENT:
-	// 	return GenerateCreate();
-	// case StatementType::ATTACH_STATEMENT:
+	switch (type) {
+	case StatementType::SELECT_STATEMENT:
+		return GenerateSelect();
+	case StatementType::CREATE_STATEMENT:
+		return GenerateCreate();
+	case StatementType::ATTACH_STATEMENT:
 		return GenerateAttach();
-	// default:
-	// 	throw InternalException("Unsupported type");
-	// }
+	default:
+		throw InternalException("Unsupported type");
+	}
 }
 
 //===--------------------------------------------------------------------===//
@@ -117,21 +132,19 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 }
 
 unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
+
+	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
-	attach->info = GenerateAttachInfo();
+	if (stuff->attached_databases.size() == 4) {
+		auto break_here = 0;
+	}
+
+	attach->info = make_uniq<AttachInfo>();
+	attach->info->name = "attached_db";
+	attach->info->path = "attached_db_path.db";
+//	attach->info->options["read_only"] = Value(true);
+	auto what = attach->ToString();
 	return attach;
-}
-
-//===--------------------------------------------------------------------===//
-// Create Attach Info
-//===--------------------------------------------------------------------===//
-
-unique_ptr<AttachInfo> StatementGenerator::GenerateAttachInfo() {
-	auto info = make_uniq<AttachInfo>();
-	info->name = RandomString(10);
-	info->path = "fuzz_gen_db_" + info->name + ".db";
-	info->options["read_only"] = Value(true);
-	return info;
 }
 
 //===--------------------------------------------------------------------===//
@@ -200,7 +213,7 @@ void StatementGenerator::GenerateCTEs(QueryNode &node) {
 		for (idx_t i = 0; i < 1 + RandomValue(10); i++) {
 			cte->aliases.push_back(GenerateIdentifier());
 		}
-		node.cte_map.map.insert(make_pair(GenerateTableIdentifier(), std::move(cte)));
+		node.cte_map.map[GenerateTableIdentifier()] = std::move(cte);
 	}
 }
 unique_ptr<QueryNode> StatementGenerator::GenerateQueryNode() {

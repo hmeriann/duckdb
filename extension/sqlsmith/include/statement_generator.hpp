@@ -38,7 +38,7 @@ public:
 	friend class WindowChecker;
 
 public:
-	StatementGenerator(ClientContext &context);
+	StatementGenerator(Connection &con);
 	StatementGenerator(StatementGenerator &parent);
 	~StatementGenerator();
 
@@ -50,6 +50,7 @@ public:
 private:
 	unique_ptr<SQLStatement> GenerateStatement(StatementType type);
 
+	unique_ptr<AttachStatement> GenerateAttach();
 	unique_ptr<SelectStatement> GenerateSelect();
 	unique_ptr<CreateStatement> GenerateCreate();
 	unique_ptr<AttachStatement> GenerateAttach();

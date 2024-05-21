@@ -7,7 +7,7 @@
 
 namespace duckdb {
 
-FuzzyDuck::FuzzyDuck(ClientContext &context) : context(context) {
+FuzzyDuck::FuzzyDuck(ClientContext &context) : context(context), con(*context.db) {
 }
 
 FuzzyDuck::~FuzzyDuck() {
@@ -46,7 +46,7 @@ void FuzzyDuck::Fuzz() {
 }
 
 void FuzzyDuck::FuzzAllFunctions() {
-	StatementGenerator generator(context);
+	StatementGenerator generator(con);
 	auto queries = generator.GenerateAllFunctionCalls();
 
 	if (max_queries == 0) {
@@ -71,7 +71,7 @@ string FuzzyDuck::GenerateQuery() {
 	seed = engine.NextRandomInteger();
 
 	// generate the statement
-	StatementGenerator generator(context);
+	StatementGenerator generator(con);
 	auto statement = generator.GenerateStatement();
 	return statement->ToString();
 }
@@ -92,7 +92,6 @@ void sleep_thread(Connection *con, atomic<bool> *is_active, atomic<bool> *timed_
 void FuzzyDuck::RunQuery(string query) {
 	LogQuery(query + ";");
 
-	Connection con(*context.db);
 	atomic<bool> is_active(true);
 	atomic<bool> timed_out(false);
 	std::thread interrupt_thread(sleep_thread, &con, &is_active, &timed_out, timeout);
