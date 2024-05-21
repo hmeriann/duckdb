@@ -53,11 +53,10 @@ private:
 	unique_ptr<AttachStatement> GenerateAttach();
 	unique_ptr<SelectStatement> GenerateSelect();
 	unique_ptr<CreateStatement> GenerateCreate();
-	unique_ptr<AttachStatement> GenerateAttach();
 	unique_ptr<QueryNode> GenerateQueryNode();
 
 	unique_ptr<CreateInfo> GenerateCreateInfo();
-	unique_ptr<AttachInfo> GenerateAttachInfo();
+	// unique_ptr<AttachInfo> GenerateAttachInfo();
 
 	void GenerateCTEs(QueryNode &node);
 	unique_ptr<TableRef> GenerateTableRef();
