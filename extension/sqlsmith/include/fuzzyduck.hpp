@@ -26,6 +26,7 @@ public:
 	string log;
 	bool verbose_output = false;
 	idx_t timeout = 30;
+	idx_t max = 1000;
 
 public:
 	void Fuzz();
@@ -46,8 +47,6 @@ private:
 	void LogToComplete(const string &message);
 
 	void TryRemoveFile(const string &path);
-
-	idx_t GenerateRandomNumber();
 
 private:
 	unique_ptr<FileHandle> complete_log_handle;

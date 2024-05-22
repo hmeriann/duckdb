@@ -8,19 +8,17 @@
 namespace duckdb {
 
 FuzzyDuck::FuzzyDuck(ClientContext &context) : context(context) {
-	auto &engine = RandomEngine::Get(context);
-	if (seed == 0) {
-		seed = engine.NextRandomInteger();
-	}
-	engine.SetSeed(seed);
 }
 
 FuzzyDuck::~FuzzyDuck() {
 }
 
 void FuzzyDuck::BeginFuzzing() {
-	// auto &random_engine = RandomEngine::Get(context);
-	
+	auto &engine = RandomEngine::Get(context);
+	if (seed == 0) {
+		seed = engine.NextRandomInteger();
+	}
+	engine.SetSeed(seed);
 	if (max_queries == 0) {
 		throw BinderException("Provide a max_queries argument greater than 0");
 	}
@@ -65,11 +63,6 @@ void FuzzyDuck::FuzzAllFunctions() {
 	EndFuzzing();
 }
 
-idx_t FuzzyDuck::GenerateRandomNumber() {
-	auto &engine = RandomEngine::Get(context);
-	return engine.NextRandomInteger() % 1000;
-}
-
 string FuzzyDuck::GenerateQuery() {
 	// generate the statement
 	StatementGenerator generator(context);
@@ -77,8 +70,8 @@ string FuzzyDuck::GenerateQuery() {
 	auto statement = string("");
 	if (generator.RandomPercentage(10)) {
 		// multi statement
-		idx_t number_of_statements = GenerateRandomNumber();
-		LogTask("Generating multi statement query with seed " + to_string(seed));
+		idx_t number_of_statements = generator.RandomValue(max);
+		LogTask("Generating " + to_string(number_of_statements) + " statements starting with seed " + to_string(seed));
 		for (idx_t i = 0; i < number_of_statements; i++) {
 			statement += generator.GenerateStatement()->ToString() + "; ";
 		}
