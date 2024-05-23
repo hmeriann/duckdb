@@ -5,8 +5,11 @@
 #include <random>
 #include <thread>
 
-#include "duckdb/parser/statement/detach_statement.hpp"
-
+#include "duckdb/parser/statement/attach_statement.hpp"
+#include "duckdb/parser/tableref/list.hpp"
+#include "duckdb/main/attached_database.hpp"
+#include "duckdb/main/database_manager.hpp"
+#include "/Users/zuleykhapavlichenkova/Desktop/duckdb/extension/sqlsmith/include/statement_generator.hpp"
 
 namespace duckdb {
 
@@ -42,12 +45,13 @@ void FuzzyDuck::Fuzz() {
 	BeginFuzzing();
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
+		StatementGenerator generator(con);
+		
+		RunQuery(generator.GenerateAttach()->ToString());
+		RunQuery(generator.GenerateAttach()->ToString());
+
 		auto query = GenerateQuery();
-		RunQuery(std::move(query));
-		auto detach = make_uniq<DetachStatement>();
-		detach->info = make_uniq<DetachInfo>();
-		detach->info->name = "attached_db";
-		RunQuery(detach->ToString());
+		RunQuery(std::move(query));		
 	}
 	EndFuzzing();
 }

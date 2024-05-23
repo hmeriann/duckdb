@@ -91,7 +91,7 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
-	return GenerateStatement(StatementType::ATTACH_STATEMENT);
+	return GenerateStatement(StatementType::DETACH_STATEMENT);
 //	if (RandomPercentage(80)) {
 //		return GenerateStatement(StatementType::SELECT_STATEMENT);
 //	}
@@ -111,6 +111,8 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType typ
 		return GenerateCreate();
 	case StatementType::ATTACH_STATEMENT:
 		return GenerateAttach();
+	case StatementType::DETACH_STATEMENT:
+		return GenerateDetach();
 	default:
 		throw InternalException("Unsupported type");
 	}
@@ -136,22 +138,22 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
 	attach->info = make_uniq<AttachInfo>();
-	attach->info->name = "attached_db";
-	attach->info->path = "attached_db_path.db";
+	attach->info->name = RandomString(10);
+	attach->info->path = "fuzz_gen_db_" + attach->info->name + ".db";
 //	attach->info->options["read_only"] = Value(true);
-	auto what = attach->ToString();
-	// if (stuff->attached_databases.size()) {
-	// 	auto detach = make_uniq<DetachStatement>();
-
-	// }
-	
-	
-// 	attach->info = make_uniq<AttachInfo>();
-// 	attach->info->name = "attached_db";
-// 	attach->info->path = "attached_db_path.db";
-// //	attach->info->options["read_only"] = Value(true);
-// 	auto what = attach->ToString();
 	return attach;
+}
+
+unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
+
+	auto state = GetDatabaseState(context);
+	auto detach = make_uniq<DetachStatement>();
+	detach->info = make_uniq<DetachInfo>();
+	auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
+	auto nm = st_name.get().name;
+	detach->info->name = nm;
+	
+	return detach;
 }
 
 //===--------------------------------------------------------------------===//

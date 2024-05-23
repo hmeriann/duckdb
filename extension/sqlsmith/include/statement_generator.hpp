@@ -46,11 +46,12 @@ public:
 	unique_ptr<SQLStatement> GenerateStatement();
 
 	vector<string> GenerateAllFunctionCalls();
+	unique_ptr<AttachStatement> GenerateAttach();
 
 private:
 	unique_ptr<SQLStatement> GenerateStatement(StatementType type);
 
-	unique_ptr<AttachStatement> GenerateAttach();
+	unique_ptr<DetachStatement> GenerateDetach();
 	unique_ptr<SelectStatement> GenerateSelect();
 	unique_ptr<CreateStatement> GenerateCreate();
 	unique_ptr<QueryNode> GenerateQueryNode();
