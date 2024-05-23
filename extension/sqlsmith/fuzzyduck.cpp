@@ -5,6 +5,9 @@
 #include <random>
 #include <thread>
 
+#include "duckdb/parser/statement/detach_statement.hpp"
+
+
 namespace duckdb {
 
 FuzzyDuck::FuzzyDuck(ClientContext &context) : context(context), con(*context.db) {
@@ -41,6 +44,10 @@ void FuzzyDuck::Fuzz() {
 		LogMessage("Query " + to_string(i) + "\n");
 		auto query = GenerateQuery();
 		RunQuery(std::move(query));
+		auto detach = make_uniq<DetachStatement>();
+		detach->info = make_uniq<DetachInfo>();
+		detach->info->name = "attached_db";
+		RunQuery(detach->ToString());
 	}
 	EndFuzzing();
 }

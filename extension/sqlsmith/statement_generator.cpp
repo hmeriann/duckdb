@@ -13,10 +13,10 @@
 #include "duckdb/parser/parsed_expression_iterator.hpp"
 #include "duckdb/parser/query_node/select_node.hpp"
 #include "duckdb/parser/query_node/set_operation_node.hpp"
-#include "duckdb/parser/statement/attach_statement.hpp"
 #include "duckdb/parser/statement/create_statement.hpp"
 #include "duckdb/parser/statement/attach_statement.hpp"
 #include "duckdb/parser/statement/delete_statement.hpp"
+#include "duckdb/parser/statement/detach_statement.hpp"
 #include "duckdb/parser/statement/insert_statement.hpp"
 #include "duckdb/parser/statement/select_statement.hpp"
 #include "duckdb/parser/statement/update_statement.hpp"
@@ -135,15 +135,22 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 
 	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
-	if (stuff->attached_databases.size() == 4) {
-		auto break_here = 0;
-	}
-
 	attach->info = make_uniq<AttachInfo>();
 	attach->info->name = "attached_db";
 	attach->info->path = "attached_db_path.db";
 //	attach->info->options["read_only"] = Value(true);
 	auto what = attach->ToString();
+	// if (stuff->attached_databases.size()) {
+	// 	auto detach = make_uniq<DetachStatement>();
+
+	// }
+	
+	
+// 	attach->info = make_uniq<AttachInfo>();
+// 	attach->info->name = "attached_db";
+// 	attach->info->path = "attached_db_path.db";
+// //	attach->info->options["read_only"] = Value(true);
+// 	auto what = attach->ToString();
 	return attach;
 }
 
