@@ -26,7 +26,6 @@ public:
 	string log;
 	bool verbose_output = false;
 	idx_t timeout = 30;
-	idx_t max = 1000;
 
 public:
 	void Fuzz();
