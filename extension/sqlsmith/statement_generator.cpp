@@ -94,7 +94,7 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 	// if (RandomPercentage(50)) {
 	// 	return GenerateStatement(StatementType::SELECT_STATEMENT);
 	// }
-	if (RandomPercentage(80)) {
+	if (RandomPercentage(50)) {
 		return GenerateStatement(StatementType::ATTACH_STATEMENT);
 	}
 	// if (RandomPercentage(70)) {
@@ -140,9 +140,13 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
 	attach->info = make_uniq<AttachInfo>();
+	// check if the directory exists
+	// if (!FileSystem::DirectoryExists("duckdb_unittest_tempdir")) {
+
+	// }
 	attach->info->name = RandomString(10);
-	attach->info->path = "fuzz_gen_db_" + attach->info->name + ".db";
-//	attach->info->options["read_only"] = Value(true);
+	attach->info->path = "duckdb_unittest_tempdir/fuzz_gen_db_" + attach->info->name + ".db";
+	//	attach->info->options["read_only"] = Value(true);
 	return attach;
 }
 
