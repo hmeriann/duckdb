@@ -10,6 +10,7 @@
 
 #include "duckdb.hpp"
 #include "duckdb/parser/query_node.hpp"
+#include "duckdb/parser/parsed_data/detach_info.hpp" // this should be included somewhere else
 
 namespace duckdb {
 class SQLStatement;
@@ -46,18 +47,19 @@ public:
 	unique_ptr<SQLStatement> GenerateStatement();
 
 	vector<string> GenerateAllFunctionCalls();
-	unique_ptr<AttachStatement> GenerateAttach();
 
 private:
 	unique_ptr<SQLStatement> GenerateStatement(StatementType type);
 
+	unique_ptr<AttachStatement> GenerateAttach(); // should go back to private
 	unique_ptr<DetachStatement> GenerateDetach();
 	unique_ptr<SelectStatement> GenerateSelect();
 	unique_ptr<CreateStatement> GenerateCreate();
 	unique_ptr<QueryNode> GenerateQueryNode();
 
 	unique_ptr<CreateInfo> GenerateCreateInfo();
-	// unique_ptr<AttachInfo> GenerateAttachInfo();
+	unique_ptr<AttachInfo> GenerateAttachInfo();
+	unique_ptr<DetachInfo> GenerateDetachInfo();
 
 	void GenerateCTEs(QueryNode &node);
 	unique_ptr<TableRef> GenerateTableRef();

@@ -91,14 +91,16 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
-	return GenerateStatement(StatementType::DETACH_STATEMENT);
-//	if (RandomPercentage(80)) {
-//		return GenerateStatement(StatementType::SELECT_STATEMENT);
-//	}
-//	if (RandomPercentage(60)) {
-//		return GenerateStatement(StatementType::ATTACH_STATEMENT);
-//	}
-//	return GenerateStatement(StatementType::CREATE_STATEMENT);
+	// if (RandomPercentage(50)) {
+	// 	return GenerateStatement(StatementType::SELECT_STATEMENT);
+	// }
+	if (RandomPercentage(80)) {
+		return GenerateStatement(StatementType::ATTACH_STATEMENT);
+	}
+	// if (RandomPercentage(70)) {
+		return GenerateStatement(StatementType::DETACH_STATEMENT);
+	// }
+	// return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
 
 
@@ -145,15 +147,23 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 }
 
 unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
-
-	auto state = GetDatabaseState(context);
 	auto detach = make_uniq<DetachStatement>();
-	detach->info = make_uniq<DetachInfo>();
-	auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
-	auto nm = st_name.get().name;
-	detach->info->name = nm;
-	
+	detach->info = GenerateDetachInfo();
 	return detach;
+}
+
+
+//===--------------------------------------------------------------------===//
+// Generate Detach Info
+//===--------------------------------------------------------------------===//
+
+unique_ptr<DetachInfo> StatementGenerator::GenerateDetachInfo() {
+	auto state = GetDatabaseState(context);
+	auto info = make_uniq<DetachInfo>();
+	auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
+	info->name = st_name.get().name;
+	
+	return info;
 }
 
 //===--------------------------------------------------------------------===//
