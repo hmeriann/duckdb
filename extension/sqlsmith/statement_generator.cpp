@@ -137,19 +137,8 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 }
 
 unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
-
-	auto stuff = GetDatabaseState(context);
 	auto attach = make_uniq<AttachStatement>();
-	attach->info = make_uniq<AttachInfo>();
-	// check if the directory exists
-	auto fs = FileSystem::CreateLocal();
-	if (!fs->DirectoryExists(TESTING_DIRECTORY_NAME)) {
-		fs->CreateDirectory(TESTING_DIRECTORY_NAME);
-	}
-
-	attach->info->name = RandomString(10);
-	attach->info->path = TESTING_DIRECTORY_NAME + string("/fuzz_gen_db_") + attach->info->name + string(".db");
-	//	attach->info->options["read_only"] = Value(true);
+	attach->info = GenerateAttachInfo();
 	return attach;
 }
 
@@ -167,10 +156,29 @@ unique_ptr<DetachInfo> StatementGenerator::GenerateDetachInfo() {
 	auto state = GetDatabaseState(context);
 	auto info = make_uniq<DetachInfo>();
 	if (RandomPercentage(20)) {
-		info->name = "RANDOM_STRING_" + RandomString(15);
+		info->name = "RANDOM_NAME_" + RandomString(15);
 	} else {
 		auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
 		info->name = st_name.get().name;
+	}
+	return info;
+}
+
+//===--------------------------------------------------------------------===//
+// Generate Attach Info
+//===--------------------------------------------------------------------===//
+
+unique_ptr<AttachInfo> StatementGenerator::GenerateAttachInfo() {
+	auto info = make_uniq<AttachInfo>();
+	auto fs = FileSystem::CreateLocal();
+	// check if the directory exists
+	if (!fs->DirectoryExists(TESTING_DIRECTORY_NAME)) {
+		fs->CreateDirectory(TESTING_DIRECTORY_NAME);
+	}
+	info->name = RandomString(10);
+	info->path = TESTING_DIRECTORY_NAME + string("/fuzz_gen_db_") + info->name + string(".db");
+	if (RandomPercentage(30)) {
+		info->options["READ_ONLY"] = Value(true);
 	}
 	return info;
 }
