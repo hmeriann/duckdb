@@ -141,9 +141,11 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	auto attach = make_uniq<AttachStatement>();
 	attach->info = make_uniq<AttachInfo>();
 	// check if the directory exists
-	// if (!FileSystem::DirectoryExists("duckdb_unittest_tempdir")) {
+	auto fs = FileSystem::CreateLocal();
+	if (!fs->DirectoryExists("duckdb_unittest_tempdir")) {
+		fs->CreateDirectory("duckdb_unittest_tempdir");
+	}
 
-	// }
 	attach->info->name = RandomString(10);
 	attach->info->path = "duckdb_unittest_tempdir/fuzz_gen_db_" + attach->info->name + ".db";
 	//	attach->info->options["read_only"] = Value(true);
