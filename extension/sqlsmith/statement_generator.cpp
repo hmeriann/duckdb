@@ -26,7 +26,6 @@
 
 #define TESTING_DIRECTORY_NAME "duckdb_unittest_tempdir"
 
-
 namespace duckdb {
 
 struct GeneratorContext {

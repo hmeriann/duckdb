@@ -9,7 +9,6 @@
 #include "duckdb/parser/tableref/list.hpp"
 #include "duckdb/main/attached_database.hpp"
 #include "duckdb/main/database_manager.hpp"
-#include "/Users/zuleykhapavlichenkova/Desktop/duckdb/extension/sqlsmith/include/statement_generator.hpp"
 
 namespace duckdb {
 
@@ -46,12 +45,12 @@ void FuzzyDuck::Fuzz() {
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
 		// StatementGenerator generator(con);
-		
+
 		// RunQuery(generator.GenerateAttach()->ToString());
 		// RunQuery(generator.GenerateAttach()->ToString());
 
 		auto query = GenerateQuery();
-		RunQuery(std::move(query));		
+		RunQuery(std::move(query));
 	}
 	EndFuzzing();
 }

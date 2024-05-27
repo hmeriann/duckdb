@@ -12,7 +12,6 @@
 #include "duckdb/parser/query_node.hpp"
 #include "duckdb/parser/parsed_data/detach_info.hpp" // this should be included somewhere else
 
-
 namespace duckdb {
 class SQLStatement;
 class SelectStatement;
