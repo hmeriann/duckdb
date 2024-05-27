@@ -4,25 +4,25 @@
 #include "duckdb/common/random_engine.hpp"
 #include "duckdb/common/types/uuid.hpp"
 #include "duckdb/function/table/system_functions.hpp"
+#include "duckdb/main/attached_database.hpp"
+#include "duckdb/main/database_manager.hpp"
 #include "duckdb/parser/expression/list.hpp"
+#include "duckdb/parser/parsed_data/create_function_info.hpp"
 #include "duckdb/parser/parsed_data/create_schema_info.hpp"
 #include "duckdb/parser/parsed_data/create_table_info.hpp"
-#include "duckdb/parser/parsed_data/create_view_info.hpp"
-#include "duckdb/parser/parsed_data/create_function_info.hpp"
 #include "duckdb/parser/parsed_data/create_type_info.hpp"
+#include "duckdb/parser/parsed_data/create_view_info.hpp"
 #include "duckdb/parser/parsed_expression_iterator.hpp"
 #include "duckdb/parser/query_node/select_node.hpp"
 #include "duckdb/parser/query_node/set_operation_node.hpp"
-#include "duckdb/parser/statement/create_statement.hpp"
 #include "duckdb/parser/statement/attach_statement.hpp"
+#include "duckdb/parser/statement/create_statement.hpp"
 #include "duckdb/parser/statement/delete_statement.hpp"
 #include "duckdb/parser/statement/detach_statement.hpp"
 #include "duckdb/parser/statement/insert_statement.hpp"
 #include "duckdb/parser/statement/select_statement.hpp"
 #include "duckdb/parser/statement/update_statement.hpp"
 #include "duckdb/parser/tableref/list.hpp"
-#include "duckdb/main/attached_database.hpp"
-#include "duckdb/main/database_manager.hpp"
 
 namespace duckdb {
 
@@ -98,12 +98,10 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 		return GenerateStatement(StatementType::ATTACH_STATEMENT);
 	}
 	// if (RandomPercentage(70)) {
-		return GenerateStatement(StatementType::DETACH_STATEMENT);
+	return GenerateStatement(StatementType::DETACH_STATEMENT);
 	// }
 	// return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
-
-
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType type) {
 	switch (type) {
@@ -142,12 +140,12 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	attach->info = make_uniq<AttachInfo>();
 	// check if the directory exists
 	auto fs = FileSystem::CreateLocal();
-	if (!fs->DirectoryExists("duckdb_unittest_tempdir")) {
-		fs->CreateDirectory("duckdb_unittest_tempdir");
+	if (!fs->DirectoryExists("TESTING_DIRECTORY_NAME")) {
+		fs->CreateDirectory("TESTING_DIRECTORY_NAME");
 	}
 
 	attach->info->name = RandomString(10);
-	attach->info->path = "duckdb_unittest_tempdir/fuzz_gen_db_" + attach->info->name + ".db";
+	attach->info->path = "TESTING_DIRECTORY_NAME/fuzz_gen_db_" + attach->info->name + ".db";
 	//	attach->info->options["read_only"] = Value(true);
 	return attach;
 }
@@ -158,7 +156,6 @@ unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
 	return detach;
 }
 
-
 //===--------------------------------------------------------------------===//
 // Generate Detach Info
 //===--------------------------------------------------------------------===//
@@ -166,9 +163,13 @@ unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
 unique_ptr<DetachInfo> StatementGenerator::GenerateDetachInfo() {
 	auto state = GetDatabaseState(context);
 	auto info = make_uniq<DetachInfo>();
-	auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
-	info->name = st_name.get().name;
-	
+	if (RandomPercentage(20)) {
+		info->name = RandomString(15);
+	} else {
+		// last two are 'temp' and 'system'
+		auto st_name = state->attached_databases[RandomValue(state->attached_databases.size() - 3)];
+		info->name = st_name.get().name;
+	}
 	return info;
 }
 
