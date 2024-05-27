@@ -105,9 +105,6 @@ bool CatalogSet::StartChain(CatalogTransaction transaction, const string &name, 
 	// see it yet
 	auto dummy_node = make_uniq<InCatalogEntry>(CatalogType::INVALID, catalog, name);
 	dummy_node->timestamp = 0;
-	if (dummy_node->name == "attached_db") {
-		auto break_here = 0;
-	}
 	dummy_node->deleted = true;
 	dummy_node->set = this;
 
@@ -412,9 +409,6 @@ bool CatalogSet::DropEntryInternal(CatalogTransaction transaction, const string 
 	value->timestamp = transaction.transaction_id;
 	value->set = this;
 	value->deleted = true;
-	if (value->name == "attached_db") {
-		auto break_here = 0;
-	}
 	auto value_ptr = value.get();
 	map.UpdateEntry(std::move(value));
 

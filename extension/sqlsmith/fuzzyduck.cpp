@@ -44,11 +44,6 @@ void FuzzyDuck::Fuzz() {
 	BeginFuzzing();
 	for (idx_t i = 0; i < max_queries; i++) {
 		LogMessage("Query " + to_string(i) + "\n");
-		// StatementGenerator generator(con);
-
-		// RunQuery(generator.GenerateAttach()->ToString());
-		// RunQuery(generator.GenerateAttach()->ToString());
-
 		auto query = GenerateQuery();
 		RunQuery(std::move(query));
 	}

@@ -93,16 +93,16 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
-	// if (RandomPercentage(50)) {
-	// 	return GenerateStatement(StatementType::SELECT_STATEMENT);
-	// }
+	if (RandomPercentage(50)) {
+		return GenerateStatement(StatementType::SELECT_STATEMENT);
+	}
 	if (RandomPercentage(50)) {
 		return GenerateStatement(StatementType::ATTACH_STATEMENT);
 	}
-	// if (RandomPercentage(70)) {
-	return GenerateStatement(StatementType::DETACH_STATEMENT);
-	// }
-	// return GenerateStatement(StatementType::CREATE_STATEMENT);
+	if (RandomPercentage(70)) {
+		return GenerateStatement(StatementType::DETACH_STATEMENT);
+	}
+	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType type) {
