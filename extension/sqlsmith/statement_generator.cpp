@@ -24,6 +24,9 @@
 #include "duckdb/parser/statement/update_statement.hpp"
 #include "duckdb/parser/tableref/list.hpp"
 
+#define TESTING_DIRECTORY_NAME "duckdb_unittest_tempdir"
+
+
 namespace duckdb {
 
 struct GeneratorContext {
@@ -140,12 +143,12 @@ unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
 	attach->info = make_uniq<AttachInfo>();
 	// check if the directory exists
 	auto fs = FileSystem::CreateLocal();
-	if (!fs->DirectoryExists("TESTING_DIRECTORY_NAME")) {
-		fs->CreateDirectory("TESTING_DIRECTORY_NAME");
+	if (!fs->DirectoryExists(TESTING_DIRECTORY_NAME)) {
+		fs->CreateDirectory(TESTING_DIRECTORY_NAME);
 	}
 
 	attach->info->name = RandomString(10);
-	attach->info->path = "TESTING_DIRECTORY_NAME/fuzz_gen_db_" + attach->info->name + ".db";
+	attach->info->path = TESTING_DIRECTORY_NAME + string("/fuzz_gen_db_") + attach->info->name + string(".db");
 	//	attach->info->options["read_only"] = Value(true);
 	return attach;
 }
@@ -164,10 +167,9 @@ unique_ptr<DetachInfo> StatementGenerator::GenerateDetachInfo() {
 	auto state = GetDatabaseState(context);
 	auto info = make_uniq<DetachInfo>();
 	if (RandomPercentage(20)) {
-		info->name = RandomString(15);
+		info->name = "RANDOM_STRING_" + RandomString(15);
 	} else {
-		// last two are 'temp' and 'system'
-		auto st_name = state->attached_databases[RandomValue(state->attached_databases.size() - 3)];
+		auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
 		info->name = st_name.get().name;
 	}
 	return info;
