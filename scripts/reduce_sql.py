@@ -21,6 +21,7 @@ SELECT * FROM reduce_sql_statement('${QUERY}');
 
 class MultiStatementReducer:
     delimiter = '\n'
+
     def __init__(self, multi_statement):
         self.statements = multi_statement.split(MultiStatementReducer.delimiter)
         self.statements_start = 0
@@ -34,7 +35,7 @@ class MultiStatementReducer:
 
     def combine_statements(self):
         new_multi_statement = MultiStatementReducer.delimiter.join(self.required)
-        new_multi_statement += MultiStatementReducer.delimiter.join(self.statements[self.statements_start:])
+        new_multi_statement += MultiStatementReducer.delimiter.join(self.statements[self.statements_start :])
         return new_multi_statement
 
     def done(self):
@@ -237,6 +238,7 @@ def reduce_multi_statement(sql_statements):
         if len(expected_error) == 0:
             multi_statement_reducer.set_omitted_required()
     return reduced_sql
+
 
 def reduce_query_log(queries, shell, max_time_seconds=300):
     start = time.time()
