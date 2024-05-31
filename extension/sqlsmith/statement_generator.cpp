@@ -21,6 +21,7 @@
 #include "duckdb/parser/statement/detach_statement.hpp"
 #include "duckdb/parser/statement/insert_statement.hpp"
 #include "duckdb/parser/statement/select_statement.hpp"
+#include "duckdb/parser/statement/set_statement.hpp"
 #include "duckdb/parser/statement/update_statement.hpp"
 #include "duckdb/parser/tableref/list.hpp"
 
@@ -93,14 +94,17 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
-	if (RandomPercentage(50)) {
-		return GenerateStatement(StatementType::SELECT_STATEMENT);
-	}
-	if (RandomPercentage(50)) {
+	// if (RandomPercentage(50)) {
+	// 	return GenerateStatement(StatementType::SELECT_STATEMENT);
+	// }
+	if (RandomPercentage(80)) {
 		return GenerateStatement(StatementType::ATTACH_STATEMENT);
 	}
-	if (RandomPercentage(70)) {
-		return GenerateStatement(StatementType::DETACH_STATEMENT);
+	// if (RandomPercentage(70)) {
+	// 	return GenerateStatement(StatementType::DETACH_STATEMENT);
+	// }
+	if (RandomPercentage(90)) {
+		return GenerateStatement(StatementType::SET_STATEMENT);
 	}
 	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
@@ -115,6 +119,9 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType typ
 		return GenerateAttach();
 	case StatementType::DETACH_STATEMENT:
 		return GenerateDetach();
+	// also to generate USE statement
+	case StatementType::SET_STATEMENT:
+		return GenerateSet();
 	default:
 		throw InternalException("Unsupported type");
 	}
@@ -145,6 +152,14 @@ unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
 	auto detach = make_uniq<DetachStatement>();
 	detach->info = GenerateDetachInfo();
 	return detach;
+}
+
+unique_ptr<SetStatement> StatementGenerator::GenerateSet() {
+	auto set = make_uniq<SetStatement>();
+	set->name = RandomString(9);
+	set->scope = SetScope(0);
+	set->set_type = SetType(0);
+	return set;
 }
 
 //===--------------------------------------------------------------------===//

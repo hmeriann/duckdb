@@ -18,6 +18,7 @@ class SelectStatement;
 class InsertStatement;
 class UpdateStatement;
 class DeleteStatement;
+class SetStatement;
 class TableRef;
 class SelectNode;
 class SetOperationNode;
@@ -51,6 +52,7 @@ public:
 private:
 	unique_ptr<SQLStatement> GenerateStatement(StatementType type);
 
+	unique_ptr<SetStatement>GenerateSet();
 	unique_ptr<AttachStatement> GenerateAttach();
 	unique_ptr<DetachStatement> GenerateDetach();
 	unique_ptr<SelectStatement> GenerateSelect();
@@ -60,6 +62,7 @@ private:
 	unique_ptr<CreateInfo> GenerateCreateInfo();
 	unique_ptr<AttachInfo> GenerateAttachInfo();
 	unique_ptr<DetachInfo> GenerateDetachInfo();
+	// unique_ptr<SetInfo> GenerateSetInfo();
 
 	void GenerateCTEs(QueryNode &node);
 	unique_ptr<TableRef> GenerateTableRef();
