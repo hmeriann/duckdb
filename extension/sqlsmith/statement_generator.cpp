@@ -155,10 +155,10 @@ unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
 }
 
 unique_ptr<SetStatement> StatementGenerator::GenerateSet() {
-	auto set = make_uniq<SetStatement>();
-	set->name = RandomString(9);
-	set->scope = SetScope(0);
-	set->set_type = SetType(0);
+	auto state = GetDatabaseState(context);
+	auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
+	auto name_expr = make_uniq<ConstantExpression>(Value(st_name.get().name));
+	auto set = make_uniq<SetVariableStatement>("schema", std::move(name_expr), SetScope::AUTOMATIC);
 	return set;
 }
 
