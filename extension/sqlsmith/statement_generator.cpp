@@ -162,6 +162,7 @@ unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
 	return detach;
 }
 
+// generate USE statement
 unique_ptr<SetStatement> StatementGenerator::GenerateSet() {
 	auto state = GetDatabaseState(context);
 	auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];

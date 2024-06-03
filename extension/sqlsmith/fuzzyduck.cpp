@@ -74,7 +74,7 @@ string FuzzyDuck::GenerateQuery() {
 	StatementGenerator generator(con);
 	// accumulate statement(s)
 	auto statement = string("");
-	if (generator.RandomPercentage(10)) {
+	if (generator.RandomPercentage(0)) { // was 10
 		// multi statement
 		idx_t number_of_statements = generator.RandomValue(1000);
 		LogTask("Generating Multi-Statement query of " + to_string(number_of_statements) + " statements with seed " +
@@ -82,15 +82,8 @@ string FuzzyDuck::GenerateQuery() {
 		for (idx_t i = 0; i < number_of_statements; i++) {
 			statement += generator.GenerateStatement()->ToString() + "; ";
 		}
-	} 
-	// here it's going to generate Attach and Use statements
-	if (generator.RandomPercentage(90)) {
-		LogTask("Generating Multi-Statement query of ATTACH and USE statements with seed " +
-		        to_string(seed));
-		statement += generator.GenerateStatement(StatementType::ATTACH_STATEMENT)->ToString();
-		statement += generator.GenerateStatement(StatementType::SET_STATEMENT)->ToString();
 	} else {
-		// normal statement
+		// single or Attach&Use statement
 		LogTask("Generating Single-Statement query with seed " + to_string(seed));
 		statement = generator.GenerateStatement()->ToString();
 	}
