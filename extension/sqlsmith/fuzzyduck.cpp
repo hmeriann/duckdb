@@ -9,6 +9,7 @@
 #include "duckdb/parser/tableref/list.hpp"
 #include "duckdb/main/attached_database.hpp"
 #include "duckdb/main/database_manager.hpp"
+#include "duckdb/common/enums/statement_type.hpp"
 
 namespace duckdb {
 
@@ -81,6 +82,13 @@ string FuzzyDuck::GenerateQuery() {
 		for (idx_t i = 0; i < number_of_statements; i++) {
 			statement += generator.GenerateStatement()->ToString() + "; ";
 		}
+	} 
+	// here it's going to generate Attach and Use statements
+	if (generator.RandomPercentage(90)) {
+		LogTask("Generating Multi-Statement query of ATTACH and USE statements with seed " +
+		        to_string(seed));
+		statement += generator.GenerateStatement(StatementType::ATTACH_STATEMENT)->ToString();
+		statement += generator.GenerateStatement(StatementType::SET_STATEMENT)->ToString();
 	} else {
 		// normal statement
 		LogTask("Generating Single-Statement query with seed " + to_string(seed));

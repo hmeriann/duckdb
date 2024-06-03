@@ -52,9 +52,9 @@ public:
 	//! Returns true with a percentage change (0-100)
 	bool RandomPercentage(idx_t percentage);
 	idx_t RandomValue(idx_t max);
+	unique_ptr<SQLStatement> GenerateStatement(StatementType type); // came from private
 
 private:
-	unique_ptr<SQLStatement> GenerateStatement(StatementType type);
 
 	unique_ptr<SetStatement>GenerateSet();
 	unique_ptr<AttachStatement> GenerateAttach();
