@@ -20,6 +20,7 @@
 #include "duckdb/parser/statement/delete_statement.hpp"
 #include "duckdb/parser/statement/detach_statement.hpp"
 #include "duckdb/parser/statement/insert_statement.hpp"
+#include "duckdb/parser/statement/multi_statement.hpp"
 #include "duckdb/parser/statement/select_statement.hpp"
 #include "duckdb/parser/statement/set_statement.hpp"
 #include "duckdb/parser/statement/update_statement.hpp"
@@ -97,14 +98,18 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 	// if (RandomPercentage(50)) {
 	// 	return GenerateStatement(StatementType::SELECT_STATEMENT);
 	// }
-	if (RandomPercentage(80)) {
-		return GenerateStatement(StatementType::ATTACH_STATEMENT);
-	}
+	// if (RandomPercentage(80)) {
+	// 	return GenerateStatement(StatementType::ATTACH_STATEMENT);
+	// }
 	// if (RandomPercentage(70)) {
 	// 	return GenerateStatement(StatementType::DETACH_STATEMENT);
 	// }
-	if (RandomPercentage(90)) {
-		return GenerateStatement(StatementType::SET_STATEMENT);
+	// if (RandomPercentage(90)) {
+	// 	return GenerateStatement(StatementType::SET_STATEMENT);
+	// }
+	if (RandomPercentage(100)) {
+		// generates Attach&Use statement
+		return GenerateStatement(StatementType::MULTI_STATEMENT);
 	}
 	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
@@ -117,9 +122,12 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType typ
 		return GenerateCreate();
 	case StatementType::ATTACH_STATEMENT:
 		return GenerateAttach();
+	// generate Attach and Use statements as one multi statement
+	case StatementType::MULTI_STATEMENT:
+		return GenerateAttachUse();
 	case StatementType::DETACH_STATEMENT:
 		return GenerateDetach();
-	// also to generate USE statement
+	// generate USE statement
 	case StatementType::SET_STATEMENT:
 		return GenerateSet();
 	default:
@@ -160,6 +168,13 @@ unique_ptr<SetStatement> StatementGenerator::GenerateSet() {
 	auto name_expr = make_uniq<ConstantExpression>(Value(st_name.get().name));
 	auto set = make_uniq<SetVariableStatement>("schema", std::move(name_expr), SetScope::AUTOMATIC);
 	return set;
+}
+
+unique_ptr<MultiStatement> StatementGenerator::GenerateAttachUse() {
+	auto multi_statement = make_uniq<MultiStatement>();
+	multi_statement->statements.push_back(std::move(GenerateAttach()));
+	multi_statement->statements.push_back(std::move(GenerateSet()));
+	return multi_statement;
 }
 
 //===--------------------------------------------------------------------===//
