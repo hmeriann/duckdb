@@ -74,7 +74,7 @@ string FuzzyDuck::GenerateQuery() {
 	StatementGenerator generator(con);
 	// accumulate statement(s)
 	auto statement = string("");
-	if (generator.RandomPercentage(0)) { // was 10
+	if (generator.RandomPercentage(10)) {
 		// multi statement
 		idx_t number_of_statements = generator.RandomValue(1000);
 		LogTask("Generating Multi-Statement query of " + to_string(number_of_statements) + " statements with seed " +
