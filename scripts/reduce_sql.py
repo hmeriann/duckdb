@@ -214,24 +214,6 @@ def reduce_query_log_query(start, shell, queries, query_index, max_time_seconds)
     return sql_query
 
 
-<<<<<<< HEAD
-def reduce_multi_statement(sql_statements):
-    multi_statement_reducer = MultiStatementReducer(sql_statements)
-    reduced_sql = ""
-    while not multi_statement_reducer.done():
-        reduced_sql = multi_statement_reducer.generate_next()
-        print(f"testing if {reduced_sql} creates the error")
-        (stdout, stderr, returncode) = run_shell_command(shell, data_load + reduced_sql)
-        expected_error = sanitize_error(stderr).strip()
-        # if there is no error, tell teh multi statement reducer to include the
-        # omitted line
-        if len(expected_error) == 0:
-            multi_statement_reducer.set_omitted_required()
-    return reduced_sql
-
-
-def reduce_query_log(queries, shell, max_time_seconds=300):
-=======
 def reduce_multi_statement(sql_queries, local_shell, local_data_load):
     reducer = MultiStatementManager(sql_queries)
     last_statement = reducer.get_last_statement()
@@ -246,7 +228,6 @@ def reduce_multi_statement(sql_queries, local_shell, local_data_load):
 
 
 def reduce_query_log(queries, shell, data_load=[], max_time_seconds=300):
->>>>>>> feature
     start = time.time()
     current_index = 0
     # first try to remove as many queries as possible
@@ -313,30 +294,11 @@ if __name__ == "__main__":
     print(expected_error)
     print("===================================================")
 
-<<<<<<< HEAD
-    if MultiStatementReducer.is_multi_statement(sql_query):
-        sql_query = reduce_multi_statement(sql_query)
-
-    fake_load_statements = ""
-    # if it is still a multi statement, move the previous statements
-    # to the data_load and only reduce the last statement
-    if MultiStatementReducer.is_multi_statement(sql_query):
-        # strip whitespace and the last ';' if it exists
-        # then split into individual statements with .split(';')
-        queries = sql_query.strip().strip(';').split(';')
-        fake_load_statements = ";\n".join(queries[:-1]).strip().strip(';')
-        data_load += ";\n".join(queries[:-1])
-        sql_query = queries[-1].strip()
-
-    final_query = reduce(sql_query, data_load, shell, expected_error, int(args.max_time))
-    final_query = fake_load_statements + ";\n" + final_query
-=======
     if MultiStatementManager.is_multi_statement(sql_query):
         final_query = reduce_multi_statement(sql_query, shell, data_load)
     else:
         final_query = reduce(sql_query, data_load, shell, expected_error, int(args.max_time))
 
->>>>>>> feature
     print("Found final reduced query")
     print("===================================================")
     print(final_query)
