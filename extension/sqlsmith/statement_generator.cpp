@@ -99,6 +99,10 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 		return GenerateStatement(StatementType::SELECT_STATEMENT);
 	}
 	if (RandomPercentage(40)) {
+		if (RandomPercentage(20)) {
+			// We call this directly so we have a higher chance to fuzz persistent databases
+			return GenerateAttachUse();
+		}
 		return GenerateStatement(StatementType::ATTACH_STATEMENT);
 	}
 	if (RandomPercentage(60)) {
@@ -106,10 +110,6 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 	}
 	if (RandomPercentage(30)) {
 		return GenerateStatement(StatementType::SET_STATEMENT);
-	}
-	if (RandomPercentage(20)) {
-		// generates Attach&Use statement
-		return GenerateStatement(StatementType::MULTI_STATEMENT);
 	}
 	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
@@ -122,9 +122,6 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType typ
 		return GenerateCreate();
 	case StatementType::ATTACH_STATEMENT:
 		return GenerateAttach();
-	// generate Attach and Use statements as one multi statement
-	case StatementType::MULTI_STATEMENT:
-		return GenerateAttachUse();
 	case StatementType::DETACH_STATEMENT:
 		return GenerateDetach();
 	// generate USE statement
