@@ -99,7 +99,7 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 		return GenerateStatement(StatementType::SELECT_STATEMENT);
 	}
 	if (RandomPercentage(40)) {
-		if (RandomPercentage(20)) {
+		if (RandomPercentage(50)) {
 			// We call this directly so we have a higher chance to fuzz persistent databases
 			return GenerateAttachUse();
 		}
