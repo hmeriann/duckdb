@@ -88,6 +88,9 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 			result->tables_and_views.push_back(entry);
 		});
 	}
+	if (context.transaction.HasActiveTransaction()) {
+		context.transaction.Commit();
+	}
 	return result;
 }
 
