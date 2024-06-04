@@ -163,7 +163,7 @@ unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
 unique_ptr<SetStatement> StatementGenerator::GenerateSet() {
 	auto name_expr = make_uniq<ConstantExpression>(GenerateDataBaseName());
 	if (RandomPercentage(90)) {
-		auto name = RandomNameFromContext();
+		auto name = GetRandomAttachedDataBase();
 		name_expr = make_uniq<ConstantExpression>(Value(name));
 	}
 	auto set = make_uniq<SetVariableStatement>("schema", std::move(name_expr), SetScope::AUTOMATIC);
@@ -186,12 +186,12 @@ unique_ptr<DetachInfo> StatementGenerator::GenerateDetachInfo() {
 	if (RandomPercentage(20)) {
 		info->name = "RANDOM_NAME_" + RandomString(15);
 	} else {
-		info->name = RandomNameFromContext();
+		info->name = GetRandomAttachedDataBase();
 	}
 	return info;
 }
 
-std::string StatementGenerator::RandomNameFromContext() {
+std::string StatementGenerator::GetRandomAttachedDataBase() {
 	auto state = GetDatabaseState(context);
 	auto st_name = state->attached_databases[RandomValue(state->attached_databases.size())];
 	auto name = st_name.get().name;
