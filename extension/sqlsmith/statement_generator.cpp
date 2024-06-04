@@ -164,7 +164,7 @@ unique_ptr<DetachStatement> StatementGenerator::GenerateDetach() {
 
 // generate USE statement
 unique_ptr<SetStatement> StatementGenerator::GenerateSet() {
-	auto name_expr = make_uniq<ConstantExpression>(Value("RANDOM_STRING_" + RandomString(10)));
+	auto name_expr = make_uniq<ConstantExpression>(GenerateDataBaseName());
 	if (RandomPercentage(90)) {
 		auto name = RandomNameFromContext();
 		name_expr = make_uniq<ConstantExpression>(Value(name));
@@ -1046,6 +1046,12 @@ unique_ptr<ParsedExpression> StatementGenerator::GenerateLambda() {
 	current_column_names.erase(std::find(current_column_names.begin(), current_column_names.end(), lambda_parameter));
 
 	return make_uniq<LambdaExpression>(std::move(lhs), std::move(rhs));
+}
+
+string StatementGenerator::GenerateDataBaseName() {
+	auto identifier = "DB" + to_string(GetIndex());
+	current_relation_names.push_back(identifier);
+	return identifier;
 }
 
 string StatementGenerator::GenerateTableIdentifier() {
