@@ -9,7 +9,7 @@
 #pragma once
 
 #include "duckdb.hpp"
-#include "duckdb/parser/parsed_data/detach_info.hpp" // this should be included somewhere else
+#include "duckdb/parser/parsed_data/detach_info.hpp"
 #include "duckdb/parser/query_node.hpp"
 
 namespace duckdb {
