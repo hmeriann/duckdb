@@ -92,7 +92,7 @@ std::shared_ptr<GeneratorContext> StatementGenerator::GetDatabaseState(ClientCon
 }
 
 unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
-	if (RandomPercentage(50)) {
+	if (RandomPercentage(80)) {
 		return GenerateStatement(StatementType::SELECT_STATEMENT);
 	}
 	if (RandomPercentage(40)) {
