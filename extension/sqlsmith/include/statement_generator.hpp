@@ -9,6 +9,7 @@
 #pragma once
 
 #include "duckdb.hpp"
+#include "duckdb/parser/parsed_data/detach_info.hpp"
 #include "duckdb/parser/query_node.hpp"
 
 namespace duckdb {
@@ -17,6 +18,7 @@ class SelectStatement;
 class InsertStatement;
 class UpdateStatement;
 class DeleteStatement;
+class SetStatement;
 class TableRef;
 class SelectNode;
 class SetOperationNode;
@@ -38,7 +40,7 @@ public:
 	friend class WindowChecker;
 
 public:
-	StatementGenerator(ClientContext &context);
+	StatementGenerator(Connection &con);
 	StatementGenerator(StatementGenerator &parent);
 	~StatementGenerator();
 
@@ -47,14 +49,24 @@ public:
 
 	vector<string> GenerateAllFunctionCalls();
 
-private:
-	unique_ptr<SQLStatement> GenerateStatement(StatementType type);
+	//! Returns true with a percentage change (0-100)
+	bool RandomPercentage(idx_t percentage);
+	idx_t RandomValue(idx_t max);
+	string GetRandomAttachedDataBase();
+	unique_ptr<SQLStatement> GenerateStatement(StatementType type); // came from private
 
+private:
+	unique_ptr<MultiStatement> GenerateAttachUse();
+	unique_ptr<SetStatement> GenerateSet();
+	unique_ptr<AttachStatement> GenerateAttach();
+	unique_ptr<DetachStatement> GenerateDetach();
 	unique_ptr<SelectStatement> GenerateSelect();
 	unique_ptr<CreateStatement> GenerateCreate();
 	unique_ptr<QueryNode> GenerateQueryNode();
 
 	unique_ptr<CreateInfo> GenerateCreateInfo();
+	unique_ptr<AttachInfo> GenerateAttachInfo();
+	unique_ptr<DetachInfo> GenerateDetachInfo();
 
 	void GenerateCTEs(QueryNode &node);
 	unique_ptr<TableRef> GenerateTableRef();
@@ -93,14 +105,12 @@ private:
 	string GenerateCast(const LogicalType &target, const string &source_name, bool add_varchar);
 	bool FunctionArgumentsAlwaysNull(const string &name);
 
-	idx_t RandomValue(idx_t max);
 	bool RandomBoolean();
-	//! Returns true with a percentage change (0-100)
-	bool RandomPercentage(idx_t percentage);
 	string RandomString(idx_t length);
 	unique_ptr<ParsedExpression> RandomExpression(idx_t percentage);
 
 	//! Generate identifier for a column or parent using "t" or "c" prefixes. ie. t0, or c0
+	string GenerateDataBaseName();
 	string GenerateIdentifier();
 	string GenerateTableIdentifier();
 	string GenerateSchemaIdentifier();
