@@ -35,7 +35,7 @@ private:
 	void BeginFuzzing();
 	void EndFuzzing();
 
-	string GenerateQuery();
+	string GenerateQuery(idx_t number_of_statements);
 	void RunQuery(string query);
 
 	void LogMessage(const string &message);
@@ -46,6 +46,8 @@ private:
 	void LogToComplete(const string &message);
 
 	void TryRemoveFile(const string &path);
+
+	idx_t GenerateRandomNuber();
 
 private:
 	unique_ptr<FileHandle> complete_log_handle;

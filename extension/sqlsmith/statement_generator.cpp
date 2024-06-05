@@ -13,6 +13,7 @@
 #include "duckdb/parser/parsed_expression_iterator.hpp"
 #include "duckdb/parser/query_node/select_node.hpp"
 #include "duckdb/parser/query_node/set_operation_node.hpp"
+#include "duckdb/parser/statement/attach_statement.hpp"
 #include "duckdb/parser/statement/create_statement.hpp"
 #include "duckdb/parser/statement/delete_statement.hpp"
 #include "duckdb/parser/statement/insert_statement.hpp"
@@ -80,6 +81,9 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement() {
 	if (RandomPercentage(80)) {
 		return GenerateStatement(StatementType::SELECT_STATEMENT);
 	}
+	if (RandomPercentage(10)) {
+		return GenerateStatement(StatementType::ATTACH_STATEMENT);
+	}
 	return GenerateStatement(StatementType::CREATE_STATEMENT);
 }
 
@@ -89,6 +93,8 @@ unique_ptr<SQLStatement> StatementGenerator::GenerateStatement(StatementType typ
 		return GenerateSelect();
 	case StatementType::CREATE_STATEMENT:
 		return GenerateCreate();
+	case StatementType::ATTACH_STATEMENT:
+		return GenerateAttach();
 	default:
 		throw InternalException("Unsupported type");
 	}
@@ -107,6 +113,31 @@ unique_ptr<CreateStatement> StatementGenerator::GenerateCreate() {
 	auto create = make_uniq<CreateStatement>();
 	create->info = GenerateCreateInfo();
 	return create;
+}
+
+unique_ptr<AttachStatement> StatementGenerator::GenerateAttach() {
+	auto attach = make_uniq<AttachStatement>();
+	attach->info = GenerateAttachInfo();
+	return attach;
+}
+
+//===--------------------------------------------------------------------===//
+// Create Attach Info
+//===--------------------------------------------------------------------===//
+
+unique_ptr<AttachInfo> StatementGenerator::GenerateAttachInfo() {
+	switch (RandomValue(1)) {
+		case 0: {
+			auto info = make_uniq<AttachInfo>();
+			info->name = RandomString(10);
+			info->path = "fuzz_gen_db_" + info->name + ".db";
+			info->options["read_only"] = Value(true);
+			return info;
+		}
+		default:
+		break;
+	}
+	throw InternalException("Unsupported Attach Info Type");
 }
 
 //===--------------------------------------------------------------------===//
