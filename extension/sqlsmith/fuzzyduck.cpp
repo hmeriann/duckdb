@@ -5,19 +5,26 @@
 #include <random>
 #include <thread>
 
+#include "duckdb/parser/statement/attach_statement.hpp"
+#include "duckdb/parser/tableref/list.hpp"
+#include "duckdb/main/attached_database.hpp"
+#include "duckdb/main/database_manager.hpp"
+#include "duckdb/common/enums/statement_type.hpp"
+
 namespace duckdb {
 
-FuzzyDuck::FuzzyDuck(ClientContext &context) : context(context) {
+FuzzyDuck::FuzzyDuck(ClientContext &context) : context(context), con(*context.db) {
 }
 
 FuzzyDuck::~FuzzyDuck() {
 }
 
 void FuzzyDuck::BeginFuzzing() {
-	auto &random_engine = RandomEngine::Get(context);
+	auto &engine = RandomEngine::Get(context);
 	if (seed == 0) {
-		seed = random_engine.NextRandomInteger();
+		seed = engine.NextRandomInteger();
 	}
+	engine.SetSeed(seed);
 	if (max_queries == 0) {
 		throw BinderException("Provide a max_queries argument greater than 0");
 	}
@@ -46,7 +53,7 @@ void FuzzyDuck::Fuzz() {
 }
 
 void FuzzyDuck::FuzzAllFunctions() {
-	StatementGenerator generator(context);
+	StatementGenerator generator(con);
 	auto queries = generator.GenerateAllFunctionCalls();
 
 	if (max_queries == 0) {
@@ -63,17 +70,24 @@ void FuzzyDuck::FuzzAllFunctions() {
 }
 
 string FuzzyDuck::GenerateQuery() {
-	LogTask("Generating query with seed " + to_string(seed));
-	auto &engine = RandomEngine::Get(context);
-	// set the seed
-	engine.SetSeed(seed);
-	// get the next seed
-	seed = engine.NextRandomInteger();
-
 	// generate the statement
-	StatementGenerator generator(context);
-	auto statement = generator.GenerateStatement();
-	return statement->ToString();
+	StatementGenerator generator(con);
+	// accumulate statement(s)
+	auto statement = string("");
+	if (generator.RandomPercentage(10)) {
+		// multi statement
+		idx_t number_of_statements = generator.RandomValue(1000);
+		LogTask("Generating Multi-Statement query of " + to_string(number_of_statements) + " statements with seed " +
+		        to_string(seed));
+		for (idx_t i = 0; i < number_of_statements; i++) {
+			statement += generator.GenerateStatement()->ToString() + "; ";
+		}
+	} else {
+		// single or Attach&Use statement
+		LogTask("Generating Single-Statement query with seed " + to_string(seed));
+		statement = generator.GenerateStatement()->ToString();
+	}
+	return statement;
 }
 
 void sleep_thread(Connection *con, atomic<bool> *is_active, atomic<bool> *timed_out, idx_t timeout_duration) {
@@ -92,7 +106,6 @@ void sleep_thread(Connection *con, atomic<bool> *is_active, atomic<bool> *timed_
 void FuzzyDuck::RunQuery(string query) {
 	LogQuery(query + ";");
 
-	Connection con(*context.db);
 	atomic<bool> is_active(true);
 	atomic<bool> timed_out(false);
 	std::thread interrupt_thread(sleep_thread, &con, &is_active, &timed_out, timeout);

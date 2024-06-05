@@ -19,7 +19,10 @@ public:
 	FuzzyDuck(ClientContext &context);
 	~FuzzyDuck();
 
+	// context from connection calling the fuzzduck function
 	ClientContext &context;
+	// the new connection that FuzzyDuck will run SQL queries on
+	Connection con;
 	uint32_t seed = 0;
 	idx_t max_queries = 0;
 	string complete_log;
