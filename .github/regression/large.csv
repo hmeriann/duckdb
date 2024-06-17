@@ -26,13 +26,9 @@ benchmark/ingestion/large/tpcds/native/ingest_inventory.benchmark
 benchmark/ingestion/large/tpcds/native/ingest_store_sales.benchmark
 benchmark/ingestion/large/tpcds/parquet/ingest_inventory.benchmark
 benchmark/ingestion/large/tpcds/parquet/ingest_store_sales.benchmark
-benchmark/ingestion/large/tpcds/tpcds_ingestion_persistent.benchmark.in
 benchmark/ingestion/large/tpch/csv/ingest_lineitem.benchmark
 benchmark/ingestion/large/tpch/csv/ingest_orders.benchmark
 benchmark/ingestion/large/tpch/native/ingest_lineitem.benchmark
 benchmark/ingestion/large/tpch/native/ingest_orders.benchmark
 benchmark/ingestion/large/tpch/parquet/ingest_lineitem.benchmark
 benchmark/ingestion/large/tpch/parquet/ingest_orders.benchmark
-benchmark/ingestion/large/tpch/tpch_ingestion_persistent.benchmark.in
-benchmark/ingestion/load_tpcds_sf10.sql
-benchmark/ingestion/load_tpch_sf10.sql
