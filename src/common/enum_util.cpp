@@ -2063,6 +2063,8 @@ const char* EnumUtil::ToChars<ExplainFormat>(ExplainFormat value) {
 		return "TEXT";
 	case ExplainFormat::JSON:
 		return "JSON";
+	case ExplainFormat::GRAPHVIZ:
+		return "GRAPHVIZ";
 	default:
 		throw NotImplementedException(StringUtil::Format("Enum value: '%d' not implemented", value));
 	}
@@ -2078,6 +2080,9 @@ ExplainFormat EnumUtil::FromString<ExplainFormat>(const char *value) {
 	}
 	if (StringUtil::Equals(value, "JSON")) {
 		return ExplainFormat::JSON;
+	}
+	if (StringUtil::Equals(value, "GRAPHVIZ")) {
+		return ExplainFormat::GRAPHVIZ;
 	}
 	throw NotImplementedException(StringUtil::Format("Enum value: '%s' not implemented", value));
 }
@@ -7836,6 +7841,8 @@ const char* EnumUtil::ToChars<WALType>(WALType value) {
 		return "DELETE_TUPLE";
 	case WALType::UPDATE_TUPLE:
 		return "UPDATE_TUPLE";
+	case WALType::ROW_GROUP_DATA:
+		return "ROW_GROUP_DATA";
 	case WALType::WAL_VERSION:
 		return "WAL_VERSION";
 	case WALType::CHECKPOINT:
@@ -7917,6 +7924,9 @@ WALType EnumUtil::FromString<WALType>(const char *value) {
 	}
 	if (StringUtil::Equals(value, "UPDATE_TUPLE")) {
 		return WALType::UPDATE_TUPLE;
+	}
+	if (StringUtil::Equals(value, "ROW_GROUP_DATA")) {
+		return WALType::ROW_GROUP_DATA;
 	}
 	if (StringUtil::Equals(value, "WAL_VERSION")) {
 		return WALType::WAL_VERSION;
