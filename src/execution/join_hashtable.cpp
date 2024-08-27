@@ -1,8 +1,7 @@
 #include "duckdb/execution/join_hashtable.hpp"
 
 #include "duckdb/common/exception.hpp"
-#include "duckdb/common/row_operations/row_operations.hpp"
-#include "duckdb/common/types/column/column_data_collection_segment.hpp"
+#include "duckdb/common/radix_partitioning.hpp"
 #include "duckdb/common/vector_operations/vector_operations.hpp"
 #include "duckdb/execution/ht_entry.hpp"
 #include "duckdb/main/client_context.hpp"
@@ -30,12 +29,12 @@ JoinHashTable::InsertState::InsertState(const JoinHashTable &ht)
 	ht.data_collection->InitializeChunkState(chunk_state, ht.equality_predicate_columns);
 }
 
-JoinHashTable::JoinHashTable(BufferManager &buffer_manager_p, const vector<JoinCondition> &conditions_p,
+JoinHashTable::JoinHashTable(ClientContext &context, const vector<JoinCondition> &conditions_p,
                              vector<LogicalType> btypes, JoinType type_p, const vector<idx_t> &output_columns_p)
-    : buffer_manager(buffer_manager_p), conditions(conditions_p), build_types(std::move(btypes)),
-      output_columns(output_columns_p), entry_size(0), tuple_size(0), vfound(Value::BOOLEAN(false)), join_type(type_p),
-      finalized(false), has_null(false), radix_bits(INITIAL_RADIX_BITS), partition_start(0), partition_end(0) {
-
+    : buffer_manager(BufferManager::GetBufferManager(context)), conditions(conditions_p),
+      build_types(std::move(btypes)), output_columns(output_columns_p), entry_size(0), tuple_size(0),
+      vfound(Value::BOOLEAN(false)), join_type(type_p), finalized(false), has_null(false),
+      radix_bits(INITIAL_RADIX_BITS), partition_start(0), partition_end(0) {
 	for (idx_t i = 0; i < conditions.size(); ++i) {
 		auto &condition = conditions[i];
 		D_ASSERT(condition.left->return_type == condition.right->return_type);
@@ -104,6 +103,11 @@ JoinHashTable::JoinHashTable(BufferManager &buffer_manager_p, const vector<JoinC
 
 	dead_end = make_unsafe_uniq_array_uninitialized<data_t>(layout.GetRowWidth());
 	memset(dead_end.get(), 0, layout.GetRowWidth());
+
+	if (join_type == JoinType::SINGLE) {
+		auto &config = DBConfig::GetConfig(context);
+		single_join_error_on_multiple_rows = config.options.scalar_subquery_error_on_multiple_rows;
+	}
 }
 
 JoinHashTable::~JoinHashTable() {
@@ -754,7 +758,7 @@ void JoinHashTable::Probe(ScanStructure &scan_structure, DataChunk &keys, TupleD
 }
 
 ScanStructure::ScanStructure(JoinHashTable &ht_p, TupleDataChunkState &key_state_p)
-    : key_state(key_state_p), pointers(LogicalType::POINTER), sel_vector(STANDARD_VECTOR_SIZE),
+    : key_state(key_state_p), pointers(LogicalType::POINTER), count(0), sel_vector(STANDARD_VECTOR_SIZE),
       chain_match_sel_vector(STANDARD_VECTOR_SIZE), chain_no_match_sel_vector(STANDARD_VECTOR_SIZE),
       found_match(make_unsafe_uniq_array_uninitialized<bool>(STANDARD_VECTOR_SIZE)), ht(ht_p), finished(false),
       is_null(true) {
@@ -780,7 +784,7 @@ void ScanStructure::Next(DataChunk &keys, DataChunk &left, DataChunk &result) {
 		break;
 	case JoinType::RIGHT_ANTI:
 	case JoinType::RIGHT_SEMI:
-		NextRightSemiOrAntiJoin(keys, left, result);
+		NextRightSemiOrAntiJoin(keys);
 		break;
 	case JoinType::OUTER:
 	case JoinType::LEFT:
@@ -847,7 +851,7 @@ idx_t ScanStructure::ScanInnerJoin(DataChunk &keys, SelectionVector &result_vect
 	}
 }
 
-void ScanStructure::AdvancePointers(const SelectionVector &sel, idx_t sel_count) {
+void ScanStructure::AdvancePointers(const SelectionVector &sel, const idx_t sel_count) {
 
 	if (!ht.chains_longer_than_one) {
 		this->count = 0;
@@ -986,7 +990,7 @@ void ScanStructure::NextAntiJoin(DataChunk &keys, DataChunk &left, DataChunk &re
 	finished = true;
 }
 
-void ScanStructure::NextRightSemiOrAntiJoin(DataChunk &keys, DataChunk &left, DataChunk &result) {
+void ScanStructure::NextRightSemiOrAntiJoin(DataChunk &keys) {
 	const auto ptrs = FlatVector::GetData<data_ptr_t>(pointers);
 	while (!PointersExhausted()) {
 		// resolve the equality_predicates for this set of keys
@@ -1064,15 +1068,15 @@ void ScanStructure::ConstructMarkJoinResult(DataChunk &join_keys, DataChunk &chi
 	}
 }
 
-void ScanStructure::NextMarkJoin(DataChunk &keys, DataChunk &input, DataChunk &result) {
-	D_ASSERT(result.ColumnCount() == input.ColumnCount() + 1);
+void ScanStructure::NextMarkJoin(DataChunk &keys, DataChunk &left, DataChunk &result) {
+	D_ASSERT(result.ColumnCount() == left.ColumnCount() + 1);
 	D_ASSERT(result.data.back().GetType() == LogicalType::BOOLEAN);
 	// this method should only be called for a non-empty HT
 	D_ASSERT(ht.Count() > 0);
 
 	ScanKeyMatches(keys);
 	if (ht.correlated_mark_join_info.correlated_types.empty()) {
-		ConstructMarkJoinResult(keys, input, result);
+		ConstructMarkJoinResult(keys, left, result);
 	} else {
 		auto &info = ht.correlated_mark_join_info;
 		lock_guard<mutex> mj_lock(info.mj_lock);
@@ -1087,9 +1091,9 @@ void ScanStructure::NextMarkJoin(DataChunk &keys, DataChunk &input, DataChunk &r
 		info.correlated_counts->FetchAggregates(info.group_chunk, info.result_chunk);
 
 		// for the initial set of columns we just reference the left side
-		result.SetCardinality(input);
-		for (idx_t i = 0; i < input.ColumnCount(); i++) {
-			result.data[i].Reference(input.data[i]);
+		result.SetCardinality(left);
+		for (idx_t i = 0; i < left.ColumnCount(); i++) {
+			result.data[i].Reference(left.data[i]);
 		}
 		// create the result matching vector
 		auto &last_key = keys.data.back();
@@ -1101,16 +1105,16 @@ void ScanStructure::NextMarkJoin(DataChunk &keys, DataChunk &input, DataChunk &r
 		switch (last_key.GetVectorType()) {
 		case VectorType::CONSTANT_VECTOR:
 			if (ConstantVector::IsNull(last_key)) {
-				mask.SetAllInvalid(input.size());
+				mask.SetAllInvalid(left.size());
 			}
 			break;
 		case VectorType::FLAT_VECTOR:
-			mask.Copy(FlatVector::Validity(last_key), input.size());
+			mask.Copy(FlatVector::Validity(last_key), left.size());
 			break;
 		default: {
 			UnifiedVectorFormat kdata;
 			last_key.ToUnifiedFormat(keys.size(), kdata);
-			for (idx_t i = 0; i < input.size(); i++) {
+			for (idx_t i = 0; i < left.size(); i++) {
 				auto kidx = kdata.sel->get_index(i);
 				mask.Set(i, kdata.validity.RowIsValid(kidx));
 			}
@@ -1121,7 +1125,7 @@ void ScanStructure::NextMarkJoin(DataChunk &keys, DataChunk &input, DataChunk &r
 		auto count_star = FlatVector::GetData<int64_t>(info.result_chunk.data[0]);
 		auto count = FlatVector::GetData<int64_t>(info.result_chunk.data[1]);
 		// set the entries to either true or false based on whether a match was found
-		for (idx_t i = 0; i < input.size(); i++) {
+		for (idx_t i = 0; i < left.size(); i++) {
 			D_ASSERT(count_star[i] >= count[i]);
 			bool_result[i] = found_match ? found_match[i] : false;
 			if (!bool_result[i] && count_star[i] > count[i]) {
@@ -1169,11 +1173,12 @@ void ScanStructure::NextLeftJoin(DataChunk &keys, DataChunk &left, DataChunk &re
 	}
 }
 
-void ScanStructure::NextSingleJoin(DataChunk &keys, DataChunk &input, DataChunk &result) {
+void ScanStructure::NextSingleJoin(DataChunk &keys, DataChunk &left, DataChunk &result) {
 	// single join
 	// this join is similar to the semi join except that
 	// (1) we actually return data from the RHS and
 	// (2) we return NULL for that data if there is no match
+	// (3) if single_join_error_on_multiple_rows is set, we need to keep looking for duplicates after fetching
 	idx_t result_count = 0;
 	SelectionVector result_sel(STANDARD_VECTOR_SIZE);
 
@@ -1193,15 +1198,15 @@ void ScanStructure::NextSingleJoin(DataChunk &keys, DataChunk &input, DataChunk 
 		AdvancePointers(chain_no_match_sel_vector, no_match_count);
 	}
 	// reference the columns of the left side from the result
-	D_ASSERT(input.ColumnCount() > 0);
-	for (idx_t i = 0; i < input.ColumnCount(); i++) {
-		result.data[i].Reference(input.data[i]);
+	D_ASSERT(left.ColumnCount() > 0);
+	for (idx_t i = 0; i < left.ColumnCount(); i++) {
+		result.data[i].Reference(left.data[i]);
 	}
 	// now fetch the data from the RHS
 	for (idx_t i = 0; i < ht.output_columns.size(); i++) {
-		auto &vector = result.data[input.ColumnCount() + i];
+		auto &vector = result.data[left.ColumnCount() + i];
 		// set NULL entries for every entry that was not found
-		for (idx_t j = 0; j < input.size(); j++) {
+		for (idx_t j = 0; j < left.size(); j++) {
 			if (!found_match[j]) {
 				FlatVector::SetNull(vector, j, true);
 			}
@@ -1210,13 +1215,31 @@ void ScanStructure::NextSingleJoin(DataChunk &keys, DataChunk &input, DataChunk 
 		D_ASSERT(vector.GetType() == ht.layout.GetTypes()[output_col_idx]);
 		GatherResult(vector, result_sel, result_sel, result_count, output_col_idx);
 	}
-	result.SetCardinality(input.size());
+	result.SetCardinality(left.size());
 
 	// like the SEMI, ANTI and MARK join types, the SINGLE join only ever does one pass over the HT per input chunk
 	finished = true;
+
+	if (ht.single_join_error_on_multiple_rows && result_count > 0) {
+		// we need to throw an error if there are multiple rows per key
+		// advance pointers for those rows
+		AdvancePointers(result_sel, result_count);
+
+		// now resolve the predicates
+		idx_t match_count = ResolvePredicates(keys, chain_match_sel_vector, nullptr);
+		if (match_count > 0) {
+			// we found at least one duplicate row - throw
+			throw InvalidInputException(
+			    "More than one row returned by a subquery used as an expression - scalar subqueries can only "
+			    "return a single row.\n\nUse \"SET scalar_subquery_error_on_multiple_rows=false\" to revert to "
+			    "previous behavior of returning a random row.");
+		}
+
+		this->count = 0;
+	}
 }
 
-void JoinHashTable::ScanFullOuter(JoinHTScanState &state, Vector &addresses, DataChunk &result) {
+void JoinHashTable::ScanFullOuter(JoinHTScanState &state, Vector &addresses, DataChunk &result) const {
 	// scan the HT starting from the current position and check which rows from the build side did not find a match
 	auto key_locations = FlatVector::GetData<data_ptr_t>(addresses);
 	idx_t found_entries = 0;
@@ -1326,7 +1349,7 @@ idx_t JoinHashTable::GetTotalSize(const vector<idx_t> &partition_sizes, const ve
 	return total_size + PointerTableSize(total_count);
 }
 
-idx_t JoinHashTable::GetTotalSize(vector<unique_ptr<JoinHashTable>> &local_hts, idx_t &max_partition_size,
+idx_t JoinHashTable::GetTotalSize(const vector<unique_ptr<JoinHashTable>> &local_hts, idx_t &max_partition_size,
                                   idx_t &max_partition_count) const {
 	const auto num_partitions = RadixPartitioning::NumberOfPartitions(radix_bits);
 	vector<idx_t> partition_sizes(num_partitions, 0);
@@ -1338,7 +1361,7 @@ idx_t JoinHashTable::GetTotalSize(vector<unique_ptr<JoinHashTable>> &local_hts, 
 	return GetTotalSize(partition_sizes, partition_counts, max_partition_size, max_partition_count);
 }
 
-idx_t JoinHashTable::GetRemainingSize() {
+idx_t JoinHashTable::GetRemainingSize() const {
 	const auto num_partitions = RadixPartitioning::NumberOfPartitions(radix_bits);
 	auto &partitions = sink_collection->GetPartitions();
 
@@ -1356,8 +1379,8 @@ void JoinHashTable::Unpartition() {
 	data_collection = sink_collection->GetUnpartitioned();
 }
 
-void JoinHashTable::SetRepartitionRadixBits(vector<unique_ptr<JoinHashTable>> &local_hts, const idx_t max_ht_size,
-                                            const idx_t max_partition_size, const idx_t max_partition_count) {
+void JoinHashTable::SetRepartitionRadixBits(const idx_t max_ht_size, const idx_t max_partition_size,
+                                            const idx_t max_partition_count) {
 	D_ASSERT(max_partition_size + PointerTableSize(max_partition_count) > max_ht_size);
 
 	const auto max_added_bits = RadixPartitioning::MAX_RADIX_BITS - radix_bits;
@@ -1365,12 +1388,12 @@ void JoinHashTable::SetRepartitionRadixBits(vector<unique_ptr<JoinHashTable>> &l
 	for (; added_bits < max_added_bits; added_bits++) {
 		double partition_multiplier = static_cast<double>(RadixPartitioning::NumberOfPartitions(added_bits));
 
-		auto new_estimated_size = double(max_partition_size) / partition_multiplier;
-		auto new_estimated_count = double(max_partition_count) / partition_multiplier;
+		auto new_estimated_size = static_cast<double>(max_partition_size) / partition_multiplier;
+		auto new_estimated_count = static_cast<double>(max_partition_count) / partition_multiplier;
 		auto new_estimated_ht_size =
-		    new_estimated_size + static_cast<double>(PointerTableSize(NumericCast<idx_t>(new_estimated_count)));
+		    new_estimated_size + static_cast<double>(PointerTableSize(LossyNumericCast<idx_t>(new_estimated_count)));
 
-		if (new_estimated_ht_size <= double(max_ht_size) / 4) {
+		if (new_estimated_ht_size <= static_cast<double>(max_ht_size) / 4) {
 			// Aim for an estimated partition size of max_ht_size / 4
 			break;
 		}
