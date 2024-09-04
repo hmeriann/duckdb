@@ -12,7 +12,7 @@ require json
 cache realnest.duckdb
 
 load
-attach 'https://duckdb-blobs.s3.amazonaws.com/realnest_benchmark_data.duckdb' as realnest_db (READ_ONLY);
+attach 'realnest_benchmark_data.duckdb' as realnest_db (READ_ONLY);
 CREATE TABLE single_mu_lists AS SELECT * REPLACE(list_resize(Jet, 10, NULL) as Jet, list_resize(Muon, 10, NULL) as Muon, list_resize(Photon, 10, NULL) as Photon, list_resize(Tau, 10, NULL) as Tau) 
 FROM realnest_db.run2012B_singleMu;
 CREATE TABLE singleMu as SELECT list_transform("Tau", x -> x.pt) AS tau_pt, list_transform("Tau", x -> x.eta) AS tau_eta,
@@ -30,4 +30,4 @@ CREATE TABLE unnested_tau AS (SELECT rowid, UNNEST(Tau, recursive:=true) AS tau 
 CREATE TABLE unnested_photon AS (SELECT rowid, UNNEST(Photon, recursive:=true) AS photon FROM realnest_db.run2012B_singleMu);
 CREATE TABLE unnested_jet AS (SELECT rowid, UNNEST(Jet, recursive:=true) AS jet FROM realnest_db.run2012B_singleMu);
 
-run benchmark/realnest/queries/q${QUERY_NUMBER_PADDED}.sql
+run benchmark/realnest/queries/q01.sql
