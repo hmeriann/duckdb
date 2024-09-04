@@ -1,0 +1,28 @@
+# name: benchmark/realnest/aggr/sum.benchmark
+# description: Different list aggregate functions in one query
+# group: [realnest]
+
+name different_list_aggregates
+group real_nest
+
+require json
+
+require httpfs
+
+cache real_nest.duckdb
+
+load benchmark/realnest/load.sql
+
+run
+SELECT 
+  list_aggregate(tau_pt, 'sum'),
+  list_aggregate(tau_eta, 'sum'),
+  list_aggregate(jet_pt, 'sum'),
+  list_aggregate(jet_eta, 'sum'),
+  list_aggregate(muon_pt, 'sum'),
+  list_aggregate(muon_eta, 'sum'),
+  list_aggregate(el_pt, 'sum'),
+  list_aggregate(el_eta, 'sum'),
+  list_aggregate(ph_pt, 'sum'),
+  list_aggregate(ph_eta, 'sum')  
+FROM singleMu;

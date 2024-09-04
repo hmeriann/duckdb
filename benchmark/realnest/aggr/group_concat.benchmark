@@ -1,0 +1,28 @@
+# name: benchmark/realnest/aggr/group_concat.benchmark
+# description: Different list aggregate functions in one query
+# group: [realnest]
+
+name different_list_aggregates
+group real_nest
+
+require json
+
+require httpfs
+
+cache real_nest.duckdb
+
+load benchmark/realnest/load.sql
+
+run
+SELECT 
+  list_aggregate(tau_pt, 'group_concat'),
+  list_aggregate(tau_eta, 'group_concat'),
+  list_aggregate(jet_pt, 'group_concat'),
+  list_aggregate(jet_eta, 'group_concat'),
+  list_aggregate(muon_pt, 'group_concat'),
+  list_aggregate(muon_eta, 'group_concat'),
+  list_aggregate(el_pt, 'group_concat'),
+  list_aggregate(el_eta, 'group_concat'),
+  list_aggregate(ph_pt, 'group_concat'),
+  list_aggregate(ph_eta, 'group_concat')  
+FROM singleMu;

@@ -1,0 +1,28 @@
+# name: benchmark/realnest/aggr/approx_count_distinct.benchmark
+# description: Different list aggregate functions in one query
+# group: [realnest]
+
+name different_list_aggregates
+group real_nest
+
+require json
+
+require httpfs
+
+cache real_nest.duckdb
+
+load benchmark/realnest/load.sql
+
+run
+SELECT 
+  list_aggregate(tau_pt, 'approx_count_distinct'),
+  list_aggregate(tau_eta, 'approx_count_distinct'),
+  list_aggregate(jet_pt, 'approx_count_distinct'),
+  list_aggregate(jet_eta, 'approx_count_distinct'),
+  list_aggregate(muon_pt, 'approx_count_distinct'),
+  list_aggregate(muon_eta, 'approx_count_distinct'),
+  list_aggregate(el_pt, 'approx_count_distinct'),
+  list_aggregate(el_eta, 'approx_count_distinct'),
+  list_aggregate(ph_pt, 'approx_count_distinct'),
+  list_aggregate(ph_eta, 'approx_count_distinct')  
+FROM singleMu;

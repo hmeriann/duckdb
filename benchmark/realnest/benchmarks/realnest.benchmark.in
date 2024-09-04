@@ -1,0 +1,27 @@
+# name: ${FILE_PATH}
+# description: ${DESCRIPTION}
+# group: [realnest]
+
+name Q${QUERY_NUMBER_PADDED}
+group realnest
+
+require json
+
+require httpfs
+
+cache realnest.duckdb
+
+load
+LOAD httpfs;
+LOAD json;
+attach '/Users/zuleykhapavlichenkova/Desktop/duckdb-main/mu.duckdb' as mu (READ_ONLY);
+CREATE TABLE single_mu_lists AS SELECT * REPLACE(list_resize(Jet, 10, NULL) as Jet, list_resize(Muon, 10, NULL) as Muon, list_resize(Photon, 10, NULL) as Photon, list_resize(Tau, 10, NULL) as Tau) 
+FROM mu.run2012B_singleMu;
+CREATE TABLE singleMu as SELECT list_transform("Tau", x -> x.pt) AS tau_pt, list_transform("Tau", x -> x.eta) AS tau_eta,
+    list_transform("Jet", x -> x.pt) AS jet_pt, list_transform("Jet", x -> x.eta) AS jet_eta, 
+    list_transform("Muon", x -> x.pt) AS muon_pt, list_transform("Muon", x -> x.eta) AS muon_eta, 
+    list_transform("Electron", x -> x.pt) AS el_pt, list_transform("Electron", x -> x.eta) AS el_eta, 
+    list_transform("Photon", x -> x.pt) AS ph_pt, list_transform("Photon", x -> x.eta) AS ph_eta
+FROM mu.run2012B_singleMu; 
+
+run benchmark/realnest/queries/q${QUERY_NUMBER_PADDED}.sql

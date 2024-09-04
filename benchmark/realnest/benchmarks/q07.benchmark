@@ -1,0 +1,7 @@
+# name: benchmark/realnest/aggr/q07.benchmark
+# description: Different list aggregate functions in one query
+# group: [realnest]
+
+template benchmark/realnest/benchmarks/realnest.benchmark.in
+QUERY_NUMBER=7
+QUERY_NUMBER_PADDED=07

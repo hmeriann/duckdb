@@ -1,0 +1,28 @@
+# name: benchmark/realnest/aggr/string_agg
+# description: Different list aggregate functions in one query
+# group: [realnest]
+
+name different_list_aggregates
+group real_nest
+
+require json
+
+require httpfs
+
+cache real_nest.duckdb
+
+load benchmark/realnest/load.sql
+
+run
+SELECT 
+  list_aggregate(tau_pt, 'string_agg', '|'),
+  list_aggregate(tau_eta, 'string_agg', '|'),
+  list_aggregate(jet_pt, 'string_agg', '|'),
+  list_aggregate(jet_eta, 'string_agg', '|'),
+  list_aggregate(muon_pt, 'string_agg', '|'),
+  list_aggregate(muon_eta, 'string_agg', '|'),
+  list_aggregate(el_pt, 'string_agg', '|'),
+  list_aggregate(el_eta, 'string_agg', '|'),
+  list_aggregate(ph_pt, 'string_agg', '|'),
+  list_aggregate(ph_eta, 'string_agg', '|')  
+FROM singleMu;
