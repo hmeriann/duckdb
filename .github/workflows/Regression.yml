@@ -136,8 +136,8 @@ jobs:
         shell: bash
         run: |
           pwd
-          mkdir duckdb_benchmark_data
-          mkdir duckdb/duckdb_benchmark_data
+          mkdir -p duckdb_benchmark_data
+          mkdir -p duckdb/duckdb_benchmark_data
           ls -lah
           ls -lah duckdb
           pwd
