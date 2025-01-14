@@ -45,8 +45,10 @@ ReadCSVRelation::ReadCSVRelation(const shared_ptr<ClientContext> &context, const
 	CSVReaderOptions csv_options;
 	csv_options.file_path = file_name;
 	vector<string> empty;
-	MultiFileReaderOptions file_options;
-	csv_options.FromNamedParameters(options, *context, file_options);
+	context->RunFunctionInTransaction([&]() {
+		csv_options.FromNamedParameters(options, *context);
+	});
+
 
 	// Run the auto-detect, populating the options with the detected settings
 
