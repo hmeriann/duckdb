@@ -179,6 +179,9 @@ jobs:
           cp duckdb_benchmark_data/real_nest.duckdb duckdb/duckdb_benchmark_data/real_nest.duckdb
           python scripts/regression/test_runner.py --old duckdb/build/release/benchmark/benchmark_runner --new build/release/benchmark/benchmark_runner --benchmarks .github/regression/realnest.csv --verbose --threads 2
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        
   regression-test-storage:
     name: Storage Size Regression Test
     runs-on: ubuntu-20.04
