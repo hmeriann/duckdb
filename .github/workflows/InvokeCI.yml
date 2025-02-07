@@ -15,6 +15,9 @@ concurrency:
   group: invokeci-${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}-${{ inputs.override_git_describe }}-${{ inputs.git_ref }}-${{ inputs.skip_tests }}
   cancel-in-progress: true
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   osx:
     uses: ./.github/workflows/OSX.yml
@@ -75,5 +78,5 @@ jobs:
 
   verify:
     uses: ./.github/workflows/NightlyBuildsStatus.yml
-    
+
         
