@@ -122,7 +122,7 @@ jobs:
                 --architecture ${{ matrix.inputs.architectures }} \
                 --run_id ${{ matrix.inputs.run_id }} \
                 --runs_on ${{ matrix.inputs.runs_on }} \
-                --config .github/config/out_of_tree_extensions.cmake
+                --config ../ext/.github/config/out_of_tree_extensions.cmake
 
       - name: Upload actions for extensions
         if: always()
