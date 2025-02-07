@@ -48,8 +48,8 @@ jobs:
          ls -lah
       - uses: actions/upload-artifact@v4
         with:
-          path: duckdb-binaries-osx/*
-          name: duckdb-binaries-osx
+          path: duckdb_cli-osx-universal.zip
+          name: duckdb_cli-osx-universal
   # xcode-debug:
   #   name: OSX Debug
   #   runs-on: macos-14
