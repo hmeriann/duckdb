@@ -110,6 +110,7 @@ jobs:
           CURR_DATE: ${{ needs.get-run-info.outputs.CURR_DATE }}
         run: |
             uname -m
+            ls
             if [[ ${{ matrix.inputs.nightly_build }} != 'Python' ]]; then
               cd duckdb_cli*
               echo "Downloading duckdb-binaries-$name artifact..."
