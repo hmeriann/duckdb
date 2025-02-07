@@ -3,17 +3,25 @@ on:
   workflow_call:
 
 
-# permissions:
-#   contents: read
-#   issues: write
-
 env:
   GH_TOKEN: ${{ github.token }}
   GH_REPO: duckdb/duckdb
   GH_ISSUE_REPO: ${{ github.repository }}
 
 jobs:
+  check-wget:
+    name: Check in advance
+    runs-on: macos-13
+    steps:
+      - name: Checkout repo with the scripts
+        uses: actions/checkout@v4
+      - shell: bash
+        run: chmod +x scripts/check_ext.sh && ./scripts/check_ext.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          path: log.csv
   get-run-info:
+    name: Get Runs Info
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-outputs.outputs.matrix }}
@@ -24,17 +32,19 @@ jobs:
 
       - name: Checkout repo with the script
         uses: actions/checkout@v4
+        with:
+          ref: 'release'
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-            python-version: '3.10'
+            python-version: '3.11'
 
       - name: Install DuckDB for Python
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          pip install duckdb pandas tabulate requests
+          pip install duckdb
       
       - name: Create Tables and Generate inputs.json
         shell: bash
@@ -54,9 +64,11 @@ jobs:
         run: |
           matrix=$(cat inputs.json | jq -c '.')
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          echo "***"
+          cat inputs.json
 
   run-tests:
-    name: ${{ matrix.inputs.nightly_build }} - ${{ matrix.inputs.architectures }}
+    name: ${{ matrix.inputs.nightly_build }} - ${{ matrix.inputs.architectures }} (${{ matrix.inputs.runs_on }})
     needs: get-run-info
     if: ${{ needs.get-run-info.outputs.matrix != '[]' }}
     strategy:
@@ -68,26 +80,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-            python-version: '3.10'
-
-      # - name: Set up QEMU for aarch64 builds
-      #   if: ${{ matrix.inputs.architectures == 'linux-aarch64' }}
-      #   uses: docker/setup-qemu-action@v3
-      #   with:
-      #       platforms: linux/aarch64
-    
-      # - name: Install QEMU dependencies
-      #   if: ${{ matrix.inputs.architectures == 'linux-aarch64' }}
-      #   shell: bash
-      #   run: |
-      #       sudo apt-get update
-      #       sudo apt-get install -y libc6-arm64-cross qemu-user-static
-      #       # set up QEMU for Docker and run Docker container
-      #       docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      #       docker run --rm --platform linux/aarch64 ubuntu:latest uname -m
+            python-version: '3.11'
 
       - name: Install Python dependencies
-        run: pip install duckdb pandas tabulate docker
+        run: pip install duckdb docker
             
       - name: Checkout repo with the scripts
         uses: actions/checkout@v4
@@ -111,27 +107,31 @@ jobs:
         env:
           CURR_DATE: ${{ needs.get-run-info.outputs.CURR_DATE }}
         run: |
-            echo "Downloading duckdb-binaries-$name artifact..."
-            # if gh run download ${{ matrix.inputs.run_id }} --repo ${{ env.GH_REPO }} -n duckdb-binaries-${{ matrix.inputs.name }}; then
-            ls  
-            # if [ ls duckdb-binaries-$name* ]; then
-                echo "Artifact duckdb-binaries-$name is successfuly downloaded."
-                unzip duckdb_cli-*.zip -d duckdb_path
-
-                echo "Verifying version and testing extensions..."
-                python scripts/verify_and_test.py \
-                    --nightly_build ${{ matrix.inputs.nightly_build }} \
-                    --architecture ${{ matrix.inputs.architectures }} --run_id ${{ matrix.inputs.run_id }} \
-                    --runs_on ${{ matrix.inputs.runs_on }} --config ext/.github/config/out_of_tree_extensions.cmake
-              # fi
+            uname -m
+            cd duckdb_cli*
+            if [[ ${{ matrix.inputs.nightly_build }} != 'Python' ]]; then
+              echo "Downloading duckdb-binaries-$name artifact..."
+              echo "Artifact duckdb-binaries-$name is successfuly downloaded."
+              unzip duckdb_cli-*.zip -d duckdb_path
+            fi
+            echo "Verifying version and testing extensions..."
+            python scripts/verify_and_test.py \
+                --nightly_build ${{ matrix.inputs.nightly_build }} \
+                --architecture ${{ matrix.inputs.architectures }} \
+                --run_id ${{ matrix.inputs.run_id }} \
+                --runs_on ${{ matrix.inputs.runs_on }} \
+                --config ext/.github/config/out_of_tree_extensions.cmake
 
       - name: Upload actions for extensions
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ext_${{ matrix.inputs.nightly_build }}_${{ matrix.inputs.architectures }}
           path: list_failed_ext_${{ matrix.inputs.nightly_build }}_${{ matrix.inputs.architectures }}.csv
           if-no-files-found: ignore
-    
+
+          
+          
   report:
     name: Create complete report
     runs-on: ubuntu-latest
@@ -146,7 +146,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-            python-version: '3.10'
+            python-version: '3.11'
 
       - name: Install DuckDB for Python
         shell: bash
