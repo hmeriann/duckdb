@@ -55,7 +55,7 @@ jobs:
     steps:
       - run: |
          gh run download 13153471611 --repo duckdb/duckdb -n duckdb-binaries-windows-amd64
-         ls -lah
+         ls
       - uses: actions/upload-artifact@v4
         with:
           path: duckdb-binaries-windows-amd64/*
