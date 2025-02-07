@@ -101,7 +101,7 @@ jobs:
       - uses: actions/download-artifact@v4
         if: ${{ matrix.inputs.nightly_build == 'LinuxRelease' }}
         with:
-          pattern: duckdb_cli-${{ matrix.inputs.name }}-${{ matrix.inputs.architectures }}
+          pattern: duckdb_cli-${{ matrix.inputs.architectures }}
           path: .
 
       - uses: actions/download-artifact@v4
