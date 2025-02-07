@@ -77,6 +77,11 @@ jobs:
   #     skip_tests: ${{ inputs.skip_tests }}
 
   verify:
+    needs:
+      - osx
+      - linux-release
+      - windows
+
     uses: ./.github/workflows/NightlyBuildsStatus.yml
 
         
