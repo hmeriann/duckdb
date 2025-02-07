@@ -99,6 +99,13 @@ jobs:
             path: ext
       
       - uses: actions/download-artifact@v4
+        if: ${{ matrix.inputs.nightly_build == 'LinuxRelease' }}
+        with:
+          pattern: duckdb_cli-${{ matrix.inputs.name }}-${{ matrix.inputs.architectures }}
+          path: .
+
+      - uses: actions/download-artifact@v4
+        if: ${{ matrix.inputs.nightly_build != 'LinuxRelease' }}
         with:
           pattern: duckdb_cli-${{ matrix.inputs.name }}*
           path: .
@@ -112,18 +119,18 @@ jobs:
             uname -m
             ls
             if [[ ${{ matrix.inputs.nightly_build }} != 'Python' ]]; then
-              cd duckdb_cli*
+              cp duckdb_cli*/* .
               echo "Downloading duckdb-binaries-$name artifact..."
               echo "Artifact duckdb-binaries-$name is successfuly downloaded."
               unzip duckdb_cli-*.zip -d duckdb_path
             fi
             echo "Verifying version and testing extensions..."
-            python ../scripts/verify_and_test.py \
+            python scripts/verify_and_test.py \
                 --nightly_build ${{ matrix.inputs.nightly_build }} \
                 --architecture ${{ matrix.inputs.architectures }} \
                 --run_id ${{ matrix.inputs.run_id }} \
                 --runs_on ${{ matrix.inputs.runs_on }} \
-                --config ../ext/.github/config/out_of_tree_extensions.cmake
+                --config ext/.github/config/out_of_tree_extensions.cmake
 
       - name: Upload actions for extensions
         if: always()
