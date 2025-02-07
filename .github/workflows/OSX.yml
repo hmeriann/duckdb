@@ -45,7 +45,6 @@ jobs:
     steps:
       - run: |
          gh run download 13153471611 --repo duckdb/duckdb -n duckdb-binaries-osx
-         ls -lah
       - uses: actions/upload-artifact@v4
         with:
           path: duckdb_cli-osx-universal.zip
