@@ -54,8 +54,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          gh run download 13231170888 --repo duckdb/duckdb -n duckdb-binaries-linux
-        #  gh run download 13231170888 --repo duckdb/duckdb -n duckdb-binaries-linux-aarch64
+          gh run download 13231170888 --repo duckdb/duckdb -n duckdb-binaries-linux-arm64
+          gh run download 13231170888 --repo duckdb/duckdb -n duckdb-binaries-linux-amd64
         #  ls -lah
       - uses: actions/upload-artifact@v4
         with:
@@ -64,8 +64,8 @@ jobs:
       
       - uses: actions/upload-artifact@v4
         with:
-          path: duckdb_cli-linux-aarch64.zip
-          name: duckdb_cli-linux-aarch64
+          path: duckdb_cli-linux-arm64.zip
+          name: duckdb_cli-linux-arm64
 #  linux-release-64:
 #     # Builds binaries for linux_amd64_gcc4
 #     name: Linux (x64)
