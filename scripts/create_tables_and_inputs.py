@@ -199,12 +199,12 @@ def get_platform_arch_from_artifact_name(nightly_build, con, build_info):
         # print("nightly_build", nightly_build)
         platform = str(nightly_build).lower()
         # print("platform", platform)
-        # architectures = ['amd64', 'aarch64', 'x86_64', 'arm64'] if nightly_build == 'Python' else ['x64']
-        architectures = ['amd64', 'aarch64'] if nightly_build == 'Python' else ['x64']
+        # architectures = ['amd64', ' arm64', 'x86_64', 'arm64'] if nightly_build == 'Python' else ['x64']
+        architectures = ['amd64', ' arm64'] if nightly_build == 'Python' else ['x64']
     else:
         '''
         From artifact names in 'artifacts_per_jobs_{ nightly_build }' table create a list of 'items'.
-            Each item is in a format like this: [duckdb-binaries-linux-aarch64](url)
+            Each item is in a format like this: [duckdb-binaries-linux- arm64](url)
             Create an array of architectures and save it and a platform value to 'build_info'
         '''
         result = con.execute(f"SELECT Artifact FROM 'artifacts_per_jobs_InvokeCI'").fetchall()
@@ -240,10 +240,10 @@ def get_runner(platform, architecture):
         case 'windows':
             return "windows-2019"
         case 'linux':
-            return "ubuntu-22.04-arm" if architecture == 'linux-aarch64' else "ubuntu-latest"
+            return "ubuntu-22.04-arm" if architecture == 'linux- arm64' else "ubuntu-latest"
         case 'python':
             match architecture:
-                case 'aarch64':
+                case ' arm64':
                     return "ubuntu-22.04-arm"
                 # case 'x86_64':
                 #     return "macos-latest"
@@ -331,18 +331,18 @@ def main():
         }),
         matrix_data.append({
             "nightly_build": "Python",
-            "architectures": "aarch64",
+            "architectures": " arm64",
             "runs_on": "ubuntu-22.04-arm",
             "run_id": 13147610529,
-            "name": "aarch64"
+            "name": " arm64"
         })
 
     # matrix_data.append({
     #     "nightly_build": "Python",
-    #     "architectures": "aarch64",
+    #     "architectures": " arm64",
     #     "runs_on": "ubuntu-22.04-arm",
     #     "run_id": "12919733489",
-    #     "name": "aarch64"
+    #     "name": " arm64"
     # })
     # matrix_data.append({
     #     "nightly_build": "Python",
