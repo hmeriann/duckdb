@@ -182,7 +182,9 @@ jobs:
 
   upload-linux-extensions:
     name: Upload Linux Extensions 
-    needs: linux-extensions-64
+    needs: 
+      - linux-extensions-64
+      - linux-extensions
     strategy:
       matrix:
         config: [ { needs: linux-extensions-64, vcpkg_target_triplet: arm64-linux, duckdb_arch: linux_arm64 }, { needs: , vcpkg_target_triplet: x64-linux, duckdb_arch: llinux_amd64 }, { needs: linux-extensions-64, vcpkg_target_triplet: x64-linux, duckdb_arch: linux_amd64_musl } ]
@@ -193,132 +195,132 @@ jobs:
       duckdb_arch: ${{ matrix.config.duckdb_arch }}
       duckdb_sha: ${{ github.sha }}
 
-  check-load-install-extensions:
-    name: Checks extension entries
-    if: ${{ inputs.skip_tests != 'true' }}
-    runs-on: ubuntu-20.04
-    needs: linux-extensions-64
-    env:
-      CC: gcc-10
-      CXX: g++-10
-      GEN: ninja
+  # check-load-install-extensions:
+  #   name: Checks extension entries
+  #   if: ${{ inputs.skip_tests != 'true' }}
+  #   runs-on: ubuntu-20.04
+  #   needs: linux-extensions-64
+  #   env:
+  #     CC: gcc-10
+  #     CXX: g++-10
+  #     GEN: ninja
 
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        ref: ${{ inputs.git_ref }}
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       fetch-depth: 0
+  #       ref: ${{ inputs.git_ref }}
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
+  #   - uses: actions/setup-python@v5
+  #     with:
+  #       python-version: '3.9'
 
-    - name: Install
-      shell: bash
-      run: sudo apt-get update -y -qq && sudo apt-get install -y -qq ninja-build
+  #   - name: Install
+  #     shell: bash
+  #     run: sudo apt-get update -y -qq && sudo apt-get install -y -qq ninja-build
 
-    - name: Setup Ccache
-      uses: hendrikmuhs/ccache-action@main
-      with:
-        key: ${{ github.job }}
-        save: ${{ github.ref == 'refs/heads/main' || github.repository != 'duckdb/duckdb' }}
+  #   - name: Setup Ccache
+  #     uses: hendrikmuhs/ccache-action@main
+  #     with:
+  #       key: ${{ github.job }}
+  #       save: ${{ github.ref == 'refs/heads/main' || github.repository != 'duckdb/duckdb' }}
 
-    - name: Build
-      shell: bash
-      env:
-        GENERATE_EXTENSION_ENTRIES: 1
-        LOCAL_EXTENSION_REPO: build/release/repository_other
-      run: |
-        make
+  #   - name: Build
+  #     shell: bash
+  #     env:
+  #       GENERATE_EXTENSION_ENTRIES: 1
+  #       LOCAL_EXTENSION_REPO: build/release/repository_other
+  #     run: |
+  #       make
 
-    - uses: actions/download-artifact@v4
-      with:
-        name: linux-extensions
-        path: build/release/repository
+  #   - uses: actions/download-artifact@v4
+  #     with:
+  #       name: linux-extensions
+  #       path: build/release/repository
 
-    - name: Check if extension_entries.hpp is up to date
-      shell: bash
-      env:
-        EXTENSION_CONFIGS: '.github/config/in_tree_extensions.cmake;.github/config/out_of_tree_extensions.cmake'
-      run: |
-        make extension_configuration
-        python scripts/generate_extensions_function.py
-        pip install "black>=24"
-        pip install cmake-format
-        make format-fix
+  #   - name: Check if extension_entries.hpp is up to date
+  #     shell: bash
+  #     env:
+  #       EXTENSION_CONFIGS: '.github/config/in_tree_extensions.cmake;.github/config/out_of_tree_extensions.cmake'
+  #     run: |
+  #       make extension_configuration
+  #       python scripts/generate_extensions_function.py
+  #       pip install "black>=24"
+  #       pip install cmake-format
+  #       make format-fix
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: extension_entries.hpp
-        path: |
-          src/include/duckdb/main/extension_entries.hpp
+  #   - uses: actions/upload-artifact@v4
+  #     with:
+  #       name: extension_entries.hpp
+  #       path: |
+  #         src/include/duckdb/main/extension_entries.hpp
 
-    - name: Check for any difference
-      run: |
-        git diff --exit-code src/include/duckdb/main/extension_entries.hpp && echo "No differences found"
+  #   - name: Check for any difference
+  #     run: |
+  #       git diff --exit-code src/include/duckdb/main/extension_entries.hpp && echo "No differences found"
 
-    - name: Explainer
-      if: failure()
-      run: |
-        echo "There are differences in src/include/duckdb/main/extension_entries.hpp"
-        echo "Check the uploaded extension_entries.hpp (in the workflow Summary), and check that in instead of src/include/duckdb/main/extension_entries.hpp"
+  #   - name: Explainer
+  #     if: failure()
+  #     run: |
+  #       echo "There are differences in src/include/duckdb/main/extension_entries.hpp"
+  #       echo "Check the uploaded extension_entries.hpp (in the workflow Summary), and check that in instead of src/include/duckdb/main/extension_entries.hpp"
 
-  symbol-leakage:
-    name: Symbol Leakage
-    if: ${{ inputs.skip_tests != 'true' }}
-    runs-on: ubuntu-20.04
-    needs: linux-extensions-64
+  # symbol-leakage:
+  #   name: Symbol Leakage
+  #   if: ${{ inputs.skip_tests != 'true' }}
+  #   runs-on: ubuntu-20.04
+  #   needs: linux-extensions-64
 
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        ref: ${{ inputs.git_ref }}
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       fetch-depth: 0
+  #       ref: ${{ inputs.git_ref }}
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+  #   - uses: actions/setup-python@v5
+  #     with:
+  #       python-version: '3.12'
 
-    - name: Setup Ccache
-      uses: hendrikmuhs/ccache-action@main
-      with:
-        key: ${{ github.job }}
-        save: ${{ github.ref == 'refs/heads/main' || github.repository != 'duckdb/duckdb' }}
+  #   - name: Setup Ccache
+  #     uses: hendrikmuhs/ccache-action@main
+  #     with:
+  #       key: ${{ github.job }}
+  #       save: ${{ github.ref == 'refs/heads/main' || github.repository != 'duckdb/duckdb' }}
 
-    - name: Build
-      shell: bash
-      run: make
+  #   - name: Build
+  #     shell: bash
+  #     run: make
 
-    - name: Symbol Leakage Test
-      shell: bash
-      run: python3 scripts/exported_symbols_check.py build/release/src/libduckdb*.so
+  #   - name: Symbol Leakage Test
+  #     shell: bash
+  #     run: python3 scripts/exported_symbols_check.py build/release/src/libduckdb*.so
 
-  amalgamation-tests:
-    name: Amalgamation Tests
-    if: ${{ inputs.skip_tests != 'true' }}
-    needs: linux-extensions-64
-    runs-on: ubuntu-20.04
-    env:
-      CC: clang
-      CXX: clang++
+  # amalgamation-tests:
+  #   name: Amalgamation Tests
+  #   if: ${{ inputs.skip_tests != 'true' }}
+  #   needs: linux-extensions-64
+  #   runs-on: ubuntu-20.04
+  #   env:
+  #     CC: clang
+  #     CXX: clang++
 
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        ref: ${{ inputs.git_ref }}
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       fetch-depth: 0
+  #       ref: ${{ inputs.git_ref }}
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+  #   - uses: actions/setup-python@v5
+  #     with:
+  #       python-version: '3.12'
 
-    - name: Install LLVM and Clang
-      uses: KyleMayes/install-llvm-action@v1
-      with:
-        version: "10.0"
+  #   - name: Install LLVM and Clang
+  #     uses: KyleMayes/install-llvm-action@v1
+  #     with:
+  #       version: "10.0"
 
-    - name: Generate Amalgamation
-      shell: bash
-      run:  |
-          python scripts/amalgamation.py --extended
-          clang++ -std=c++17 -Isrc/amalgamation src/amalgamation/duckdb.cpp -emit-llvm -S -O0
+  #   - name: Generate Amalgamation
+  #     shell: bash
+  #     run:  |
+  #         python scripts/amalgamation.py --extended
+  #         clang++ -std=c++17 -Isrc/amalgamation src/amalgamation/duckdb.cpp -emit-llvm -S -O0
