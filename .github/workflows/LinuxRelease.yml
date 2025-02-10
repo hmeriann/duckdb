@@ -187,7 +187,7 @@ jobs:
       - linux-extensions
     strategy:
       matrix:
-        config: [ { needs: linux-extensions-64, vcpkg_target_triplet: arm64-linux, duckdb_arch: linux_arm64 }, { needs: , vcpkg_target_triplet: x64-linux, duckdb_arch: llinux_amd64 }, { needs: linux-extensions-64, vcpkg_target_triplet: x64-linux, duckdb_arch: linux_amd64_musl } ]
+        config: [ { vcpkg_target_triplet: 64-linux, duckdb_arch: linux_amd64 }, { vcpkg_target_triplet: arm64-linux, duckdb_arch: linux_arm64 }, { vcpkg_target_triplet: x64-linux, duckdb_arch: linux_amd64_musl } ]
     uses: ./.github/workflows/_sign_deploy_extensions.yml
     secrets: inherit
     with:
