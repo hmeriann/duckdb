@@ -50,7 +50,7 @@ env:
   OVERRIDE_GIT_DESCRIBE: ${{ inputs.override_git_describe }}
 
 jobs:
- linux-release-cli:
+  linux-release-cli:
     needs: linux-extensions-64
     if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature' }}
 
@@ -129,95 +129,37 @@ jobs:
         build/release/benchmark/benchmark_runner benchmark/micro/update/update_with_join.benchmark
         build/release/duckdb -c "COPY (SELECT 42) TO '/dev/stdout' (FORMAT PARQUET)" | cat
 
-
- # Linux extensions for builds that use C++11 ABI, currently these are all linux builds based on ubuntu >= 18 (e.g. NodeJS)
- # note that the linux-release-64 is based on the manylinux-based extensions, which are built in .github/workflows/Python.yml
-#  linux-extensions-64:
-#     # Builds extensions for linux_amd64
-#     name: Linux Extensions (x64)
-#     runs-on: ubuntu-latest
-#     needs: ${{ matrix.config.needs }}
-#     strategy:
-#       matrix:
-#         duckdb_arch: [linux_amd64]
-#         vcpkg_triplet: [x64-linux]
-
-#     steps:
-#       - uses: actions/checkout@v4
-#         with:
-#           path: 'duckdb'
-#           fetch-depth: 0
-#           ref: ${{ inputs.git_ref }}
-
-#       - uses: ./duckdb/.github/actions/build_extensions_dockerized
-#         with:
-#           vcpkg_target_triplet: x64-linux
-#           duckdb_arch: linux_amd64
-#           run_tests: ${{ inputs.skip_tests != 'true' }}
-
-#       - uses: actions/upload-artifact@v4
-#         with:
-#           name: linux-extensions-64
-#           path: |
-#             build/release/extension/*/*.duckdb_extension
-
-#  upload-linux-extensions-64:
-#     name: Upload Linux Extensions (x64)
-#     needs: linux-extensions-64
-#     uses: ./.github/workflows/_sign_deploy_extensions.yml
-#     secrets: inherit
-#     with:
-#       extension_artifact_name: linux-extensions-64
-#       duckdb_arch: linux_amd64
-#       duckdb_sha: ${{ github.sha }}
-
-#  linux-extensions-64-musl:
-#     # Builds extensions for linux_amd64_musl
-#     name: Linux Extensions (musl + x64)
-#     runs-on: ubuntu-latest
-#     needs: ${{ matrix.config.needs }}
-#     strategy:
-#       matrix:
-#         duckdb_arch: [linux_amd64_musl]
-#         vcpkg_triplet: [x64-linux]
-
-#     steps:
-#       - uses: actions/checkout@v4
-#         with:
-#           path: 'duckdb'
-#           fetch-depth: 0
-#           ref: ${{ inputs.git_ref }}
-
-#       - uses: ./duckdb/.github/actions/build_extensions_dockerized
-#         with:
-#           vcpkg_target_triplet: x64-linux
-#           duckdb_arch: linux_amd64_musl
-#           run_tests: ${{ inputs.skip_tests != 'true' }}
-
-#       - uses: actions/upload-artifact@v4
-#         with:
-#           name: linux-extensions-64-musl
-#           path: |
-#             build/release/extension/*/*.duckdb_extension
-
-#  upload-linux-extensions-64-musl:
-#     name: Upload Linux Extensions (musl + x64)
-#     needs: linux-extensions-64-musl
-#     uses: ./.github/workflows/_sign_deploy_extensions.yml
-#     secrets: inherit
-#     with:
-#       extension_artifact_name: linux-extensions-64-musl
-#       duckdb_arch: linux_amd64_musl
-#       duckdb_sha: ${{ github.sha }}
-
   linux-extensions-64:
     # Builds extensions for linux_arm64
     name: Linux Extensions (aarch64)
     runs-on: ubuntu-latest
-    needs: ${{ matrix.config.needs }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: 'duckdb'
+          fetch-depth: 0
+          ref: ${{ inputs.git_ref }}
+
+      - uses: ./duckdb/.github/actions/build_extensions_dockerized
+        with:
+          vcpkg_target_triplet: x64-linux
+          duckdb_arch: linux_amd64
+          run_tests: ${{ inputs.skip_tests != 'true' }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-extensions-linux_amd64
+          path: |
+            build/release/extension/*/*.duckdb_extension
+
+  linux-extensions:
+    # Builds extensions for linux_arm64
+    name: Linux Extensions (aarch64)
+    runs-on: ubuntu-latest
+    needs: linux-extensions-64
     strategy:
       matrix:
-        config: [ { needs: linux-extensions-64, vcpkg_target_triplet: arm64-linux, duckdb_arch: linux_arm64 }, { needs: , vcpkg_target_triplet: x64-linux, duckdb_arch: llinux_amd64 }, { needs: linux-extensions-64, vcpkg_target_triplet: x64-linux, duckdb_arch: linux_amd64_musl } ]
+        config: [ { vcpkg_target_triplet: arm64-linux, duckdb_arch: linux_arm64 }, { vcpkg_target_triplet: x64-linux, duckdb_arch: linux_amd64_musl } ]
 
     steps:
       - uses: actions/checkout@v3
@@ -238,7 +180,7 @@ jobs:
           path: |
             build/release/extension/*/*.duckdb_extension
 
- upload-linux-extensions:
+  upload-linux-extensions:
     name: Upload Linux Extensions 
     needs: linux-extensions-64
     strategy:
@@ -251,7 +193,7 @@ jobs:
       duckdb_arch: ${{ matrix.config.duckdb_arch }}
       duckdb_sha: ${{ github.sha }}
 
- check-load-install-extensions:
+  check-load-install-extensions:
     name: Checks extension entries
     if: ${{ inputs.skip_tests != 'true' }}
     runs-on: ubuntu-20.04
@@ -321,7 +263,7 @@ jobs:
         echo "There are differences in src/include/duckdb/main/extension_entries.hpp"
         echo "Check the uploaded extension_entries.hpp (in the workflow Summary), and check that in instead of src/include/duckdb/main/extension_entries.hpp"
 
- symbol-leakage:
+  symbol-leakage:
     name: Symbol Leakage
     if: ${{ inputs.skip_tests != 'true' }}
     runs-on: ubuntu-20.04
@@ -351,7 +293,7 @@ jobs:
       shell: bash
       run: python3 scripts/exported_symbols_check.py build/release/src/libduckdb*.so
 
- amalgamation-tests:
+  amalgamation-tests:
     name: Amalgamation Tests
     if: ${{ inputs.skip_tests != 'true' }}
     needs: linux-extensions-64
