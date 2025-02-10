@@ -52,7 +52,7 @@ env:
 jobs:
   linux-release-cli:
     needs: linux-extensions-64
-    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature' }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix-ci' }}
 
     strategy:
       matrix:
@@ -131,7 +131,7 @@ jobs:
 
   linux-extensions-64:
     # Builds extensions for linux_arm64
-    name: Linux Extensions (aarch64)
+    name: Linux Extensions (x64)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -148,7 +148,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-extensions-linux_amd64
+          name: extensions-linux_amd64
           path: |
             build/release/extension/*/*.duckdb_extension
 
@@ -176,7 +176,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-extensions-${{ matrix.config.duckdb_arch }}
+          name: extensions-${{ matrix.config.duckdb_arch }}
           path: |
             build/release/extension/*/*.duckdb_extension
 
@@ -191,7 +191,7 @@ jobs:
     uses: ./.github/workflows/_sign_deploy_extensions.yml
     secrets: inherit
     with:
-      extension_artifact_name: linux-extensions-${{ matrix.config.duckdb_arch }}
+      extension_artifact_name: extensions-${{ matrix.config.duckdb_arch }}
       duckdb_arch: ${{ matrix.config.duckdb_arch }}
       duckdb_sha: ${{ github.sha }}
 
