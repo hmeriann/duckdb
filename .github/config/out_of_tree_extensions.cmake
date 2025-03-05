@@ -126,7 +126,6 @@ duckdb_extension_load(spatial
     GIT_TAG 4be6065edc313a53ff2196ff79c11a0d5e249720
     INCLUDE_DIR spatial/include
     TEST_DIR test/sql
-    APPLY_PATCHES
     )
 endif()
 
@@ -158,7 +157,6 @@ duckdb_extension_load(vss
         GIT_URL https://github.com/duckdb/duckdb-vss
         GIT_TAG ba199a7215b75e83821ece13f6b921ccfcebd6ac
         TEST_DIR test/sql
-        APPLY_PATCHES
     )
 
 ################# MYSQL
