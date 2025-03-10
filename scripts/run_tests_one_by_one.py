@@ -8,6 +8,7 @@ import shutil
 
 import argparse
 
+error_container = "FAILURES SUMMARY:\n\n"
 
 def valid_timeout(value):
     try:
@@ -133,6 +134,7 @@ def print_interval_background(interval):
 
 def launch_test(test, list_of_tests=False):
     global is_active
+    global error_container
     # start the background thread
     is_active = True
     background_print_thread = threading.Thread(target=print_interval_background, args=[args.print_interval])
@@ -186,6 +188,7 @@ RETURNCODE
 --------------------"""
     )
     print(res.returncode)
+    error_container +=  "RETURN CODE: " + str(res.returncode) + "\n"
     if not list_of_tests:
         print(
             """--------------------
@@ -199,6 +202,7 @@ STDERR
 --------------------"""
         )
         print(stderr)
+        error_container += + stderr + "\n"
 
     # if a test closes unexpectedly (e.g., SEGV), test cleanup doesn't happen,
     # causing us to run out of space on subsequent tests in GH Actions (not much disk space there)
@@ -247,4 +251,5 @@ else:
 
 if all_passed:
     exit(0)
+print(error_container)
 exit(1)
