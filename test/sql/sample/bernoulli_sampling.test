@@ -32,7 +32,7 @@ endloop
 query II
 select min(num_rows) > 0, count(*) FILTER (num_rows = 0) = 0 from output;
 ----
-true	true
+0	true
 
 query III
 select avg(rowid), min(rowid), max(rowid) from output where num_rows = 0;

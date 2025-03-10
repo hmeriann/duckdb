@@ -1,3 +1,4 @@
+
 # name: test/sql/aggregate/aggregates/histogram_table_function.test
 # description: Test the histogram table function
 # group: [aggregates]
@@ -91,7 +92,7 @@ Unsupported
 
 # but it works with equi-height
 query II
-SELECT * FROM histogram_values(integers, i::VARCHAR, technique := 'equi-height')
+SELECT COUNT(*), AVG(count) FROM histogram_values(integers, i::VARCHAR, technique := 'equi-height')
 ----
 109	13
 120	13

@@ -19,3 +19,5 @@ select s.b.col1 from s.b;
 
 statement ok
 select b.col1 from s.b;
+----
+slkdjflkj
