@@ -4,6 +4,8 @@
 #include "duckdb/common/file_system.hpp"
 #include "duckdb/common/string_util.hpp"
 #include "test_helpers.hpp"
+#include <iostream>
+#include <sstream>
 
 using namespace duckdb;
 
@@ -29,6 +31,7 @@ bool TestMemoryLeaks() {
 int main(int argc, char *argv[]) {
 	duckdb::unique_ptr<FileSystem> fs = FileSystem::CreateLocal();
 	string test_directory = DUCKDB_ROOT_DIRECTORY;
+	string errors_summary;
 
 	int new_argc = 0;
 	auto new_argv = duckdb::unique_ptr<char *[]>(new char *[argc]);
@@ -79,7 +82,13 @@ int main(int argc, char *argv[]) {
 
 	RegisterSqllogictests();
 
+	std::ostringstream buffer;
+	std::streambuf *old_stderr = std::cerr.rdbuf(buffer.rdbuf());
 	int result = Catch::Session().run(new_argc, new_argv.get());
+	std::cerr.rdbuf(old_stderr);
+	if (result != 0) {
+		std::cout << "\n=== Error Summary ===\n" << buffer.str();
+	}
 
 	if (DeleteTestPath()) {
 		TestDeleteDirectory(dir);
