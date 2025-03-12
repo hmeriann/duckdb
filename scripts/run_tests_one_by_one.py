@@ -8,7 +8,7 @@ import shutil
 
 import argparse
 
-error_container = "FAILURES SUMMARY:\n\n"
+error_container = []
 
 def valid_timeout(value):
     try:
@@ -72,6 +72,13 @@ if len(stderr) > 0:
     print("Returncode:", proc.returncode)
     print(stdout)
     print(stderr)
+    # new_data = {
+    #     "test": unittest_program,
+    #     "return_code": proc.return_code,
+    #     "stdout": stdout,
+    #     "stderr":stderr
+    # }
+    # error_container.append(new_data)
     exit(1)
 
 # The output is in the format of 'PATH\tGROUP', we're only interested in the PATH portion
@@ -188,7 +195,6 @@ RETURNCODE
 --------------------"""
     )
     print(res.returncode)
-    error_container +=  "RETURN CODE: " + str(res.returncode) + "\n"
     if not list_of_tests:
         print(
             """--------------------
@@ -202,7 +208,14 @@ STDERR
 --------------------"""
         )
         print(stderr)
-        error_container += + stderr + "\n"
+
+        new_data = {
+            "test": test,
+            "return_code": res.returncode,
+            "stdout": stdout,
+            "stderr":stderr
+        }
+        error_container.append(new_data)
 
     # if a test closes unexpectedly (e.g., SEGV), test cleanup doesn't happen,
     # causing us to run out of space on subsequent tests in GH Actions (not much disk space there)
@@ -251,5 +264,13 @@ else:
 
 if all_passed:
     exit(0)
-print(error_container)
+i = 1
+print("\n\n==== SUMMARY ====\n")
+for error in error_container:
+    print(f"TEST {i}: ", error["test"])
+    print("ERROR CODE: ", error["return_code"])
+    # print("TEST OUTPUT:\n", error["stdout"])
+    print("ERROR MESSAGE:\n", error["stderr"])
+    i += 1
+    
 exit(1)
