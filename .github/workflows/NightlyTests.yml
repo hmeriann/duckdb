@@ -99,7 +99,7 @@ jobs:
     - name: Test
       shell: bash
       run: |
-          python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest "*" --no-exit --timeout 1200
+          python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest "*" --no-exit --timeout 1200 --summarize_failures
 
   smaller-binary:
     name: Smaller Binary
@@ -484,7 +484,7 @@ jobs:
       - name: Test
         shell: bash
         run: |
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "*" --no-exit --time_execution
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "*" --no-exit --time_execution --summarize_failures
 
   vector-verification:
     name: Vector Verification Tests (${{ matrix.vector_type }})
@@ -532,7 +532,7 @@ jobs:
 
       - name: Test
         shell: bash
-        run: python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest ${{ matrix.test_parameter }} --no-exit
+        run: python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest ${{ matrix.test_parameter }} --no-exit --summarize_failures
 
   force-blocking-sink-source:
     name: Forcing async Sinks/Sources
@@ -564,7 +564,7 @@ jobs:
 
       - name: Test
         shell: bash
-        run: python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest --no-exit --timeout 600
+        run: python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest --no-exit --timeout 600 --summarize_failures
 
   regression-test-memory-safety:
    name: Regression Tests between safe and unsafe builds
@@ -682,13 +682,13 @@ jobs:
     - name: Test
       shell: bash
       run: |
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest --no-exit --timeout 600
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[intraquery]" --no-exit --timeout 600
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage --force-reload
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[detailed_profiler]" --no-exit --timeout 600
-          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest test/sql/tpch/tpch_sf01.test_slow --no-exit --timeout 600
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest --no-exit --timeout 600 --summarize_failures
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[intraquery]" --no-exit --timeout 600 --summarize_failures
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --summarize_failures
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage --summarize_failures
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage --force-reload --summarize_failures
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[detailed_profiler]" --no-exit --timeout 600 --summarize_failures
+          python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest test/sql/tpch/tpch_sf01.test_slow --no-exit --timeout 600 --summarize_failures
 
 
   vector-sizes:
@@ -723,7 +723,7 @@ jobs:
       - name: Test
         shell: bash
         run: |
-          python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest --no-exit --time_execution
+          python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest --no-exit --time_execution --summarize_failures
 
   block-sizes:
     name: Block Sizes
@@ -756,8 +756,8 @@ jobs:
       - name: Fast and storage tests
         shell: bash
         run: |
-          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution
-          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution
+          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution --summarize_failures
+          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution --summarize_failures
 
       - name: Build with vector size of 512
         shell: bash
@@ -766,8 +766,8 @@ jobs:
       - name: Fast and storage tests
         shell: bash
         run: |
-          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution
-          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution
+          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution --summarize_failures
+          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution --summarize_failures
 
   linux-wasm-experimental:
     name: WebAssembly duckdb-wasm builds
@@ -951,5 +951,5 @@ jobs:
         sleep 60
        
         python3 scripts/get_test_list.py --file-contains 'require httpfs' --list '"*"' > test.list
-        python3 scripts/run_tests_one_by_one.py ./build/release/test/unittest '-f test.list'
-        python3 scripts/run_tests_one_by_one.py ./build/release/test/unittest '[secret]'
+        python3 scripts/run_tests_one_by_one.py ./build/release/test/unittest '-f test.list' --summarize_failures
+        python3 scripts/run_tests_one_by_one.py ./build/release/test/unittest '[secret]' --summarize_failures

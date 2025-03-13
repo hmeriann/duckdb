@@ -89,7 +89,7 @@ jobs:
     - name: Test
       shell: bash
       run: |
-        python3 scripts/run_tests_one_by_one.py build/debug/test/unittest --tests-per-invocation 100 ${{ matrix.start_offset }} ${{ matrix.end_offset }}
+        python3 scripts/run_tests_one_by_one.py build/debug/test/unittest --tests-per-invocation 100 ${{ matrix.start_offset }} ${{ matrix.end_offset }} --summarize_failures
 
  linux-release:
     name: Linux Release (full suite)
