@@ -42,6 +42,7 @@ parser.add_argument(
     type=valid_timeout,
 )
 parser.add_argument('--valgrind', action='store_true', help='Run the tests with valgrind', default=False)
+parser.add_argument('--summarize_failures', action='store_true', help='Print list of failed tests in the end', default=False)
 
 args, extra_args = parser.parse_known_args()
 
@@ -62,6 +63,7 @@ profile = args.profile
 assertions = args.no_assertions
 time_execution = args.time_execution
 timeout = args.timeout
+summarize_failures = args.summarize_failures
 
 # Use the '-l' parameter to output the list of tests to run
 proc = subprocess.run([unittest_program, '-l'] + extra_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -264,13 +266,12 @@ else:
 
 if all_passed:
     exit(0)
-i = 1
-print("\n\n==== SUMMARY ====\n")
-for error in error_container:
-    print(f"TEST {i}: ", error["test"])
-    print("ERROR CODE: ", error["return_code"])
-    # print("TEST OUTPUT:\n", error["stdout"])
-    print("ERROR MESSAGE:\n", error["stderr"])
-    i += 1
+if summarize_failures:
+    print("\n\n=============================   FAILURES  SUMMARY   =============================\n")
+    for i, error in enumerate(error_container, start=1):
+        print(f"TEST {i}:", error["test"])
+        # print("ERROR CODE: ", error["return_code"])
+        # print("TEST OUTPUT:\n", error["stdout"])
+        print("FAILED WITH ERROR:\n", error["stderr"])
     
 exit(1)
