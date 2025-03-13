@@ -11,6 +11,7 @@ namespace duckdb {
 static bool test_force_storage = false;
 static bool test_force_reload = false;
 static bool test_memory_leaks = false;
+static bool summarize_failures = false;
 
 bool TestForceStorage() {
 	return test_force_storage;
@@ -22,6 +23,10 @@ bool TestForceReload() {
 
 bool TestMemoryLeaks() {
 	return test_memory_leaks;
+}
+
+bool SummarizeFailures() {
+	return summarize_failures;
 }
 
 } // namespace duckdb
@@ -59,6 +64,9 @@ int main(int argc, char *argv[]) {
 			SetDebugInitialize(0xFF);
 		} else if (string(argv[i]) == "--single-threaded") {
 			SetSingleThreaded();
+		} else if (string(argv[i]) == "--summarize-failures") {
+			// Delete current summarized file.
+			summarize_failures = true;;
 		} else {
 			new_argv[new_argc] = argv[i];
 			new_argc++;

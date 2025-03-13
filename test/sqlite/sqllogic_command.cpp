@@ -93,6 +93,7 @@ unique_ptr<MaterializedQueryResult> Command::ExecuteQuery(ExecuteContext &contex
 	if (TestForceReload() && TestForceStorage()) {
 		RestartDatabase(context, connection, context.sql_query);
 	}
+
 #ifdef DUCKDB_ALTERNATIVE_VERIFY
 	auto ccontext = connection->context;
 	auto result = ccontext->Query(context.sql_query, true);
@@ -481,6 +482,7 @@ void Statement::ExecuteInternal(ExecuteContext &context) const {
 			return;
 		}
 	}
+
 	auto result = ExecuteQuery(context, connection, file_name, query_line);
 
 	TestResultHelper helper(runner);
@@ -490,6 +492,9 @@ void Statement::ExecuteInternal(ExecuteContext &context) const {
 			context.error_file = file_name;
 			context.error_line = query_line;
 		} else {
+			if (SummarizeFailures()) {
+				// add filename & to file.
+			}
 			FAIL_LINE(file_name, query_line, 0);
 		}
 	}
