@@ -95,7 +95,7 @@ Unsupported
 
 # but it works with equi-height
 query II
-SELECT COUNT(*), AVG(count)  FROM histogram_values(integers, i::VARCHAR, technique := 'equi-height')
+SELECT COUNT(*), AVG(count) FROM histogram_values(integers, i::VARCHAR, technique := 'equi-height')
 ----
 10	13.0
 
