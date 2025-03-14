@@ -86,6 +86,15 @@ jobs:
   #     skip_tests: ${{ inputs.skip_tests }}
 
   nightly-build-status:
+    needs:
+      - osx
+      # - linux-release
+      # - windows
+      # - python
+      # - pyodide
+      # - R
+      # - Wasm
+      # - static-libraries
     uses: hmeriann/duckdb-build-status/.github/workflows/NightlyBuildsCheck.yml@call-from-invoke
     with:
       branch: ${{ github.ref_name }}
