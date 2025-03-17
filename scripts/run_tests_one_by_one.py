@@ -42,7 +42,7 @@ parser.add_argument(
     type=valid_timeout,
 )
 parser.add_argument('--valgrind', action='store_true', help='Run the tests with valgrind', default=False)
-parser.add_argument('--summarize_failures', action='store_true', help='Print list of failed tests in the end', default=False)
+parser.add_argument('--summarize_failures', action='store_true', help='Print list of failed tests in the end', default=True)
 
 args, extra_args = parser.parse_known_args()
 
@@ -156,7 +156,7 @@ def launch_test(test, list_of_tests=False):
     try:
         test_cmd = [unittest_program] + test
         if args.valgrind:
-            test_cmd = ['valgrind'] + test_cmd
+            test_cmd = ['valgrind'] + test_cmd + ['--summarize-failures']
         res = subprocess.run(test_cmd, stdout=unittest_stdout, stderr=unittest_stderr, timeout=timeout)
     except subprocess.TimeoutExpired as e:
         if list_of_tests:
