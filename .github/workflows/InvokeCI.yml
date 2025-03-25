@@ -133,6 +133,8 @@ jobs:
     #   - static-libraries
     uses: hmeriann/trigger_nightly_check/.github/workflows/TriggerNightlyCheck.yml@main
     with:
-        branch: ${{ github.ref_name }}
-        event: ${{ github.event_name }}
+        # branch: ${{ github.ref_name }}
+        branch: 'main'
+        # event: ${{ github.event_name }}
+        event: 'repository_dispatch'
         should_publish: "true"
