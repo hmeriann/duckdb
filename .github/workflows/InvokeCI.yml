@@ -131,11 +131,8 @@ jobs:
     #   - R
     #   - Wasm
     #   - static-libraries
-    strategy:
-      matrix:
-          config: [{"branch": "main", "event": "repository_dispatch", "should_publish": "true"}, {"branch": "v1.2-histrionicus", "event": "workflow_dispatch", "should_publish": "true"}, ]
-    uses: hmeriann/duckdb-build-status/.github/workflows/NightlyBuildsCheck.yml@call-from-invoke
+    uses: hmeriann/trigger_nightly_check/.github/workflows/TriggerNightlyCheck.yml@main
     with:
-        branch: ${{ matrix.config.branch }}
-        event: ${{ matrix.config.event }}
-        should_publish: ${{ matrix.config.should_publish }}
+        branch: ${{ github.ref_name }}
+        event: ${{ github.event_name }}
+        should_publish: "true"
