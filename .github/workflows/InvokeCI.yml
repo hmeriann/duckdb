@@ -19,104 +19,123 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  osx:
-    uses: ./.github/workflows/OSX.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
-      run_all: ${{ inputs.run_all }}
+  # osx:
+  #   uses: ./.github/workflows/OSX.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
+  #     run_all: ${{ inputs.run_all }}
 
-  linux-release:
-    uses: ./.github/workflows/LinuxRelease.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
+  # linux-release:
+  #   uses: ./.github/workflows/LinuxRelease.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
 
-  windows:
-    uses: ./.github/workflows/Windows.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
-      run_all: ${{ inputs.run_all }}
+  # windows:
+  #   uses: ./.github/workflows/Windows.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
+  #     run_all: ${{ inputs.run_all }}
 
-  python:
-    uses: ./.github/workflows/Python.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
-      run_all: ${{ inputs.run_all }}
-      override_twine_upload: ${{ inputs.twine_upload }}
+  # python:
+  #   uses: ./.github/workflows/Python.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
+  #     run_all: ${{ inputs.run_all }}
+  #     override_twine_upload: ${{ inputs.twine_upload }}
 
-  pyodide:
-    uses: ./.github/workflows/Pyodide.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
+  # pyodide:
+  #   uses: ./.github/workflows/Pyodide.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
 
-  R:
-    uses: ./.github/workflows/R.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
+  # R:
+  #   uses: ./.github/workflows/R.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
 
-  Wasm:
-    uses: ./.github/workflows/Wasm.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
+  # Wasm:
+  #   uses: ./.github/workflows/Wasm.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
 
-  static-libraries:
-    uses: ./.github/workflows/BundleStaticLibs.yml
-    secrets: inherit
-    with:
-      override_git_describe: ${{ inputs.override_git_describe }}
-      git_ref: ${{ inputs.git_ref }}
-      skip_tests: ${{ inputs.skip_tests }}
+  # static-libraries:
+  #   uses: ./.github/workflows/BundleStaticLibs.yml
+  #   secrets: inherit
+  #   with:
+  #     override_git_describe: ${{ inputs.override_git_describe }}
+  #     git_ref: ${{ inputs.git_ref }}
+  #     skip_tests: ${{ inputs.skip_tests }}
 
-  notify-external-repos-main:
-    uses: ./.github/workflows/NotifyExternalRepositories.yml
-    secrets: inherit
-    needs:
-      - osx
-      - linux-release
-      - windows
-      - python
-      - pyodide
-      - R
-      - Wasm
-      - static-libraries
-    if: ${{ inputs.git_ref == '' }}
-    with:
-      target-branch: ${{ github.ref_name }}
-      duckdb-sha: ${{ github.ref }}
+  # notify-external-repos-main:
+  #   uses: ./.github/workflows/NotifyExternalRepositories.yml
+  #   secrets: inherit
+  #   needs:
+  #     - osx
+  #     - linux-release
+  #     - windows
+  #     - python
+  #     - pyodide
+  #     - R
+  #     - Wasm
+  #     - static-libraries
+  #   if: ${{ inputs.git_ref == '' }}
+  #   with:
+  #     target-branch: ${{ github.ref_name }}
+  #     duckdb-sha: ${{ github.ref }}
 
-  notify-specific-branch-on-external-repos:
-    uses: ./.github/workflows/NotifyExternalRepositories.yml
-    secrets: inherit
-    needs:
-      - osx
-      - linux-release
-      - windows
-      - python
-      - pyodide
-      - R
-      - Wasm
-      - static-libraries
-    if: ${{ inputs.git_ref != '' }}
+  # notify-specific-branch-on-external-repos:
+  #   uses: ./.github/workflows/NotifyExternalRepositories.yml
+  #   secrets: inherit
+  #   needs:
+  #     - osx
+  #     - linux-release
+  #     - windows
+  #     - python
+  #     - pyodide
+  #     - R
+  #     - Wasm
+  #     - static-libraries
+  #   if: ${{ inputs.git_ref != '' }}
+  #   with:
+  #     target-branch: ${{ github.ref_name }}
+  #     duckdb-sha: ${{ inputs.git_ref }}
+
+  call-nightly-build-status:
+    # needs:
+    #   - osx
+    #   - linux-release
+    #   - windows
+    #   - python
+    #   - pyodide
+    #   - R
+    #   - Wasm
+    #   - static-libraries
+    strategy:
+      matrix:
+          config: [{"branch": "main", "event": "repository_dispatch", "should_publish": "true"}, {"branch": "v1.2-histrionicus", "event": "workflow_dispatch", "should_publish": "true"}, ]
+    uses: hmeriann/duckdb-build-status/.github/workflows/NightlyBuildsCheck.yml@call-from-invoke
     with:
-      target-branch: ${{ github.ref_name }}
-      duckdb-sha: ${{ inputs.git_ref }}
+        branch: ${{ matrix.config.branch }}
+        event: ${{ matrix.config.event }}
+        should_publish: ${{ matrix.config.should_publish }}
