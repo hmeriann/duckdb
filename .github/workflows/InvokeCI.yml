@@ -122,7 +122,7 @@ jobs:
   #     duckdb-sha: ${{ inputs.git_ref }}
 
   call-nightly-build-status:
-    secrets: inherit
+    # secrets: inherit
     # needs:
     #   - osx
     #   - linux-release
