@@ -163,6 +163,10 @@ struct ICUFromNaiveTimestamp : public ICUDateFunc {
 		if (!input.context) {
 			throw InternalException("Missing context for TIMESTAMP to TIMESTAMPTZ cast.");
 		}
+		if (input.context->config.disable_timestamptz_casts) {
+			throw BinderException("Casting from %s to TIMESTAMPTZ has been disabled",
+			                      LogicalTypeIdToString(source.id()));
+		}
 
 		auto cast_data = make_uniq<CastData>(make_uniq<BindData>(*input.context));
 		switch (source.id()) {
