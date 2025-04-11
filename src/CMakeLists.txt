@@ -133,7 +133,7 @@ else()
 
   target_link_libraries(duckdb PUBLIC ${DUCKDB_LINK_LIBS})
   link_threads(duckdb PUBLIC)
-  link_extension_libraries(duckdb PRIVATE)
+  link_extension_libraries(duckdb INTERFACE)
 
   add_library(duckdb_static STATIC ${ALL_OBJECT_FILES})
   target_link_libraries(duckdb_static PUBLIC ${DUCKDB_LINK_LIBS})
