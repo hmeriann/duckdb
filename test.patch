@@ -1,5 +1,5 @@
 diff --git a/.github/config/out_of_tree_extensions.cmake b/.github/config/out_of_tree_extensions.cmake
-index 741a968b6f..0094c023f3 100644
+index 741a968b6f..681d8ba4b0 100644
 --- a/.github/config/out_of_tree_extensions.cmake
 +++ b/.github/config/out_of_tree_extensions.cmake
 @@ -66,6 +66,7 @@ endif()
@@ -10,14 +10,17 @@ index 741a968b6f..0094c023f3 100644
              GIT_URL https://github.com/duckdb/duckdb-delta
              GIT_TAG 90f244b3d572c1692867950b562df8183957b7a8
      )
-@@ -90,6 +91,7 @@ endif()
+@@ -90,8 +91,9 @@ endif()
  if (NOT MINGW AND NOT ${WASM_ENABLED} AND NOT ${MUSL_ENABLED})
      duckdb_extension_load(iceberg
  #            ${LOAD_ICEBERG_TESTS} TODO: re-enable once autoloading test is fixed
 +LOAD_TESTS
              GIT_URL https://github.com/duckdb/duckdb-iceberg
-             GIT_TAG 2db98c685f67373b347c3a8c435ef2e01c509697
+-            GIT_TAG 2db98c685f67373b347c3a8c435ef2e01c509697
++            GIT_TAG main
              )
+ endif()
+ 
 @@ -110,6 +112,7 @@ duckdb_extension_load(inet
  if (NOT MINGW AND NOT ${WASM_ENABLED})
      duckdb_extension_load(postgres_scanner
@@ -64,7 +67,7 @@ index 186cf7aa35..4144a48a56 100644
  SET allow_extensions_metadata_mismatch=true;
  
 diff --git a/test/sqlite/sqllogic_test_runner.cpp b/test/sqlite/sqllogic_test_runner.cpp
-index a8f442f458..277f5f5a6c 100644
+index a8f442f458..fd6a62f8ac 100644
 --- a/test/sqlite/sqllogic_test_runner.cpp
 +++ b/test/sqlite/sqllogic_test_runner.cpp
 @@ -26,9 +26,12 @@ SQLLogicTestRunner::SQLLogicTestRunner(string dbpath) : dbpath(std::move(dbpath)
@@ -98,15 +101,22 @@ index a8f442f458..277f5f5a6c 100644
  		auto result = ExtensionHelper::LoadExtension(*db, param);
  		if (result == ExtensionLoadResult::LOADED_EXTENSION) {
  			// add the extension to the list of loaded extensions
-@@ -549,7 +554,16 @@ RequireResult SQLLogicTestRunner::CheckRequire(SQLLogicParser &parser, const vec
+@@ -549,7 +554,23 @@ RequireResult SQLLogicTestRunner::CheckRequire(SQLLogicParser &parser, const vec
  			return RequireResult::MISSING;
  		}
  	} else if (excluded_from_autoloading) {
 -		return RequireResult::MISSING;
 +		extensions.insert(param);
-+		auto r1 = con->Query("INSTALL " + param + ";");
-+		 if (r1->HasError()) {
-+			return RequireResult::MISSING;
++		if (StringUtil::Lower(param) == "iceberg") {
++			auto r1 = con->Query("INSTALL " + param + " FROM core_nightly;");
++			 if (r1->HasError()) {
++				return RequireResult::MISSING;
++			}
++		} else {
++			auto r1 = con->Query("INSTALL " + param + ";");
++			 if (r1->HasError()) {
++				return RequireResult::MISSING;
++			}
 +		}
 +
 +		auto r2= con->Query("LOAD " + param);
