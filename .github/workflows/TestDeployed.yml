@@ -55,7 +55,11 @@ jobs:
 
     - name: Print platform
       shell: bash
-      run: ./build/release/duckdb -c "PRAGMA platform;"
+      run: ./build/release/duckdb -c "PRAGMA platform; FORCE INSTALL iceberg FROM core_nightly;"
+
+    - name: Print extensions PRE
+      shell: bash
+      run: ./build/release/duckdb -c "FROM duckdb_extensions();"
 
     - name: Print platform
       shell: bash
@@ -111,7 +115,7 @@ jobs:
       shell: sh
       run: |
         export PWD=`pwd`
-        docker run -v$PWD:$PWD -e LOCAL_EXTENSION_REPO='http://extensions.duckdb.org' ${{ matrix.config.image }} sh -c "apk update --y -qq && apk add -qq perl && apk add -qq ccache cmake git ninja ninja-build clang19 gcc libssl3 wget zip gettext unzip build-base curl make libffi-dev zlib openssh autoconf linux-headers libunwind-dev musl && apk add -qq libgcc libstdc++ libstdc++-dev libbsd-dev && cd $PWD && ./build/release/test/unittest --durations yes"
+        docker run -v$PWD:$PWD -e LOCAL_EXTENSION_REPO='http://extensions.duckdb.org' ${{ matrix.config.image }} sh -c "apk update --y -qq && apk add -qq perl && apk add -qq ccache cmake git ninja ninja-build clang19 gcc libssl3 wget zip gettext unzip build-base curl make libffi-dev zlib openssh autoconf linux-headers libunwind-dev musl && apk add -qq libgcc libstdc++ libstdc++-dev libbsd-dev && cd $PWD && ./build/release/duckdb -c 'FORCE INSTALL iceberg FROM core_nightly;' && ./build/release/test/unittest --durations yes"
 
 
   xcode-release:
@@ -166,7 +170,7 @@ jobs:
 
       - name: Print platform
         shell: bash
-        run: ./build/release/duckdb -c "PRAGMA platform;"
+        run: ./build/release/duckdb -c "PRAGMA platform; FORCE INSTALL iceberg FROM core_nightly;"
 
       - name: Print extensions PRE
         shell: bash
@@ -178,6 +182,7 @@ jobs:
           LOCAL_EXTENSION_REPO='http://extensions.duckdb.org' ./build/release/test/unittest --durations yes
 
       - name: Print extensions POST
+        if: always()
         shell: bash
         run: ./build/release/duckdb -c "FROM duckdb_extensions();"
 
