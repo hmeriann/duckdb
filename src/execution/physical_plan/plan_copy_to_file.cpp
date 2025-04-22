@@ -10,6 +10,12 @@ PhysicalOperator &PhysicalPlanGenerator::CreatePlan(LogicalCopyToFile &op) {
 	bool preserve_insertion_order = PhysicalPlanGenerator::PreserveInsertionOrder(context, plan);
 	bool supports_batch_index = PhysicalPlanGenerator::UseBatchIndex(context, plan);
 
+	if (op.preserve_order == PreserveOrderType::PRESERVE_ORDER) {
+		preserve_insertion_order = true;
+	} else if (op.preserve_order == PreserveOrderType::DONT_PRESERVE_ORDER) {
+		preserve_insertion_order = false;
+	}
+
 	auto &fs = FileSystem::GetFileSystem(context);
 	op.file_path = fs.ExpandPath(op.file_path);
 
