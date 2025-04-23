@@ -54,6 +54,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo ${{ inputs.duckdb-sha }}
+          echo ${{ github.ref }}
+          echo ${{ github.ref_name }}
+        
+
   notify-odbc-run:
     name: Run ODBC Vendor
     runs-on: ubuntu-latest
