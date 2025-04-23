@@ -136,7 +136,7 @@ jobs:
   notify-specific-branch-on-external-repos:
     uses: ./.github/workflows/NotifyExternalRepositories.yml
     secrets: inherit
-    # needs: prepare-status
+    needs: prepare-status
     if: ${{ inputs.git_ref != '' && always() }}
     with:
       is-success: ${{ needs.prepare-status.outputs.is-success }}
