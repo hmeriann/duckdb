@@ -185,7 +185,6 @@ bool CheckLoopCondition(ExecuteContext &context, const vector<Condition> &condit
 }
 
 void Command::ExecuteInternal(ExecuteContext &context) const {
-
 }
 
 void Command::Execute(ExecuteContext &context) const {
