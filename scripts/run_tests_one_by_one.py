@@ -125,9 +125,7 @@ is_active = False
 
 def get_test_name_from(text):
     match = re.findall(r'\((.*?)\)\!', text)
-    if match:
-        return match
-
+    return match[0] if match else ''
 
 def print_interval_background(interval):
     global is_active
@@ -270,6 +268,6 @@ if len(error_container):
 '''
     )
     for i, error in enumerate(error_container, start=1):
-        print(f"{i}:", error["test"][0])
+        print(f"{i}:", error["test"])
         print(error["stderr"])
 exit(1)
