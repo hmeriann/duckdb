@@ -127,6 +127,7 @@ def get_test_name_from(text):
     match = re.findall(r'\((.*?)\)\!', text)
     return match[0] if match else ''
 
+
 def print_interval_background(interval):
     global is_active
     current_ticker = 0.0
@@ -172,7 +173,7 @@ def launch_test(test, list_of_tests=False):
 
     if len(stderr) > 0:
         # when list_of_tests test name gets transformed, but we can get it from stderr
-        test = test if not list_of_tests else get_test_name_from(stderr)
+        test = test[0] if not list_of_tests else get_test_name_from(stderr)
         new_data = {"test": test, "return_code": res.returncode, "stdout": stdout, "stderr": stderr}
         error_container.append(new_data)
 
