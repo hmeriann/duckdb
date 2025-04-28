@@ -5,6 +5,10 @@
 
 namespace duckdb {
 
+SQLLogicTestLogger::SQLLogicTestLogger(mutex &log_mutex, std::ostringstream &oss)
+    : log_lock(log_mutex), oss(oss) {
+}
+
 SQLLogicTestLogger::SQLLogicTestLogger(ExecuteContext &context, const Command &command, std::ostringstream &oss)
     : log_lock(command.runner.log_lock), file_name(command.file_name), query_line(command.query_line),
       sql_query(context.sql_query), oss(oss) {
