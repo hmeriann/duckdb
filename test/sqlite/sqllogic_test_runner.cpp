@@ -105,8 +105,8 @@ void SQLLogicTestRunner::LoadDatabase(string dbpath, bool load_extensions) {
 		ExtensionHelper::LoadExtension(*db, "core_functions");
 	} catch (std::exception &ex) {
 		ErrorData err(ex);
-		ExecuteContext context;
-		SQLLogicTestLogger logger(context, *this, oss);
+		mutex log_mutex;
+		SQLLogicTestLogger logger(log_mutex, oss);
 		logger.LoadDatabaseFail(dbpath, err.Message());
 		FAIL();
 	}

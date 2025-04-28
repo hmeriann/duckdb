@@ -19,7 +19,7 @@ class LoopCommand;
 
 class SQLLogicTestLogger {
 public:
-	// SQLLogicTestLogger(std::ostringstream &oss);
+	SQLLogicTestLogger(mutex &log_mutex, std::ostringstream &oss);
 	SQLLogicTestLogger(ExecuteContext &context, const Command &command, std::ostringstream &oss);
 	~SQLLogicTestLogger();
 

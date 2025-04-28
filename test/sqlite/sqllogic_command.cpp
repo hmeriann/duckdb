@@ -184,8 +184,8 @@ bool CheckLoopCondition(ExecuteContext &context, const vector<Condition> &condit
 	return true;
 }
 
-void Command::ExecuteInternal(ExecuteContext &context) const {
-}
+// void Command::ExecuteInternal(ExecuteContext &context) const {
+// }
 
 void Command::Execute(ExecuteContext &context) const {
 	if (runner.finished_processing_file) {
