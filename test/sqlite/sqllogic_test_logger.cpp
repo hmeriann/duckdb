@@ -259,10 +259,10 @@ void SQLLogicTestLogger::ColumnCountMismatchCorrectResult(idx_t original_expecte
 	std::cerr << oss.str();
 }
 
-void SQLLogicTestLogger::SplitMismatch(idx_t row_number, idx_t expected_column_count, idx_t split_count) {
-	PrintLineSep();
+void SQLLogicTestLogger::SplitMismatch(idx_t row_number, idx_t expected_column_count, idx_t split_count, std::ostringstream &oss) {
+	PrintLineSep(oss);
 	PrintErrorHeader("Error in test! Column count mismatch after splitting on tab on row " + to_string(row_number) +
-	                 "!");
+	                 "!", oss);
 	oss << "Expected " << termcolor::bold << expected_column_count << termcolor::reset << " columns, but got "
 	    << termcolor::bold << split_count << termcolor::reset << " columns" << std::endl;
 	oss << "Does the result contain tab values? In that case, place every value on a single row.\n";
