@@ -110,9 +110,13 @@ void SQLLogicTestRunner::LoadDatabase(string dbpath, bool load_extensions) {
 		SQLLogicTestLogger logger(log_mutex, oss);
 =======
 		ExecuteContext context;
+<<<<<<< HEAD
 		SQLLogicTestLogger logger(context, *this);
 >>>>>>> ddd009c4d9 (protecting each ostingstream with the mutex didn't help locally, but lest's try in CI)
 		logger.LoadDatabaseFail(dbpath, err.Message());
+=======
+		SQLLogicTestLogger::LoadDatabaseFail(dbpath, err.Message());
+>>>>>>> e8192a6a47 (make logger functions static again)
 		FAIL();
 	}
 	Reconnect();
