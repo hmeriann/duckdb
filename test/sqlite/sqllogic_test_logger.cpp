@@ -280,8 +280,8 @@ void SQLLogicTestLogger::SplitMismatch(idx_t row_number, idx_t expected_column_c
 	                 "!");
 	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
 		oss << "Expected " << termcolor::bold << expected_column_count << termcolor::reset << " columns, but got "
-		    << termcolor::bold << split_count << termcolor::reset << " columns" << std::endl;
-		oss << "Does the result contain tab values? In that case, place every value on a single row.\n";
+		    << termcolor::bold << split_count << termcolor::reset << " columns" << std::endl
+		    << "Does the result contain tab values? In that case, place every value on a single row.\n";
 	});
 	PrintLineSep();
 	PrintSQL();

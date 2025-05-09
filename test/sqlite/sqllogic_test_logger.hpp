@@ -11,6 +11,7 @@
 #include "duckdb.hpp"
 #include "duckdb/common/mutex.hpp"
 #include "sqllogic_command.hpp"
+#include "test_helpers.hpp"
 
 namespace duckdb {
 
@@ -19,7 +20,6 @@ class LoopCommand;
 
 class SQLLogicTestLogger {
 public:
-	// SQLLogicTestLogger(std::ostringstream &oss);
 	SQLLogicTestLogger(ExecuteContext &context, const Command &command);
 	~SQLLogicTestLogger();
 
@@ -60,6 +60,5 @@ private:
 	string file_name;
 	int query_line;
 	string sql_query;
-	// std::ostringstream &oss;
 };
 } // namespace duckdb

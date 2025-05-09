@@ -22,7 +22,7 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 	auto sort_style = query.sort_style;
 	auto query_has_label = query.query_has_label;
 	auto &query_label = query.query_label;
-	// // auto &oss = GetSummary();
+	//
 
 	SQLLogicTestLogger logger(context, query);
 	if (result.HasError()) {
@@ -252,7 +252,6 @@ bool TestResultHelper::CheckStatementResult(const Statement &statement, ExecuteC
                                             duckdb::unique_ptr<MaterializedQueryResult> owned_result) {
 	auto &result = *owned_result;
 	bool error = result.HasError();
-	// auto &oss = GetSummary();
 
 	SQLLogicTestLogger logger(context, statement);
 	if (runner.output_result_mode || runner.debug_mode) {
@@ -504,7 +503,7 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 		error = true;
 	}
 	if (error) {
-		// auto &oss = GetSummary();
+
 		logger.PrintErrorHeader("Wrong result in query!");
 		logger.PrintLineSep();
 		logger.PrintSQL();
@@ -512,8 +511,7 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) {
 			oss << termcolor::red << termcolor::bold << "Mismatch on row " << current_row + 1 << ", column "
 			    << result.ColumnName(current_column) << "(index " << current_column + 1 << ")" << std::endl
-			    << termcolor::reset;
-			oss << lvalue_str << " <> " << rvalue_str << std::endl;
+			    << termcolor::reset << lvalue_str << " <> " << rvalue_str << std::endl;
 		});
 		logger.PrintLineSep();
 		logger.PrintResultError(result_values, values, expected_column_count, row_wise);
@@ -526,7 +524,6 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 bool TestResultHelper::MatchesRegex(SQLLogicTestLogger &logger, string lvalue_str, string rvalue_str) {
 	bool want_match = StringUtil::StartsWith(rvalue_str, "<REGEX>:");
 	string regex_str = StringUtil::Replace(StringUtil::Replace(rvalue_str, "<REGEX>:", ""), "<!REGEX>:", "");
-	// auto &oss = GetSummary();
 
 	RE2::Options options;
 	options.set_dot_nl(true);

@@ -58,6 +58,21 @@ void TestDeleteFile(string path) {
 	}
 }
 
+void FailureSummary::SafeAppend(const std::function<void(std::ostringstream &)> &callback) {
+	std::lock_guard<std::mutex> guard(lock);
+	callback(summary);
+}
+
+std::string FailureSummary::ToString() const {
+	std::lock_guard<std::mutex> guard(lock);
+	return summary.str();
+}
+
+FailureSummary &GetFailureSummary() {
+	static FailureSummary instance;
+	return instance;
+}
+
 void TestChangeDirectory(string path) {
 	// set the base path for the tests
 	FileSystem::SetWorkingDirectory(path);

@@ -36,16 +36,6 @@ size_t GetSummaryCounter() {
 	return ++failures_summary_counter;
 }
 
-// inline FailureSummary &GetFailureSummary() {
-//     static FailureSummary instance;
-//     return instance;
-// }
-
-// std::ostringstream &GetSummary() {
-// 	static std::ostringstream summary;
-// 	return summary;
-// }
-
 } // namespace duckdb
 
 int main(int argc, char *argv[]) {

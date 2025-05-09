@@ -64,25 +64,15 @@ bool NO_FAIL(QueryResult &result);
 bool NO_FAIL(duckdb::unique_ptr<QueryResult> result);
 
 struct FailureSummary {
-	void SafeAppend(const std::function<void(std::ostringstream &)> &callback) {
-		std::lock_guard<std::mutex> guard(lock);
-		callback(summary);
-	}
-
-	std::string ToString() const {
-		std::lock_guard<std::mutex> guard(lock);
-		return summary.str();
-	}
+	void SafeAppend(const std::function<void(std::ostringstream &)> &callback);
+	std::string ToString() const;
 
 private:
 	std::ostringstream summary;
 	mutable std::mutex lock;
 };
 
-inline FailureSummary &GetFailureSummary() {
-	static FailureSummary instance;
-	return instance;
-}
+FailureSummary &GetFailureSummary();
 
 #define REQUIRE_NO_FAIL(result) REQUIRE(NO_FAIL((result)))
 #define REQUIRE_FAIL(result)    REQUIRE((result)->HasError())

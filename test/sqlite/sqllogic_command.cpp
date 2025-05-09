@@ -354,7 +354,6 @@ bool LoopCommand::SupportsConcurrent() const {
 
 void Query::ExecuteInternal(ExecuteContext &context) const {
 	auto connection = CommandConnection(context);
-	// auto &oss = GetSummary();
 
 	{
 		SQLLogicTestLogger logger(context, *this);
@@ -470,7 +469,7 @@ SleepUnit SleepCommand::ParseUnit(const string &unit) {
 
 void Statement::ExecuteInternal(ExecuteContext &context) const {
 	auto connection = CommandConnection(context);
-	// auto &oss = GetSummary();
+
 	{
 		SQLLogicTestLogger logger(context, *this);
 		if (runner.output_result_mode || runner.debug_mode) {
