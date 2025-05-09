@@ -66,7 +66,6 @@ bool NO_FAIL(duckdb::unique_ptr<QueryResult> result);
 struct FailureSummary {
     void SafeAppend(const std::function<void(std::ostringstream &)> &callback) {
         std::lock_guard<std::mutex> guard(lock);
-		std::cerr << "[SafeAppend] Thread ID: " << std::this_thread::get_id() << "\n";
         callback(summary);
     }
 
