@@ -36,10 +36,15 @@ size_t GetSummaryCounter() {
 	return ++failures_summary_counter;
 }
 
-std::ostringstream &GetSummary() {
-	static std::ostringstream summary;
-	return summary;
-}
+// inline FailureSummary &GetFailureSummary() {
+//     static FailureSummary instance;
+//     return instance;
+// }
+
+// std::ostringstream &GetSummary() {
+// 	static std::ostringstream summary;
+// 	return summary;
+// }
 
 } // namespace duckdb
 
@@ -104,12 +109,12 @@ int main(int argc, char *argv[]) {
 	RegisterSqllogictests();
 	int result = Catch::Session().run(new_argc, new_argv.get());
 
-	std::string failures_summary = GetSummary().str();
+	std::string failures_summary = GetFailureSummary().ToString();
 	if (!failures_summary.empty() && summarize_failures) {
-		std::cout << "\n====================================================" << std::endl;
-		std::cout << "================  FAILURES SUMMARY  ================" << std::endl;
-		std::cout << "====================================================\n" << std::endl;
-		std::cout << failures_summary;
+		std::cerr << "\n====================================================" << std::endl;
+		std::cerr << "================  FAILURES SUMMARY  ================" << std::endl;
+		std::cerr << "====================================================\n" << std::endl;
+		std::cerr << failures_summary;
 	}
 
 	if (DeleteTestPath()) {

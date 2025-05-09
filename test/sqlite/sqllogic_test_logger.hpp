@@ -20,7 +20,7 @@ class LoopCommand;
 class SQLLogicTestLogger {
 public:
 	// SQLLogicTestLogger(std::ostringstream &oss);
-	SQLLogicTestLogger(ExecuteContext &context, const Command &command, std::ostringstream &oss);
+	SQLLogicTestLogger(ExecuteContext &context, const Command &command);
 	~SQLLogicTestLogger();
 
 	void Log(const string &str);
@@ -60,6 +60,6 @@ private:
 	string file_name;
 	int query_line;
 	string sql_query;
-	std::ostringstream &oss;
+	// std::ostringstream &oss;
 };
 } // namespace duckdb
