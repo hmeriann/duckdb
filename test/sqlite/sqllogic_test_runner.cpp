@@ -91,7 +91,7 @@ void SQLLogicTestRunner::EndLoop() {
 void SQLLogicTestRunner::LoadDatabase(string dbpath, bool load_extensions) {
 	loaded_databases.push_back(dbpath);
 
-	std::ostringstream &oss = GetSummary();
+	// auto &oss = GetSummary();
 
 	// restart the database with the specified db path
 	db.reset();
@@ -105,8 +105,13 @@ void SQLLogicTestRunner::LoadDatabase(string dbpath, bool load_extensions) {
 		ExtensionHelper::LoadExtension(*db, "core_functions");
 	} catch (std::exception &ex) {
 		ErrorData err(ex);
+<<<<<<< HEAD
 		mutex log_mutex;
 		SQLLogicTestLogger logger(log_mutex, oss);
+=======
+		ExecuteContext context;
+		SQLLogicTestLogger logger(context, *this);
+>>>>>>> ddd009c4d9 (protecting each ostingstream with the mutex didn't help locally, but lest's try in CI)
 		logger.LoadDatabaseFail(dbpath, err.Message());
 		FAIL();
 	}

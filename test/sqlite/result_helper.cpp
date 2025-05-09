@@ -22,9 +22,9 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 	auto sort_style = query.sort_style;
 	auto query_has_label = query.query_has_label;
 	auto &query_label = query.query_label;
-	auto &oss = GetSummary();
+	// // auto &oss = GetSummary();
 
-	SQLLogicTestLogger logger(context, query, oss);
+	SQLLogicTestLogger logger(context, query);
 	if (result.HasError()) {
 		logger.UnexpectedFailure(result);
 		if (SkipErrorMessage(result.GetError())) {
@@ -94,7 +94,7 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 		comparison_values = LoadResultFromFile(fname, result.names, expected_column_count, csv_error);
 		if (!csv_error.empty()) {
 			logger.PrintErrorHeader(csv_error);
-			std::cerr << oss.str();
+			// std::cerr << oss.str();
 			return false;
 		}
 	} else {
@@ -252,9 +252,9 @@ bool TestResultHelper::CheckStatementResult(const Statement &statement, ExecuteC
                                             duckdb::unique_ptr<MaterializedQueryResult> owned_result) {
 	auto &result = *owned_result;
 	bool error = result.HasError();
-	auto &oss = GetSummary();
+	// auto &oss = GetSummary();
 
-	SQLLogicTestLogger logger(context, statement, oss);
+	SQLLogicTestLogger logger(context, statement);
 	if (runner.output_result_mode || runner.debug_mode) {
 		result.Print();
 	}
@@ -504,18 +504,22 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 		error = true;
 	}
 	if (error) {
-		std::ostringstream &oss = GetSummary();
+		// auto &oss = GetSummary();
 		logger.PrintErrorHeader("Wrong result in query!");
 		logger.PrintLineSep();
 		logger.PrintSQL();
 		logger.PrintLineSep();
-		oss << termcolor::red << termcolor::bold << "Mismatch on row " << current_row + 1 << ", column "
-		    << result.ColumnName(current_column) << "(index " << current_column + 1 << ")" << std::endl
-		    << termcolor::reset;
-		oss << lvalue_str << " <> " << rvalue_str << std::endl;
+		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) {
+			oss << termcolor::red << termcolor::bold << "Mismatch on row " << current_row + 1 << ", column "
+				<< result.ColumnName(current_column) << "(index " << current_column + 1 << ")" << std::endl
+				<< termcolor::reset;
+			oss << lvalue_str << " <> " << rvalue_str << std::endl;
+		});
 		logger.PrintLineSep();
 		logger.PrintResultError(result_values, values, expected_column_count, row_wise);
-		std::cerr << oss.str();
+		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) {
+			std::cerr << oss.str();
+		});
 		return false;
 	}
 	return true;
@@ -524,7 +528,7 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 bool TestResultHelper::MatchesRegex(SQLLogicTestLogger &logger, string lvalue_str, string rvalue_str) {
 	bool want_match = StringUtil::StartsWith(rvalue_str, "<REGEX>:");
 	string regex_str = StringUtil::Replace(StringUtil::Replace(rvalue_str, "<REGEX>:", ""), "<!REGEX>:", "");
-	std::ostringstream &oss = GetSummary();
+	// auto &oss = GetSummary();
 
 	RE2::Options options;
 	options.set_dot_nl(true);
@@ -532,10 +536,14 @@ bool TestResultHelper::MatchesRegex(SQLLogicTestLogger &logger, string lvalue_st
 	if (!re.ok()) {
 		logger.PrintErrorHeader("Test error!");
 		logger.PrintLineSep();
-		oss << termcolor::red << termcolor::bold << "Failed to parse regex: " << re.error() << termcolor::reset
-		    << std::endl;
+		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) {
+			oss << termcolor::red << termcolor::bold << "Failed to parse regex: " << re.error() << termcolor::reset
+		    	<< std::endl;
+		});
 		logger.PrintLineSep();
-		std::cerr << oss.str();
+		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) {
+			std::cerr << oss.str();
+		});
 		return false;
 	}
 	bool regex_matches = RE2::FullMatch(lvalue_str, re);
