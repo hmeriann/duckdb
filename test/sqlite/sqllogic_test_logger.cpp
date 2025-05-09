@@ -6,15 +6,7 @@
 
 namespace duckdb {
 
-<<<<<<< HEAD
-SQLLogicTestLogger::SQLLogicTestLogger(mutex &log_mutex, std::ostringstream &oss)
-    : log_lock(log_mutex), oss(oss) {
-}
-
-SQLLogicTestLogger::SQLLogicTestLogger(ExecuteContext &context, const Command &command, std::ostringstream &oss)
-=======
 SQLLogicTestLogger::SQLLogicTestLogger(ExecuteContext &context, const Command &command)
->>>>>>> ddd009c4d9 (protecting each ostingstream with the mutex didn't help locally, but lest's try in CI)
     : log_lock(command.runner.log_lock), file_name(command.file_name), query_line(command.query_line),
       sql_query(context.sql_query) {
 }
