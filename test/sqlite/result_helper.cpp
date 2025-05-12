@@ -22,7 +22,6 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 	auto sort_style = query.sort_style;
 	auto query_has_label = query.query_has_label;
 	auto &query_label = query.query_label;
-	//
 
 	SQLLogicTestLogger logger(context, query);
 	if (result.HasError()) {
@@ -93,13 +92,17 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 		string csv_error;
 		comparison_values = LoadResultFromFile(fname, result.names, expected_column_count, csv_error);
 		if (!csv_error.empty()) {
-			logger.PrintErrorHeader(csv_error);
-			// std::cerr << GetFailureSummary().ToString();
+			string log_message;
+			log_message += logger.PrintErrorHeader(csv_error);
+			GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+				oss << log_message;
+			});
 			{
-				static std::mutex cerr_mutex;
-				std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-				std::cerr << GetFailureSummary().ToString();
-			}
+        static std::mutex cerr_mutex;
+        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+        std::cerr << log_message;
+    }
+			// GetSummary() << log_message;
 			return false;
 		}
 	} else {
@@ -508,27 +511,28 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 		error = true;
 	}
 	if (error) {
-
-		logger.PrintErrorHeader("Wrong result in query!");
-		logger.PrintLineSep();
-		logger.PrintSQL();
-		logger.PrintLineSep();
-		auto result_column_name = result.ColumnName(current_column);
-		auto row = current_row + 1;
-		auto column = current_column + 1;
-		GetFailureSummary().SafeAppend([row, result_column_name, column, lvalue_str, rvalue_str](std::ostringstream &oss) {
-			oss << termcolor::red << termcolor::bold << "Mismatch on row " << row << ", column "
-			    << result_column_name << "(index " << column << ")" << std::endl
-			    << termcolor::reset << lvalue_str << " <> " << rvalue_str << std::endl;
+		string log_message;
+		std::ostringstream oss;
+		log_message += logger.PrintErrorHeader("Wrong result in query!");
+		log_message += logger.PrintLineSep();
+		log_message += logger.PrintSQL();
+		log_message += logger.PrintLineSep();
+		oss << termcolor::red << termcolor::bold << "Mismatch on row " << current_row + 1 << ", column "
+		            << result.ColumnName(current_column) << "(index " << current_column + 1 << ")" << std::endl
+		            << termcolor::reset;
+		oss << lvalue_str << " <> " << rvalue_str << std::endl;
+		log_message += oss.str();
+		log_message += logger.PrintLineSep();
+		log_message += logger.PrintResultError(result_values, values, expected_column_count, row_wise);
+		GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+			oss << log_message;
 		});
-		logger.PrintLineSep();
-		logger.PrintResultError(result_values, values, expected_column_count, row_wise);
-
 		{
-			static std::mutex cerr_mutex;
-			std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-			std::cerr << GetFailureSummary().ToString();
-		}
+        static std::mutex cerr_mutex;
+        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+        std::cerr << log_message;
+    }
+		// GetSummary() << log_message;
 		return false;
 	}
 	return true;
@@ -542,19 +546,23 @@ bool TestResultHelper::MatchesRegex(SQLLogicTestLogger &logger, string lvalue_st
 	options.set_dot_nl(true);
 	RE2 re(regex_str, options);
 	if (!re.ok()) {
-		logger.PrintErrorHeader("Test error!");
-		logger.PrintLineSep();
-		auto re_error = re.error();
-		GetFailureSummary().SafeAppend([re_error](std::ostringstream &oss) {
-			oss << termcolor::red << termcolor::bold << "Failed to parse regex: " << re_error << termcolor::reset
-			    << std::endl;
+		string log_message;
+		std::ostringstream oss;
+		log_message += logger.PrintErrorHeader("Test error!");
+		log_message += logger.PrintLineSep();
+		oss << termcolor::red << termcolor::bold << "Failed to parse regex: " << re.error() << termcolor::reset
+		            << std::endl;
+		log_message += oss.str();
+		log_message += logger.PrintLineSep();
+		GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+			oss << log_message;
 		});
-		logger.PrintLineSep();
 		{
-			static std::mutex cerr_mutex;
-			std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-			std::cerr << GetFailureSummary().ToString();
-		}
+        static std::mutex cerr_mutex;
+        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+        std::cerr << log_message;
+    }
+		// GetSummary() << log_message;
 		return false;
 	}
 	bool regex_matches = RE2::FullMatch(lvalue_str, re);
