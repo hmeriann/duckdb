@@ -15,12 +15,13 @@ SQLLogicTestLogger::~SQLLogicTestLogger() {
 }
 
 void SQLLogicTestLogger::Log(const string &str) {
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << str; });
+	GetFailureSummary().SafeAppend([str](std::ostringstream &oss) { oss << str; });
 }
 
 void SQLLogicTestLogger::PrintSummaryHeader(const std::string &file_name) {
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
-		oss << "\n" << GetSummaryCounter() << ". " << file_name << std::endl;
+	auto count = GetSummaryCounter();
+	GetFailureSummary().SafeAppend([file_name, count](std::ostringstream &oss) {
+		oss << "\n" << count << ". " << file_name << std::endl;
 	});
 	PrintLineSep();
 }
@@ -28,18 +29,20 @@ void SQLLogicTestLogger::PrintSummaryHeader(const std::string &file_name) {
 void SQLLogicTestLogger::PrintExpectedResult(const vector<string> &values, idx_t columns, bool row_wise) {
 	if (row_wise) {
 		for (idx_t r = 0; r < values.size(); r++) {
-			GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << "\n" << values[r].c_str(); });
+			std::string val = values[r];
+			GetFailureSummary().SafeAppend([&val](std::ostringstream &oss) { oss << "\n" << val; });
 		}
 	} else {
 		idx_t c = 0;
 		for (idx_t r = 0; r < values.size(); r++) {
 			if (c != 0) {
-				GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << "\t"; });
+				GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << "\t"; });
 			}
-			GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { oss << values[r].c_str(); });
+			std::string val = values[r];
+			GetFailureSummary().SafeAppend([&val](std::ostringstream &oss) { oss << val; });
 			c++;
 			if (c >= columns) {
-				GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << std::endl; });
+				GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << std::endl; });
 				c = 0;
 			}
 		}
@@ -48,14 +51,14 @@ void SQLLogicTestLogger::PrintExpectedResult(const vector<string> &values, idx_t
 
 void SQLLogicTestLogger::PrintLineSep() {
 	string line_sep = string(80, '=');
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	GetFailureSummary().SafeAppend([line_sep](std::ostringstream &oss) {
 		oss << termcolor::color<128, 128, 128> << line_sep << termcolor::reset << std::endl;
 	});
 }
 
 void SQLLogicTestLogger::PrintHeader(string header) {
 	GetFailureSummary().SafeAppend(
-	    [&](std::ostream &oss) { oss << termcolor::bold << header << termcolor::reset << std::endl; });
+	    [header](std::ostringstream &oss) { oss << termcolor::bold << header << termcolor::reset << std::endl; });
 }
 
 void SQLLogicTestLogger::PrintFileHeader() {
@@ -118,13 +121,13 @@ void SQLLogicTestLogger::PrintErrorHeader(const string &file_name, idx_t query_l
 		PrintSummaryHeader(file_name);
 	}
 	GetFailureSummary().SafeAppend(
-	    [&](std::ostream &oss) { oss << termcolor::red << termcolor::bold << description << " " << termcolor::reset; });
+	    [description](std::ostringstream &oss) { oss << termcolor::red << termcolor::bold << description << " " << termcolor::reset; });
 	if (!file_name.empty()) {
-		GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+		GetFailureSummary().SafeAppend([file_name, query_line](std::ostringstream &oss) {
 			oss << termcolor::bold << "(" << file_name << ":" << query_line << ")!" << termcolor::reset;
 		});
 	}
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << std::endl; });
+	GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << std::endl; });
 }
 
 void SQLLogicTestLogger::PrintErrorHeader(const string &description) {
@@ -143,7 +146,8 @@ void SQLLogicTestLogger::PrintResultError(const vector<string> &result_values, c
 }
 
 void SQLLogicTestLogger::PrintResultString(MaterializedQueryResult &result) {
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << result.ToString(); });
+	auto result_string = result.ToString();
+	GetFailureSummary().SafeAppend([result_string](std::ostringstream &oss) { oss << result_string; });
 }
 
 void SQLLogicTestLogger::PrintResultError(MaterializedQueryResult &result, const vector<string> &values,
@@ -159,54 +163,70 @@ void SQLLogicTestLogger::PrintResultError(MaterializedQueryResult &result, const
 
 void SQLLogicTestLogger::UnexpectedFailure(MaterializedQueryResult &result) {
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
-		oss << "Query unexpectedly failed (" << file_name << ":" << to_string(query_line) << ")\n";
+	auto string_query_line = to_string(query_line);
+	GetFailureSummary().SafeAppend([this, string_query_line](std::ostringstream &oss) {
+		oss << "Query unexpectedly failed (" << file_name << ":" << string_query_line << ")\n";
 	});
 	PrintLineSep();
 	PrintSQL();
 	PrintLineSep();
 	PrintHeader("Actual result:");
 	PrintResultString(result);
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 void SQLLogicTestLogger::OutputResult(MaterializedQueryResult &result, const vector<string> &result_values_string) {
 	// names
 	for (idx_t c = 0; c < result.ColumnCount(); c++) {
 		if (c != 0) {
-			GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << "\t"; });
+			GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << "\t"; });
 		}
-		GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << result.names[c]; });
+		auto result_names = result.names[c];
+		GetFailureSummary().SafeAppend([result_names](std::ostringstream &oss) { oss << result_names; });
 	}
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << std::endl; });
+	GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << std::endl; });
 	// types
 	for (idx_t c = 0; c < result.ColumnCount(); c++) {
 		if (c != 0) {
-			GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { oss << "\t"; });
+			GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << "\t"; });
 		}
-		GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << result.types[c].ToString(); });
+		auto result_types = result.types[c].ToString();
+		GetFailureSummary().SafeAppend([result_types](std::ostringstream &oss) { oss << result_types; });
 	}
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << std::endl; });
+	GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << std::endl; });
 	PrintLineSep();
 	for (idx_t r = 0; r < result.RowCount(); r++) {
 		for (idx_t c = 0; c < result.ColumnCount(); c++) {
 			if (c != 0) {
-				GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { oss << "\t"; });
+				GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << "\t"; });
 			}
+			auto result_values = result_values_string[r * result.ColumnCount() + c];
 			GetFailureSummary().SafeAppend(
-			    [&](std::ostream &oss) { oss << result_values_string[r * result.ColumnCount() + c]; });
+			    [result_values](std::ostringstream &oss) { oss << result_values; });
 		}
-		GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << std::endl; });
+		GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << std::endl; });
 	}
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::OutputHash(const string &hash_value) {
 	PrintLineSep();
 	PrintSQL();
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << hash_value << std::endl; });
+	GetFailureSummary().SafeAppend([hash_value](std::ostringstream &oss) { oss << hash_value << std::endl; });
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::ColumnCountMismatch(MaterializedQueryResult &result,
@@ -214,71 +234,90 @@ void SQLLogicTestLogger::ColumnCountMismatch(MaterializedQueryResult &result,
                                              bool row_wise) {
 
 	PrintErrorHeader("Wrong column count in query!");
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	auto result_column_count = result.ColumnCount();
+	GetFailureSummary().SafeAppend([expected_column_count, result_column_count](std::ostringstream &oss) {
 		oss << "Expected " << termcolor::bold << expected_column_count << termcolor::reset << " columns, but got "
-		    << termcolor::bold << result.ColumnCount() << termcolor::reset << " columns" << std::endl;
+		    << termcolor::bold << result_column_count << termcolor::reset << " columns" << std::endl;
 	});
 	PrintLineSep();
 	PrintSQL();
 	PrintLineSep();
 	PrintResultError(result, result_values_string, expected_column_count, row_wise);
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::NotCleanlyDivisible(idx_t expected_column_count, idx_t actual_column_count) {
 	PrintErrorHeader("Error in test!");
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	GetFailureSummary().SafeAppend([expected_column_count, actual_column_count](std::ostringstream &oss) {
 		oss << "Expected " << to_string(expected_column_count) << " columns, but " << to_string(actual_column_count)
 		    << " values were supplied\nThis is not cleanly divisible (i.e. the last row does not have enough values)";
 	});
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::WrongRowCount(idx_t expected_rows, MaterializedQueryResult &result,
                                        const vector<string> &comparison_values, idx_t expected_column_count,
                                        bool row_wise) {
 	PrintErrorHeader("Wrong row count in query!");
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	auto result_row_count = result.RowCount();
+	GetFailureSummary().SafeAppend([expected_rows, result_row_count](std::ostringstream &oss) {
 		oss << "Expected " << termcolor::bold << expected_rows << termcolor::reset << " rows, but got "
-		    << termcolor::bold << result.RowCount() << termcolor::reset << " rows" << std::endl;
+		    << termcolor::bold << result_row_count << termcolor::reset << " rows" << std::endl;
 	});
 	PrintLineSep();
 	PrintSQL();
 	PrintLineSep();
 	PrintResultError(result, comparison_values, expected_column_count, row_wise);
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::ColumnCountMismatchCorrectResult(idx_t original_expected_columns, idx_t expected_column_count,
                                                           MaterializedQueryResult &result) {
 	PrintLineSep();
 	PrintErrorHeader("Wrong column count in query!");
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	GetFailureSummary().SafeAppend([original_expected_columns, expected_column_count](std::ostringstream &oss) {
 		oss << "Expected " << termcolor::bold << original_expected_columns << termcolor::reset << " columns, but got "
 		    << termcolor::bold << expected_column_count << termcolor::reset << " columns" << std::endl;
 	});
 	PrintSQL();
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	GetFailureSummary().SafeAppend([](std::ostringstream &oss) {
 		oss << "The expected result " << termcolor::bold << "matched" << termcolor::reset << " the query result."
 		    << std::endl;
 	});
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	auto result_column_count = result.ColumnCount();
+	GetFailureSummary().SafeAppend([result_column_count](std::ostringstream &oss) {
 		oss << termcolor::bold << "Suggested fix: modify header to \"" << termcolor::green << "query "
-		    << string(result.ColumnCount(), 'I') << termcolor::reset << termcolor::bold << "\"" << termcolor::reset
+		    << string(result_column_count, 'I') << termcolor::reset << termcolor::bold << "\"" << termcolor::reset
 		    << std::endl;
 	});
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::SplitMismatch(idx_t row_number, idx_t expected_column_count, idx_t split_count) {
 	PrintLineSep();
 	PrintErrorHeader("Error in test! Column count mismatch after splitting on tab on row " + to_string(row_number) +
 	                 "!");
-	GetFailureSummary().SafeAppend([&](std::ostream &oss) {
+	GetFailureSummary().SafeAppend([expected_column_count, split_count](std::ostringstream &oss) {
 		oss << "Expected " << termcolor::bold << expected_column_count << termcolor::reset << " columns, but got "
 		    << termcolor::bold << split_count << termcolor::reset << " columns" << std::endl;
 		oss << "Does the result contain tab values? In that case, place every value on a single row.\n";
@@ -286,7 +325,11 @@ void SQLLogicTestLogger::SplitMismatch(idx_t row_number, idx_t expected_column_c
 	PrintLineSep();
 	PrintSQL();
 	PrintLineSep();
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::WrongResultHash(QueryResult *expected_result, MaterializedQueryResult &result) {
@@ -294,7 +337,7 @@ void SQLLogicTestLogger::WrongResultHash(QueryResult *expected_result, Materiali
 		expected_result->Print();
 		expected_result->ToString();
 	} else {
-		GetFailureSummary().SafeAppend([&](std::ostream &oss) { oss << "???\n"; });
+		GetFailureSummary().SafeAppend([](std::ostringstream &oss) { oss << "???\n"; });
 	}
 	PrintErrorHeader("Wrong result hash!");
 	PrintLineSep();
@@ -305,7 +348,11 @@ void SQLLogicTestLogger::WrongResultHash(QueryResult *expected_result, Materiali
 	PrintHeader("Actual result:");
 	PrintLineSep();
 	PrintResultString(result);
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::UnexpectedStatement(bool expect_ok, MaterializedQueryResult &result) {
@@ -314,7 +361,11 @@ void SQLLogicTestLogger::UnexpectedStatement(bool expect_ok, MaterializedQueryRe
 	PrintSQL();
 	PrintLineSep();
 	PrintResultString(result);
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::ExpectedErrorMismatch(const string &expected_error, MaterializedQueryResult &result) {
@@ -324,7 +375,11 @@ void SQLLogicTestLogger::ExpectedErrorMismatch(const string &expected_error, Mat
 	PrintHeader("Actual result:");
 	PrintLineSep();
 	PrintResultString(result);
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::InternalException(MaterializedQueryResult &result) {
@@ -334,7 +389,11 @@ void SQLLogicTestLogger::InternalException(MaterializedQueryResult &result) {
 	PrintHeader("Actual result:");
 	PrintLineSep();
 	PrintResultString(result);
-	GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+	{
+    static std::mutex cerr_mutex;
+    std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    std::cerr << GetFailureSummary().ToString();
+}
 }
 
 void SQLLogicTestLogger::LoadDatabaseFail(const string &dbpath, const string &message) {

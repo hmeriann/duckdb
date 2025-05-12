@@ -94,7 +94,12 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 		comparison_values = LoadResultFromFile(fname, result.names, expected_column_count, csv_error);
 		if (!csv_error.empty()) {
 			logger.PrintErrorHeader(csv_error);
-			// std::cerr << oss.str();
+			// std::cerr << GetFailureSummary().ToString();
+			{
+				static std::mutex cerr_mutex;
+				std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+				std::cerr << GetFailureSummary().ToString();
+			}
 			return false;
 		}
 	} else {
@@ -509,15 +514,22 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 		logger.PrintLineSep();
 		logger.PrintSQL();
 		logger.PrintLineSep();
-		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) {
-			oss << termcolor::red << termcolor::bold << "Mismatch on row " << current_row + 1 << ", column "
-			    << result.ColumnName(current_column) << "(index " << current_column + 1 << ")" << std::endl
-			    << termcolor::reset;
-			oss << lvalue_str << " <> " << rvalue_str << std::endl;
+		auto result_column_name = result.ColumnName(current_column);
+		auto row = current_row + 1;
+		auto column = current_column + 1;
+		GetFailureSummary().SafeAppend([row, result_column_name, column, lvalue_str, rvalue_str](std::ostringstream &oss) {
+			oss << termcolor::red << termcolor::bold << "Mismatch on row " << row << ", column "
+			    << result_column_name << "(index " << column << ")" << std::endl
+			    << termcolor::reset << lvalue_str << " <> " << rvalue_str << std::endl;
 		});
 		logger.PrintLineSep();
 		logger.PrintResultError(result_values, values, expected_column_count, row_wise);
-		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+
+		{
+			static std::mutex cerr_mutex;
+			std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+			std::cerr << GetFailureSummary().ToString();
+		}
 		return false;
 	}
 	return true;
@@ -534,12 +546,17 @@ bool TestResultHelper::MatchesRegex(SQLLogicTestLogger &logger, string lvalue_st
 	if (!re.ok()) {
 		logger.PrintErrorHeader("Test error!");
 		logger.PrintLineSep();
-		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) {
-			oss << termcolor::red << termcolor::bold << "Failed to parse regex: " << re.error() << termcolor::reset
+		auto re_error = re.error();
+		GetFailureSummary().SafeAppend([re_error](std::ostringstream &oss) {
+			oss << termcolor::red << termcolor::bold << "Failed to parse regex: " << re_error << termcolor::reset
 			    << std::endl;
 		});
 		logger.PrintLineSep();
-		GetFailureSummary().SafeAppend([&](std::ostringstream &oss) { std::cerr << oss.str(); });
+		{
+			static std::mutex cerr_mutex;
+			std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+			std::cerr << GetFailureSummary().ToString();
+		}
 		return false;
 	}
 	bool regex_matches = RE2::FullMatch(lvalue_str, re);

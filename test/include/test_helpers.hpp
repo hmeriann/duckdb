@@ -63,6 +63,15 @@ void WriteBinary(string path, const uint8_t *data, uint64_t length);
 bool NO_FAIL(QueryResult &result);
 bool NO_FAIL(duckdb::unique_ptr<QueryResult> result);
 
+// class FailureSummary {
+// 	void SafeAppend(const std::string);
+// 	std::string ToString() const;
+
+// private:
+// 	std::string summary;
+// 	mutable std::mutex summary_lock;
+// };
+
 struct FailureSummary {
 	void SafeAppend(const std::function<void(std::ostringstream &)> &callback) {
 		std::lock_guard<std::mutex> guard(lock);
