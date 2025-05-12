@@ -99,12 +99,18 @@ int main(int argc, char *argv[]) {
 	RegisterSqllogictests();
 	int result = Catch::Session().run(new_argc, new_argv.get());
 
-	std::string failures_summary = GetFailureSummary().ToString();
+	// std::string failures_summary = GetFailureSummary().ToString();
+	std::string failures_summary;
+	{
+		static std::mutex cerr_mutex;
+		std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+		failures_summary = GetFailureSummary().ToString();
+	}
 	if (!failures_summary.empty() && summarize_failures) {
 		std::cerr << "\n====================================================" << std::endl;
 		std::cerr << "================  FAILURES SUMMARY  ================" << std::endl;
 		std::cerr << "====================================================\n" << std::endl;
-		std::cerr << failures_summary;
+		std::cerr << GetFailureSummary().ToString();
 	}
 
 	if (DeleteTestPath()) {
