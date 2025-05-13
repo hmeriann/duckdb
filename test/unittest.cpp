@@ -9,6 +9,7 @@
 using namespace duckdb;
 
 namespace duckdb {
+extern SummaryLogger summary_logger;
 static bool test_force_storage = false;
 static bool test_force_reload = false;
 static bool test_memory_leaks = false;
@@ -101,16 +102,18 @@ int main(int argc, char *argv[]) {
 
 	// std::string failures_summary = GetFailureSummary().ToString();
 	std::string failures_summary;
-	{
-		static std::mutex cerr_mutex;
-		std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-		failures_summary = GetFailureSummary().ToString();
-	}
-	if (!failures_summary.empty() && summarize_failures) {
+	// {
+	// 	static std::mutex cerr_mutex;
+	// 	std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+	// 	failures_summary = GetFailureSummary().ToString();
+	// }
+	if (summary_logger.HasLogs() && summarize_failures) {
 		std::cerr << "\n====================================================" << std::endl;
 		std::cerr << "================  FAILURES SUMMARY  ================" << std::endl;
 		std::cerr << "====================================================\n" << std::endl;
-		std::cerr << GetFailureSummary().ToString();
+		for (const auto &line : summary_logger.Get()) {
+			std::cerr << line << std::endl;
+		}
 	}
 
 	if (DeleteTestPath()) {

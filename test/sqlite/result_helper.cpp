@@ -13,6 +13,8 @@
 
 namespace duckdb {
 
+extern SummaryLogger summary_logger;
+
 bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &context,
                                         duckdb::unique_ptr<MaterializedQueryResult> owned_result) {
 	auto &result = *owned_result;
@@ -94,9 +96,10 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 		if (!csv_error.empty()) {
 			string log_message;
 			log_message += logger.PrintErrorHeader(csv_error);
-			GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-				oss << log_message;
-			});
+			SQLLogicTestLogger::summary_logger.Add(log_message);
+			// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+			// 	oss << log_message;
+			// });
 			{
         static std::mutex cerr_mutex;
         std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
@@ -524,9 +527,10 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 		log_message += oss.str();
 		log_message += logger.PrintLineSep();
 		log_message += logger.PrintResultError(result_values, values, expected_column_count, row_wise);
-		GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-			oss << log_message;
-		});
+		SQLLogicTestLogger::summary_logger.Add(log_message);
+		// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+		// 	oss << log_message;
+		// });
 		{
         static std::mutex cerr_mutex;
         std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
@@ -554,9 +558,10 @@ bool TestResultHelper::MatchesRegex(SQLLogicTestLogger &logger, string lvalue_st
 		            << std::endl;
 		log_message += oss.str();
 		log_message += logger.PrintLineSep();
-		GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-			oss << log_message;
-		});
+		SQLLogicTestLogger::summary_logger.Add(log_message);
+		// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+		// 	oss << log_message;
+		// });
 		{
         static std::mutex cerr_mutex;
         std::lock_guard<std::mutex> cerr_lock(cerr_mutex);

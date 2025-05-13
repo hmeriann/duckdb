@@ -5,6 +5,8 @@
 
 namespace duckdb {
 
+SummaryLogger SQLLogicTestLogger::summary_logger;
+
 SQLLogicTestLogger::SQLLogicTestLogger(ExecuteContext &context, const Command &command)
     : log_lock(command.runner.log_lock), file_name(command.file_name), query_line(command.query_line),
       sql_query(context.sql_query) {
@@ -188,14 +190,11 @@ void SQLLogicTestLogger::UnexpectedFailure(MaterializedQueryResult &result) {
 	log_message += PrintLineSep();
 	log_message += PrintHeader("Actual result:");
 	log_message += PrintResultString(result);
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
 }
 void SQLLogicTestLogger::OutputResult(MaterializedQueryResult &result, const vector<string> &result_values_string) {
 	string log_message;
@@ -225,14 +224,16 @@ void SQLLogicTestLogger::OutputResult(MaterializedQueryResult &result, const vec
 		}
 		log_message += "\n";
 	}
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::OutputHash(const string &hash_value) {
@@ -242,14 +243,16 @@ void SQLLogicTestLogger::OutputHash(const string &hash_value) {
 	log_message += PrintLineSep();
 	log_message += hash_value + "\n";
 	log_message += PrintLineSep();
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::ColumnCountMismatch(MaterializedQueryResult &result,
@@ -266,14 +269,16 @@ void SQLLogicTestLogger::ColumnCountMismatch(MaterializedQueryResult &result,
 	log_message += PrintSQL();
 	log_message += PrintLineSep();
 	log_message += PrintResultError(result, result_values_string, expected_column_count, row_wise);
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::NotCleanlyDivisible(idx_t expected_column_count, idx_t actual_column_count) {
@@ -285,14 +290,16 @@ void SQLLogicTestLogger::NotCleanlyDivisible(idx_t expected_column_count, idx_t 
 	    << "Expected " << to_string(expected_column_count) << " columns, but " << to_string(actual_column_count)
 	    << " values were supplied\nThis is not cleanly divisible (i.e. the last row does not have enough values)";
 	log_message += oss.str();
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::WrongRowCount(idx_t expected_rows, MaterializedQueryResult &result,
@@ -308,14 +315,16 @@ void SQLLogicTestLogger::WrongRowCount(idx_t expected_rows, MaterializedQueryRes
 	log_message += PrintSQL();
 	log_message += PrintLineSep();
 	log_message += PrintResultError(result, comparison_values, expected_column_count, row_wise);
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::ColumnCountMismatchCorrectResult(idx_t original_expected_columns, idx_t expected_column_count,
@@ -337,14 +346,16 @@ void SQLLogicTestLogger::ColumnCountMismatchCorrectResult(idx_t original_expecte
 	            << std::endl;
 	log_message += oss.str();
 	log_message += PrintLineSep();
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::SplitMismatch(idx_t row_number, idx_t expected_column_count, idx_t split_count) {
@@ -361,15 +372,16 @@ void SQLLogicTestLogger::SplitMismatch(idx_t row_number, idx_t expected_column_c
 	log_message += PrintLineSep();
 	log_message += PrintSQL();
 	log_message += PrintLineSep();
-
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::WrongResultHash(QueryResult *expected_result, MaterializedQueryResult &result) {
@@ -389,14 +401,16 @@ void SQLLogicTestLogger::WrongResultHash(QueryResult *expected_result, Materiali
 	log_message += PrintHeader("Actual result:");
 	log_message += PrintLineSep();
 	log_message += PrintResultString(result);
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::UnexpectedStatement(bool expect_ok, MaterializedQueryResult &result) {
@@ -406,14 +420,16 @@ void SQLLogicTestLogger::UnexpectedStatement(bool expect_ok, MaterializedQueryRe
 	log_message += PrintSQL();
 	log_message += PrintLineSep();
 	log_message += PrintResultString(result);
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::ExpectedErrorMismatch(const string &expected_error, MaterializedQueryResult &result) {
@@ -426,14 +442,16 @@ void SQLLogicTestLogger::ExpectedErrorMismatch(const string &expected_error, Mat
 	log_message += PrintHeader("Actual result:");
 	log_message += PrintLineSep();
 	log_message += PrintResultString(result);
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::InternalException(MaterializedQueryResult &result) {
@@ -444,14 +462,16 @@ void SQLLogicTestLogger::InternalException(MaterializedQueryResult &result) {
 	log_message += PrintHeader("Actual result:");
 	log_message += PrintLineSep();
 	log_message += PrintResultString(result);
-	GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
-		oss << log_message;
-	});
-	{
-        static std::mutex cerr_mutex;
-        std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
-        std::cerr << log_message;
-    }
+	summary_logger.Add(log_message);
+	std::cerr << log_message;
+	// GetFailureSummary().SafeAppend([log_message](std::ostringstream &oss) {
+	// 	oss << log_message;
+	// });
+	// {
+    //     static std::mutex cerr_mutex;
+    //     std::lock_guard<std::mutex> cerr_lock(cerr_mutex);
+    //     std::cerr << log_message;
+    // }
 }
 
 void SQLLogicTestLogger::LoadDatabaseFail(const string &dbpath, const string &message) {

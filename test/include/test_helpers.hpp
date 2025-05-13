@@ -72,33 +72,16 @@ bool NO_FAIL(duckdb::unique_ptr<QueryResult> result);
 // 	mutable std::mutex summary_lock;
 // };
 
-struct FailureSummary {
-	void SafeAppend(const std::function<void(std::ostringstream &)> &callback);
-	std::string ToString() const;
+// struct FailureSummary {
+// 	void SafeAppend(const std::function<void(std::ostringstream &)> &callback);
+// 	std::string ToString() const;
 
-private:
-	std::ostringstream summary;
-	mutable std::mutex lock;
-};
+// private:
+// 	std::ostringstream summary;
+// 	mutable std::mutex lock;
+// };
 
-FailureSummary &GetFailureSummary();
-
-#define REQUIRE_NO_FAIL(result) REQUIRE(NO_FAIL((result)))
-#define REQUIRE_FAIL(result)    REQUIRE((result)->HasError())
-
-#define COMPARE_CSV(result, csv, header)                                                                               \
-	{                                                                                                                  \
-		auto res = compare_csv(*result, csv, header);                                                                  \
-		if (!res.empty())                                                                                              \
-			FAIL(res);                                                                                                 \
-	}
-
-#define COMPARE_CSV_COLLECTION(collection, csv, header)                                                                \
-	{                                                                                                                  \
-		auto res = compare_csv_collection(collection, csv, header);                                                    \
-		if (!res.empty())                                                                                              \
-			FAIL(res);                                                                                                 \
-	}
+// FailureSummary &GetFailureSummary();
 
 class SummaryLogger {
 public:
@@ -121,4 +104,23 @@ private:
 	mutable std::mutex mutex_;
 	std::vector<std::string> logs_;
 };
+
+extern SummaryLogger summary_logger;
+
+#define REQUIRE_NO_FAIL(result) REQUIRE(NO_FAIL((result)))
+#define REQUIRE_FAIL(result)    REQUIRE((result)->HasError())
+
+#define COMPARE_CSV(result, csv, header)                                                                               \
+	{                                                                                                                  \
+		auto res = compare_csv(*result, csv, header);                                                                  \
+		if (!res.empty())                                                                                              \
+			FAIL(res);                                                                                                 \
+	}
+
+#define COMPARE_CSV_COLLECTION(collection, csv, header)                                                                \
+	{                                                                                                                  \
+		auto res = compare_csv_collection(collection, csv, header);                                                    \
+		if (!res.empty())                                                                                              \
+			FAIL(res);                                                                                                 \
+	}
 } // namespace duckdb

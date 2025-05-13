@@ -11,6 +11,7 @@
 #include "duckdb.hpp"
 #include "duckdb/common/mutex.hpp"
 #include "sqllogic_command.hpp"
+#include "test_helpers.hpp"
 
 namespace duckdb {
 
