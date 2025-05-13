@@ -100,4 +100,25 @@ FailureSummary &GetFailureSummary();
 			FAIL(res);                                                                                                 \
 	}
 
+class SummaryLogger {
+public:
+	void Add(const std::string &line) {
+		std::lock_guard<std::mutex> lock(mutex_);
+		logs_.push_back(line);
+	}
+
+	std::vector<std::string> Get() const {
+		std::lock_guard<std::mutex> lock(mutex_);
+		return logs_;
+	}
+
+	bool HasLogs() const {
+		std::lock_guard<std::mutex> lock(mutex_);
+		return !logs_.empty();
+	}
+
+private:
+	mutable std::mutex mutex_;
+	std::vector<std::string> logs_;
+};
 } // namespace duckdb

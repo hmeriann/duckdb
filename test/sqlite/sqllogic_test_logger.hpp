@@ -22,6 +22,7 @@ public:
 	SQLLogicTestLogger(ExecuteContext &context, const Command &command);
 	~SQLLogicTestLogger();
 
+	static SummaryLogger summary_logger;
 	static string Log(const string &str);
 	string PrintExpectedResult(const vector<string> &values, idx_t columns, bool row_wise);
 	static string PrintLineSep();
