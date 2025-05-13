@@ -472,10 +472,10 @@ jobs:
           python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[detailed_profiler]" --no-exit --timeout 600 >> TSAN
           python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest test/sql/tpch/tpch_sf01.test_slow --no-exit --timeout 600 >> TSAN
 
-          grep -B10 -A20 'ThreadSanitizer: data race' TSAN | grep -v 'ValidityAppend\|InsertMatchesAndIncrementMisses\|NextInnerJoin\|NextRightSemiOrAntiJoin\|duckdb_moodycamel\|jemalloc\|AddToEvictionQueue' > upload_file
-          cat upload_file
+    #       grep -B10 -A20 'ThreadSanitizer: data race' TSAN | grep -v 'ValidityAppend\|InsertMatchesAndIncrementMisses\|NextInnerJoin\|NextRightSemiOrAntiJoin\|duckdb_moodycamel\|jemalloc\|AddToEvictionQueue' > upload_file
+    #       cat upload_file
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: result
-        path: upload_file
+    # - uses: actions/upload-artifact@v4
+    #   with:
+    #     name: result
+    #     path: upload_file
