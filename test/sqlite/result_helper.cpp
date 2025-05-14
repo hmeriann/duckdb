@@ -22,10 +22,6 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 	auto sort_style = query.sort_style;
 	auto query_has_label = query.query_has_label;
 	auto &query_label = query.query_label;
-<<<<<<< HEAD
-	// // auto &oss = GetSummary();
-=======
->>>>>>> 21e64551dd (restored from commits used to return strings from logger functions)
 
 	SQLLogicTestLogger logger(context, query);
 	if (result.HasError()) {
