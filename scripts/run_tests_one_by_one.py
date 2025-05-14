@@ -1,4 +1,3 @@
-import argparse
 import sys
 import subprocess
 import time
@@ -6,9 +5,8 @@ import threading
 import tempfile
 import os
 import shutil
-import re
 
-error_container = []
+import argparse
 
 
 def valid_timeout(value):
@@ -53,7 +51,6 @@ if not args.unittest_program:
 unittest_program = args.unittest_program
 no_exit = args.no_exit
 fast_fail = args.fast_fail
-tests_per_invocation = args.tests_per_invocation
 
 if no_exit:
     if fast_fail:
@@ -123,11 +120,6 @@ def parse_assertions(stdout):
 is_active = False
 
 
-def get_test_name_from(text):
-    match = re.findall(r'\((.*?)\)\!', text)
-    return match[0] if match else ''
-
-
 def print_interval_background(interval):
     global is_active
     current_ticker = 0.0
@@ -147,19 +139,14 @@ def launch_test(test, list_of_tests=False):
     background_print_thread.start()
 
     unittest_stdout = sys.stdout if list_of_tests else subprocess.PIPE
-    unittest_stderr = subprocess.PIPE
+    unittest_stderr = sys.stderr if list_of_tests else subprocess.PIPE
 
     start = time.time()
     try:
         test_cmd = [unittest_program] + test
         if args.valgrind:
             test_cmd = ['valgrind'] + test_cmd
-        # should unset SUMMARIZE_FAILURES to avoid producing exceeding failure logs
-        if list_of_tests or no_exit or tests_per_invocation:
-            env = {'SUMMARIZE_FAILURES': '0', 'NO_DUPLICATING_HEADERS': '1'}
-        else:
-            env = {'SUMMARIZE_FAILURES': '0'}
-        res = subprocess.run(test_cmd, stdout=unittest_stdout, stderr=unittest_stderr, timeout=timeout, env=env)
+        res = subprocess.run(test_cmd, stdout=unittest_stdout, stderr=unittest_stderr, timeout=timeout)
     except subprocess.TimeoutExpired as e:
         if list_of_tests:
             print("[TIMED OUT]", flush=True)
@@ -168,14 +155,12 @@ def launch_test(test, list_of_tests=False):
         fail()
         return
 
-    stdout = res.stdout.decode('utf8') if not list_of_tests else ''
-    stderr = res.stderr.decode('utf8')
-
-    if len(stderr) > 0:
-        # when list_of_tests test name gets transformed, but we can get it from stderr
-        test = test[0] if not list_of_tests else get_test_name_from(stderr)
-        new_data = {"test": test, "return_code": res.returncode, "stdout": stdout, "stderr": stderr}
-        error_container.append(new_data)
+    if list_of_tests:
+        stdout = ''
+        stderr = ''
+    else:
+        stdout = res.stdout.decode('utf8')
+        stderr = res.stderr.decode('utf8')
 
     end = time.time()
 
@@ -201,18 +186,19 @@ RETURNCODE
 --------------------"""
     )
     print(res.returncode)
-    print(
-        """--------------------
+    if not list_of_tests:
+        print(
+            """--------------------
 STDOUT
 --------------------"""
-    )
-    print(stdout)
-    print(
-        """--------------------
+        )
+        print(stdout)
+        print(
+            """--------------------
 STDERR
 --------------------"""
-    )
-    print(stderr)
+        )
+        print(stderr)
 
     # if a test closes unexpectedly (e.g., SEGV), test cleanup doesn't happen,
     # causing us to run out of space on subsequent tests in GH Actions (not much disk space there)
@@ -261,14 +247,4 @@ else:
 
 if all_passed:
     exit(0)
-if len(error_container):
-    print(
-        '''\n\n====================================================
-================  FAILURES SUMMARY  ================
-====================================================\n
-'''
-    )
-    for i, error in enumerate(error_container, start=1):
-        print(f"{i}:", error["test"])
-        print(error["stderr"])
 exit(1)
