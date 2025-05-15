@@ -137,7 +137,8 @@ def parse_assertions(stdout):
     return "ERROR"
 
 
-is_active = False
+# is_active = False
+print_running = threading.Event() # replaces is_active
 
 
 def get_test_name_from(text):
@@ -148,7 +149,8 @@ def get_test_name_from(text):
 def print_interval_background(interval):
     global is_active
     current_ticker = 0.0
-    while is_active:
+    while print_running.set():
+    # while is_active:
         time.sleep(0.1)
         current_ticker += 0.1
         if current_ticker >= interval:
@@ -157,9 +159,10 @@ def print_interval_background(interval):
 
 
 def launch_test(test, list_of_tests=False):
-    global is_active
-    # start the background thread
-    is_active = True
+    print_running.set()
+    # global is_active
+    # # start the background thread
+    # is_active = True
     background_print_thread = threading.Thread(target=print_interval_background, args=[args.print_interval])
     background_print_thread.start()
 
@@ -197,7 +200,8 @@ def launch_test(test, list_of_tests=False):
     end = time.time()
 
     # join the background print thread
-    is_active = False
+    # is_active = False
+    print_running.clear()
     background_print_thread.join()
 
     additional_data = ""
