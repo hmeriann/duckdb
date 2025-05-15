@@ -418,7 +418,6 @@ FailureSummary &GetFailureSummary() {
 	return instance;
 }
 
-
 // void FailureSummary::SafeAppend(const std::function<void(std::ostringstream &)> &callback) {
 // 	std::lock_guard<std::mutex> guard(lock);
 // 	callback(summary);

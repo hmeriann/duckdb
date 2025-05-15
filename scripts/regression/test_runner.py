@@ -128,6 +128,9 @@ for i in range(NUMBER_REPETITIONS):
             other_results.append(BenchmarkResult(benchmark, old_res, new_res))
     benchmark_list = [res.benchmark for res in regression_list]
 
+time_a = geomean(old_runner.complete_timings)
+time_b = geomean(new_runner.complete_timings)
+
 exit_code = 0
 regression_list.extend(error_list)
 summary = []
@@ -151,6 +154,12 @@ if len(regression_list) > 0:
             }
             summary.append(new_data)
         print("")
+
+if time_b > time_a * 1.01:
+    print(f"Old timing geometric mean: {time_a}, roughly {int((time_b - time_a) * 100.0 / time_b)}% faster")
+    print(f"New timing geometric mean: {time_b}")
+    print("")
+
     print(
         '''====================================================
 ==============     OTHER TIMINGS       =============
@@ -171,10 +180,6 @@ for res in other_results:
     print(f"Old timing: {res.old_result}")
     print(f"New timing: {res.new_result}")
     print("")
-
-time_a = geomean(old_runner.complete_timings)
-time_b = geomean(new_runner.complete_timings)
-
 
 print("")
 if isinstance(time_a, str) or isinstance(time_b, str):
@@ -201,13 +206,19 @@ if summary and not no_summary:
 ====================================================
 '''
     )
-    for i, failure_message in enumerate(summary, start=1):
-        print(f"{i}: ", failure_message["benchmark"])
-        if failure_message["old_failure"] != failure_message["new_failure"]:
-            print("Old:\n", failure_message["old_failure"])
-            print("New:\n", failure_message["new_failure"])
-        else:
-            print(failure_message["old_failure"])
-        print("-", 52)
+    with open("CSV.csv", "w") as f:
+        f.write("benchmark,old_failure,new_failure")
+        for i, failure_message in enumerate(summary, start=1):
+            print(f"{i}: ", failure_message["benchmark"])
+            if failure_message["old_failure"] != failure_message["new_failure"]:
+                print("Old:\n", failure_message["old_failure"])
+                print("New:\n", failure_message["new_failure"])
+                f.write(
+                    f"{failure_message["benchmark"]},{failure_message["old_failure"]},{failure_message["new_failure"]}"
+                )
+            else:
+                print(failure_message["old_failure"])
+                f.write(f"{failure_message["benchmark"]},{failure_message["old_failure"]}")
+            print("-", 52)
 
 exit(exit_code)
