@@ -6,7 +6,24 @@ import tempfile
 import os
 import shutil
 
-import argparse
+class ErrorContainer:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._errors = []
+    
+    def append(self, item):
+        with self._lock:
+            self._errors.append(item)
+
+    def get_errors(self):
+        with self._lock:
+            return list(self._errors)
+
+    def __len__(self):
+        with self._lock:
+            return len(self._errors)
+
+error_container = ErrorContainer()
 
 
 def valid_timeout(value):
@@ -247,4 +264,14 @@ else:
 
 if all_passed:
     exit(0)
+if len(error_container):
+    print(
+        '''\n\n====================================================
+================  FAILURES SUMMARY  ================
+====================================================\n
+'''
+    )
+    for i, error in enumerate(error_container.get_errors(), start=1):
+        print(f"{i}:", error["test"])
+        print(error["stderr"])
 exit(1)
