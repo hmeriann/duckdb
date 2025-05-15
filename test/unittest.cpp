@@ -110,8 +110,7 @@ int main(int argc, char *argv[]) {
 	int result = Catch::Session().run(new_argc, new_argv.get());
 
 	// std::string failures_summary = GetFailureSummary().ToString();
-	std::string failures_summary;
-	failures_summary = GetFailureSummary().ToString();
+	std::string failures_summary = SQLLogicTestLogger::GetFailureSummary();
 	if (!failures_summary.empty() && summarize_failures) {
 		std::cerr << "\n====================================================" << std::endl;
 		std::cerr << "================  FAILURES SUMMARY  ================" << std::endl;
