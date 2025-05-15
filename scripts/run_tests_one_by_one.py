@@ -8,7 +8,24 @@ import os
 import shutil
 import re
 
-error_container = []
+class ErrorContainer:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._errors = []
+    
+    def append(self, item):
+        with self._lock:
+            self._errors.append(item)
+
+    def get_errors(self):
+        with self._lock:
+            return list(self._errors)
+
+    def __len__(self):
+        with self._lock:
+            return len(self._errors)
+
+error_container = ErrorContainer()
 
 
 def valid_timeout(value):
@@ -268,7 +285,7 @@ if len(error_container):
 ====================================================\n
 '''
     )
-    for i, error in enumerate(error_container, start=1):
+    for i, error in enumerate(error_container.get_errors(), start=1):
         print(f"{i}:", error["test"])
         print(error["stderr"])
 exit(1)
