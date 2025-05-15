@@ -8,11 +8,12 @@ import os
 import shutil
 import re
 
+
 class ErrorContainer:
     def __init__(self):
         self._lock = threading.Lock()
         self._errors = []
-    
+
     def append(self, item):
         with self._lock:
             self._errors.append(item)
@@ -24,6 +25,7 @@ class ErrorContainer:
     def __len__(self):
         with self._lock:
             return len(self._errors)
+
 
 error_container = ErrorContainer()
 
