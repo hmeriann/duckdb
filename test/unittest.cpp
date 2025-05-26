@@ -34,6 +34,11 @@ bool SummarizeFailures() {
 int main(int argc, char *argv[]) {
 	duckdb::unique_ptr<FileSystem> fs = FileSystem::CreateLocal();
 	string test_directory = DUCKDB_ROOT_DIRECTORY;
+	
+	const char *summarize = std::getenv("SUMMARIZE_FAILURES");
+	if (summarize != nullptr && std::string(summarize) == "1") {
+		summarize_failures = true;
+	}
 
 	int new_argc = 0;
 	auto new_argv = duckdb::unique_ptr<char *[]>(new char *[argc]);
@@ -64,8 +69,6 @@ int main(int argc, char *argv[]) {
 			SetDebugInitialize(0xFF);
 		} else if (string(argv[i]) == "--single-threaded") {
 			SetSingleThreaded();
-		} else if (string(argv[i]) == "--summarize-failures") {
-			summarize_failures = true;
 		} else {
 			new_argv[new_argc] = argv[i];
 			new_argc++;

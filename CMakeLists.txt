@@ -562,6 +562,10 @@ if(FORCE_ASSERT)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDUCKDB_FORCE_ASSERT")
 endif()
 
+
+# sets SUMMARIZE_FAILURES env variable for unittest
+set(SUMMARIZE_FAILURES_ENV "$ENV{SUMMARIZE_FAILURES}")
+
 function(is_number input_string return_var)
     if("${input_string}" MATCHES "^[0-9]+$")
         set(${return_var} TRUE PARENT_SCOPE)
