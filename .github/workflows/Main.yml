@@ -473,13 +473,13 @@ jobs:
     - name: Test
       shell: bash
       run: |
-          suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest --no-exit --timeout 600
-          suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[intraquery]" --no-exit --timeout 600
-          suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800
-          suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage
-          suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage --force-reload
-          suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[detailed_profiler]" --no-exit --timeout 600
-          suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest test/sql/tpch/tpch_sf01.test_slow --no-exit --timeout 600
+          TSAN_OPTIONS="suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt" python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest --no-exit --timeout 600
+          TSAN_OPTIONS="suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt" python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[intraquery]" --no-exit --timeout 600
+          TSAN_OPTIONS="suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt" python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800
+          TSAN_OPTIONS="suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt" python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage
+          TSAN_OPTIONS="suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt" python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[interquery]" --no-exit --timeout 1800 --force-storage --force-reload
+          TSAN_OPTIONS="suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt" python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest "[detailed_profiler]" --no-exit --timeout 600
+          TSAN_OPTIONS="suppressions=${{ github.workspace }}/.sanitizer-thread-suppressions.txt" python3 scripts/run_tests_one_by_one.py build/reldebug/test/unittest test/sql/tpch/tpch_sf01.test_slow --no-exit --timeout 600
 
 
  linux-httpfs:

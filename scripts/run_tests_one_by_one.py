@@ -144,9 +144,24 @@ def launch_test(test, list_of_tests=False):
     start = time.time()
     try:
         test_cmd = [unittest_program] + test
+        # if args.valgrind:
+        #     test_cmd = ['valgrind'] + test_cmd
+        # # should unset SUMMARIZE_FAILURES to avoid producing exceeding failure logs
+        # if list_of_tests or no_exit or tests_per_invocation:
+        #     env = {'SUMMARIZE_FAILURES': '0', 'NO_DUPLICATING_HEADERS': '1'}
+        # else:
+        #     env = {'SUMMARIZE_FAILURES': '0'}
+        # res = subprocess.run(test_cmd, stdout=unittest_stdout, stderr=unittest_stderr, timeout=timeout, env=env)
         if args.valgrind:
             test_cmd = ['valgrind'] + test_cmd
-        res = subprocess.run(test_cmd, stdout=unittest_stdout, stderr=unittest_stderr, timeout=timeout)
+        # should unset SUMMARIZE_FAILURES to avoid producing exceeding failure logs
+        env = os.environ.copy()
+        if list_of_tests or no_exit or tests_per_invocation:
+            env['SUMMARIZE_FAILURES'] = '0'
+            env['NO_DUPLICATING_HEADERS'] = '1'
+        else:
+            env['SUMMARIZE_FAILURES'] = '0'
+        res = subprocess.run(test_cmd, stdout=unittest_stdout, stderr=unittest_stderr, timeout=timeout, env=env)
     except subprocess.TimeoutExpired as e:
         if list_of_tests:
             print("[TIMED OUT]", flush=True)
