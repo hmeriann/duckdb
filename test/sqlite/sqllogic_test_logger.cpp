@@ -53,21 +53,17 @@ string SQLLogicTestLogger::PrintExpectedResult(const vector<string> &values, idx
 	string log_message;
 	if (row_wise) {
 		for (idx_t r = 0; r < values.size(); r++) {
-			// fprintf(stderr, "%s\n", values[r].c_str());
 			log_message += "\n" + values[r];
 		}
 	} else {
 		idx_t c = 0;
 		for (idx_t r = 0; r < values.size(); r++) {
 			if (c != 0) {
-				// fprintf(stderr, "\t");
 				log_message += "\t";
 			}
-			// fprintf(stderr, "%s", values[r].c_str());
 			log_message += values[r];
 			c++;
 			if (c >= columns) {
-				// fprintf(stderr, "\n");
 				log_message += "\n";
 				c = 0;
 			}

@@ -95,8 +95,6 @@ bool TestResultHelper::CheckQueryResult(const Query &query, ExecuteContext &cont
 			string log_message;
 			log_message += logger.PrintErrorHeader(csv_error);
 			logger.LogBoth(log_message);
-			// std::cerr << log_message;
-			// GetSummary() << log_message;
 			return false;
 		}
 	} else {
@@ -520,8 +518,6 @@ bool TestResultHelper::CompareValues(SQLLogicTestLogger &logger, MaterializedQue
 		log_message += logger.PrintLineSep();
 		log_message += logger.PrintResultError(result_values, values, expected_column_count, row_wise);
 		logger.LogBoth(log_message);
-		// std::cerr << log_message;
-		// GetSummary() << log_message;
 		return false;
 	}
 	return true;
@@ -545,8 +541,6 @@ bool TestResultHelper::MatchesRegex(SQLLogicTestLogger &logger, string lvalue_st
 		log_message += oss.str();
 		log_message += logger.PrintLineSep();
 		logger.LogBoth(log_message);
-		// std::cerr << log_message;
-		// GetSummary() << log_message;
 		return false;
 	}
 	bool regex_matches = RE2::FullMatch(lvalue_str, re);
