@@ -2,6 +2,7 @@
 #include "duckdb/parser/parser.hpp"
 #include "termcolor.hpp"
 #include "result_helper.hpp"
+#include "test_helpers.hpp"
 
 namespace duckdb {
 
@@ -21,7 +22,7 @@ void SQLLogicTestLogger::LogBoth(const string &log_message) {
 
 string SQLLogicTestLogger::GetFailureSummary() {
 	lock_guard<mutex> guard(summary_mutex);
-	ostringstream oss;
+	std::ostringstream oss;
 	for (auto &line : failures_summary) {
 		oss << line;
 	}

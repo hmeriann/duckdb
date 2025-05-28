@@ -146,7 +146,6 @@ def get_test_name_from(text):
     match = re.findall(r'\((.*?)\)\!', text)
     return match[0] if match else ''
 
-
 def print_interval_background(interval):
     global is_active
     current_ticker = 0.0
