@@ -4,7 +4,7 @@ inputs:
   # Build config
   run_tests:
     description: 'Run extension tests after build'
-    default: 1
+    default: '1'
   duckdb_arch:
     description: 'Provide DUCKDB_PLATFORM to build system for cross compilation'
     default: ''
@@ -18,6 +18,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+      - name: PRIMT ALL INPUTS
+        run: |
+          echo "run_tests: " ${{ inputs.run_tests }}
+          echo "duckdb_arch: " ${{ inputs.duckdb_arch }}
+          echo "vcpkg_target_triplet: " ${{ inputs.vcpkg_target_triplet }}
+          echo "override_git_describe: " ${{ inputs.override_git_describe }}
+
       - uses: actions/checkout@v4
         with:
           path: 'duckdb'
@@ -96,8 +103,14 @@ runs:
         run: |
           docker run --env-file=docker_env.txt -v `pwd`:/duckdb_build_dir -v `pwd`/ccache_dir:/ccache_dir duckdb/${{ inputs.duckdb_arch }} make release
 
-      - name: Test extension (inside docker)
+      - name: Test extension (inside docker) - ORIGINAL
         shell: bash
-        if: ${{ inputs.run_tests == 1 && inputs.duckdb_arch != 'linux_arm64'}}
+        if: ${{ inputs.run_tests == '1' && inputs.duckdb_arch != 'linux_arm64'}}
+        run: |
+          docker run --env-file=docker_env.txt -v `pwd`:/duckdb_build_dir -v `pwd`/ccache_dir:/ccache_dir duckdb/${{ inputs.duckdb_arch }} make test_release
+
+      - name: Test extension (inside docker) - NO IF
+        shell: bash
+        # if: ${{ inputs.run_tests == 1 && inputs.duckdb_arch != 'linux_arm64'}}
         run: |
           docker run --env-file=docker_env.txt -v `pwd`:/duckdb_build_dir -v `pwd`/ccache_dir:/ccache_dir duckdb/${{ inputs.duckdb_arch }} make test_release
