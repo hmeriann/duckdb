@@ -139,13 +139,13 @@ jobs:
         config: [ { runner: ubuntu-latest, duckdb_arch: linux_amd64, vckpg_triplet: x64-linux }, {runner: ubuntu-latest, duckdb_arch: linux_amd64_musl, vckpg_triplet: x64-linux }, {runner: ubuntu-24.04-arm, duckdb_arch: linux_arm64, image: arm64-linux }]
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          path: 'hmeriann'
-          fetch-depth: 0
-          ref: 'experiment-linux-matrix'
+      # - uses: actions/checkout@v4
+      #   with:
+      #     path: 'hmeriann'
+      #     fetch-depth: 0
+      #     ref: 'experiment-linux-matrix'
 
-      - uses: ./.github/actions/build_extensions_dockerized@experiment-linux-matrix
+      - uses: hmeriann/duckdb/.github/actions/build_extensions_dockerized@experiment-linux-matrix
         with:
           vcpkg_target_triplet: ${{ matrix.config.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.config.duckdb_arch }}
