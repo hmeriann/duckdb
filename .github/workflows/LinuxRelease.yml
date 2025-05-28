@@ -143,9 +143,9 @@ jobs:
         with:
           path: 'hmeriann'
           fetch-depth: 0
-          ref: ${{ inputs.git_ref }}
+          ref: 'experiment-linux-matrix'
 
-      - uses: ./duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
+      - uses: ./.github/actions/build_extensions_dockerized@experiment-linux-matrix
         with:
           vcpkg_target_triplet: ${{ matrix.config.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.config.duckdb_arch }}
@@ -188,7 +188,7 @@ jobs:
 #           fetch-depth: 0
 #           ref: ${{ inputs.git_ref }}
 
-#       - uses: ./duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
+#       - uses: ./duckdb/.github/actions/build_extensions_dockerized@iexperiment-linux-matrix
 #         with:
 #           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
 #           duckdb_arch: ${{ matrix.duckdb_arch }}
@@ -230,7 +230,7 @@ jobs:
 #           fetch-depth: 0
 #           ref: ${{ inputs.git_ref }}
 
-#       - uses: ./duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
+#       - uses: ./duckdb/.github/actions/build_extensions_dockerized@iexperiment-linux-matrix
 #         with:
 #           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
 #           duckdb_arch: ${{ matrix.duckdb_arch }}

@@ -30,7 +30,7 @@ runs:
         with:
           path: 'duckdb'
           fetch-depth: 0
-          ref: ${{ inputs.git_ref }}
+          ref: 'experiment-linux-matrix'
 
       - uses: actions/checkout@v4
         name: Checkout Extension CI tools
