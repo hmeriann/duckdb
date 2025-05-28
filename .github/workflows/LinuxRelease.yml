@@ -154,7 +154,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: duckdb-extensions-${{ matrix.duckdb_arch }}
+          name: duckdb-extensions-${{ matrix.config.duckdb_arch }}
           path: |
             build/release/extension/*/*.duckdb_extension
 
