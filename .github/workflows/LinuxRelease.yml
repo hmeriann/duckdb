@@ -146,7 +146,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git_ref }}
 
-      - uses: hmeriann/duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
+      - uses: ./duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
         with:
           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.duckdb_arch }}
@@ -189,7 +189,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git_ref }}
 
-      - uses: hmeriann/duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
+      - uses: ./duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
         with:
           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.duckdb_arch }}
@@ -231,7 +231,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git_ref }}
 
-      - uses: hmeriann/duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
+      - uses: ./duckdb/.github/actions/build_extensions_dockerized@increase-testing-around-extensions
         with:
           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.duckdb_arch }}
