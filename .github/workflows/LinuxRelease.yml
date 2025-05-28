@@ -11,11 +11,14 @@ on:
   workflow_dispatch:
     inputs:
       override_git_describe:
+        description: 'Override git describe'
         type: string
       git_ref:
         type: string
+        description: 'Git ref'
       skip_tests:
         type: string
+        description: 'Skip tests'
   push:
     branches-ignore:
       - 'main'
@@ -146,12 +149,14 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git_ref }}
 
-      - uses: ./duckdb/.github/actions/build_extensions_dockerized
+      # - uses: ./duckdb/.github/actions/build_extensions_dockerized
+      - uses: ./.github/workflows/action_reusable_workflow.yml@increase-testing-arouns-extensions
         with:
           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.duckdb_arch }}
           run_tests: ${{ inputs.skip_tests != 'true' }}
           override_git_describe: ${{ inputs.override_git_describe }}
+          git_ref: ${{ github.ref_name }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -189,12 +194,14 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git_ref }}
 
-      - uses: ./duckdb/.github/actions/build_extensions_dockerized
+      # - uses: ./duckdb/.github/actions/build_extensions_dockerized
+      - uses: ./.github/workflows/action_reusable_workflow.yml@increase-testing-arouns-extensions
         with:
           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.duckdb_arch }}
           run_tests: ${{ inputs.skip_tests != 'true' }}
           override_git_describe: ${{ inputs.override_git_describe }}
+          git_ref: ${{ github.ref_name }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -231,12 +238,14 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.git_ref }}
 
-      - uses: ./duckdb/.github/actions/build_extensions_dockerized
+      # - uses: ./duckdb/.github/actions/build_extensions_dockerized
+      - uses: ./.github/workflows/action_reusable_workflow.yml@increase-testing-arouns-extensions
         with:
           vcpkg_target_triplet: ${{ matrix.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.duckdb_arch }}
           run_tests: ${{ inputs.skip_tests != 'true' }}
           override_git_describe: ${{ inputs.override_git_describe }}
+          git_ref: ${{ github.ref_name }}
 
       - uses: actions/upload-artifact@v4
         with:
