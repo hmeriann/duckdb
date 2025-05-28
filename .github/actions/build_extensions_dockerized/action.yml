@@ -18,7 +18,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-      - name: PRIMT ALL INPUTS
+      - name: PRINT ALL INPUTS
         shell: bash
         run: |
           echo "run_tests: " ${{ inputs.run_tests }}
