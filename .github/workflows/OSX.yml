@@ -20,18 +20,18 @@ on:
         type: string
       run_all:
         type: string
-  push:
-    branches-ignore:
-      - 'main'
-      - 'feature'
-      - 'v*.*-*'
-    paths-ignore:
-      - '**.md'
-      - 'tools/**'
-      - '!tools/shell/**'
-      - '.github/patches/duckdb-wasm/**'
-      - '.github/workflows/**'
-      - '!.github/workflows/OSX.yml'
+  # push:
+  #   branches-ignore:
+  #     - 'main'
+  #     - 'feature'
+  #     - 'v*.*-*'
+  #   paths-ignore:
+  #     - '**.md'
+  #     - 'tools/**'
+  #     - '!tools/shell/**'
+  #     - '.github/patches/duckdb-wasm/**'
+  #     - '.github/workflows/**'
+  #     - '!.github/workflows/OSX.yml'
 
 
 concurrency:
