@@ -36,7 +36,7 @@ runs:
         name: Checkout Extension CI tools
         with:
           path: 'extension-ci-tools'
-          ref: 'main'
+          ref: 'increase-testing-around-extensions'
           repository: 'duckdb/extension-ci-tools'
           fetch-depth: 0
 
