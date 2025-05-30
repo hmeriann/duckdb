@@ -26,7 +26,8 @@ duckdb_extension_load(httpfs
 ################# AVRO
 if (NOT MINGW)
     duckdb_extension_load(avro
-            LOAD_TESTS DONT_LINK
+            # LOAD_TESTS DONT_LINK
+            LOAD_TESTS
             GIT_URL https://github.com/duckdb/duckdb-avro
             GIT_TAG ff766174cc6cc9c4ed93fc4b75871bcdffcc6e65
     )
@@ -54,16 +55,17 @@ endif()
 ################# DELTA
 # MinGW build is not available, and our current manylinux ci does not have enough storage space to run the rust build
 # for Delta
-if (FALSE)
+# if (FALSE)
 if (NOT MINGW AND NOT "${OS_NAME}" STREQUAL "linux" AND NOT ${WASM_ENABLED})
     duckdb_extension_load(delta
+            LOAD_TESTS # this is added to see what happens
             GIT_URL https://github.com/duckdb/duckdb-delta
             ## TODO: GIT_TAG 90f244b3d572c1692867950b562df8183957b7a8
             GIT_TAG 6d626173e9efa6615c25eb08d979d1372100d5db
             APPLY_PATCHES
     )
 endif()
-endif()
+# endif()
 
 ################# EXCEL
 duckdb_extension_load(excel
@@ -104,7 +106,8 @@ duckdb_extension_load(inet
 #       uses a remote rds server but that's not something we want to run here.
 if (NOT MINGW AND NOT ${WASM_ENABLED})
     duckdb_extension_load(postgres_scanner
-            DONT_LINK
+            # DONT_LINK
+            LOAD_TESTS
             GIT_URL https://github.com/duckdb/duckdb-postgres
             GIT_TAG 9b24967e06a4af0a3cd43f8372114202a400f5f5
             )
@@ -114,7 +117,8 @@ endif()
 if (NOT MINGW)
 ################# SPATIAL
 duckdb_extension_load(spatial
-    DONT_LINK LOAD_TESTS
+    # LOAD_TESTS DONT_LINK
+    LOAD_TESTS
     GIT_URL https://github.com/duckdb/duckdb-spatial
     GIT_TAG 494d94912cc7ebcd8c43c9b6fc173a3e4142740f
     INCLUDE_DIR spatial/include
@@ -137,7 +141,8 @@ duckdb_extension_load(sqlite_scanner
         )
 
 duckdb_extension_load(sqlsmith
-        DONT_LINK LOAD_TESTS
+        # LOAD_TESTS DONT_LINK
+        LOAD_TESTS
         GIT_URL https://github.com/duckdb/duckdb-sqlsmith
         GIT_TAG 06e8da8a95710c996fcd62f385962ccd36a363f6
         )
@@ -145,7 +150,7 @@ duckdb_extension_load(sqlsmith
 ################# VSS
 duckdb_extension_load(vss
         LOAD_TESTS
-        DONT_LINK
+        # DONT_LINK
         GIT_URL https://github.com/duckdb/duckdb-vss
         GIT_TAG ccfa7c9c1f1f540fa7f433a93d32bed772aa44f4
         TEST_DIR test/sql
@@ -154,7 +159,7 @@ duckdb_extension_load(vss
 ################# MYSQL
 if (NOT MINGW AND NOT ${WASM_ENABLED} AND NOT ${MUSL_ENABLED})
     duckdb_extension_load(mysql_scanner
-            DONT_LINK
+            # DONT_LINK
             LOAD_TESTS
             GIT_URL https://github.com/duckdb/duckdb-mysql
             GIT_TAG b79ef7e2dde1f9253f9ad584883b029eba8d29a4
@@ -164,7 +169,7 @@ endif()
 ################# FTS
 duckdb_extension_load(fts
         LOAD_TESTS
-        DONT_LINK
+        # DONT_LINK
         GIT_URL https://github.com/duckdb/duckdb-fts
         GIT_TAG 3aa6a180b9c101d78070f5f7214c27552bb091c8
         TEST_DIR test/sql
@@ -174,7 +179,7 @@ duckdb_extension_load(fts
 if (NOT ${WASM_ENABLED})
 duckdb_extension_load(encodings
         LOAD_TESTS
-        DONT_LINK
+        # DONT_LINK
         GIT_URL https://github.com/duckdb/duckdb-encodings
         GIT_TAG dc3c206e237b517abcdd95ebe40d02dcd0f71084
         TEST_DIR test/sql
