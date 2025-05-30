@@ -109,6 +109,8 @@ runs:
         if: ${{ inputs.run_tests == '1' && inputs.duckdb_arch != 'linux_arm64'}}
         run: |
           docker run --env-file=docker_env.txt -v `pwd`:/duckdb_build_dir -v `pwd`/ccache_dir:/ccache_dir duckdb/${{ inputs.duckdb_arch }} make test_release
+          # sudo docker run --env-file=docker_env.txt -v `pwd`:/duckdb_build_dir duckdb/linux_amd64  ./build/release/test/unittest -- this how it works
+
 
       - name: Test extension (inside docker) - NO IF
         shell: bash
