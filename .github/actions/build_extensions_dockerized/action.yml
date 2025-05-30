@@ -30,13 +30,13 @@ runs:
         with:
           path: 'duckdb'
           fetch-depth: 0
-          ref: 'experiment-linux-matrix'
+          ref: 'increase-testing-around-extensions'
 
       - uses: actions/checkout@v4
         name: Checkout Extension CI tools
         with:
           path: 'extension-ci-tools'
-          ref: 'increase-testing-around-extensions'
+          ref: 'main'
           repository: 'duckdb/extension-ci-tools'
           fetch-depth: 0
 
