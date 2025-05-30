@@ -144,7 +144,7 @@ jobs:
         with:
           # path: 'duckdb'
           fetch-depth: 0
-          ref: 'increase-testing-around-extensions'
+          ref: 'experiment-linux-matrix'
 
       - uses: ./.github/actions/build_extensions_dockerized
         with:

@@ -30,7 +30,7 @@ runs:
         with:
           path: 'hmeriann'
           fetch-depth: 0
-          ref: 'increase-testing-around-extensions'
+          ref: 'experiment-linux-matrix'
 
       - uses: actions/checkout@v4
         name: Checkout Extension CI tools
