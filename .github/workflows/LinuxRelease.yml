@@ -145,7 +145,7 @@ jobs:
           fetch-depth: 0
           ref: 'increase-testing-around-extensions'
 
-      - uses: ./hmeriann/duckdb/.github/actions/build_extensions_dockerized
+      - uses: ./.github/actions/build_extensions_dockerized
         with:
           vcpkg_target_triplet: ${{ matrix.config.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.config.duckdb_arch }}
