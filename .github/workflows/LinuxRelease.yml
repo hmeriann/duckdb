@@ -141,11 +141,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: 'duckdb'
+          # path: 'duckdb'
           fetch-depth: 0
           ref: 'increase-testing-around-extensions'
 
-      - uses: ./.github/actions/build_extensions_dockerized
+      - uses: ./hmeriann/duckdb/.github/actions/build_extensions_dockerized
         with:
           vcpkg_target_triplet: ${{ matrix.config.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.config.duckdb_arch }}
