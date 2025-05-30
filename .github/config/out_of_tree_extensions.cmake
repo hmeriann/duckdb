@@ -117,8 +117,8 @@ endif()
 if (NOT MINGW)
 ################# SPATIAL
 duckdb_extension_load(spatial
-    # LOAD_TESTS DONT_LINK
-    LOAD_TESTS
+    LOAD_TESTS DONT_LINK
+    # LOAD_TESTS
     GIT_URL https://github.com/duckdb/duckdb-spatial
     GIT_TAG 494d94912cc7ebcd8c43c9b6fc173a3e4142740f
     INCLUDE_DIR spatial/include
