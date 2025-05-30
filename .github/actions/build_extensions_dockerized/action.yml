@@ -20,7 +20,7 @@ runs:
   steps:
       - uses: actions/checkout@v4
         with:
-          path: 'hmeriann'
+          path: 'duckdb'
           fetch-depth: 0
           ref: 'experiment-linux-matrix'
 
