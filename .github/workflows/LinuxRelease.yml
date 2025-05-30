@@ -145,12 +145,12 @@ jobs:
           fetch-depth: 0
           ref: 'experiment-linux-matrix'
 
-      - uses: ./.github/actions/build_extensions_dockerized@experiment-linux-matrix
+      - uses: ./.github/actions/build_extensions_dockerized
         with:
           vcpkg_target_triplet: ${{ matrix.config.vcpkg_triplet }}
           duckdb_arch: ${{ matrix.config.duckdb_arch }}
           run_tests: ${{ inputs.skip_tests != 'true' }}
-          override_git_describe: ${{ inputs.override_git_describe }}
+          override_git_describe: 0
 
       - uses: actions/upload-artifact@v4
         with:
