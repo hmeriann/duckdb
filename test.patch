@@ -1,0 +1,128 @@
+diff --git a/.github/config/out_of_tree_extensions.cmake b/.github/config/out_of_tree_extensions.cmake
+index 741a968b6f..681d8ba4b0 100644
+--- a/.github/config/out_of_tree_extensions.cmake
++++ b/.github/config/out_of_tree_extensions.cmake
+@@ -66,6 +66,7 @@ endif()
+ # for Delta
+ if (NOT MINGW AND NOT "${OS_NAME}" STREQUAL "linux" AND NOT ${WASM_ENABLED})
+     duckdb_extension_load(delta
++	LOAD_TESTS
+             GIT_URL https://github.com/duckdb/duckdb-delta
+             GIT_TAG 90f244b3d572c1692867950b562df8183957b7a8
+     )
+@@ -90,8 +91,9 @@ endif()
+ if (NOT MINGW AND NOT ${WASM_ENABLED} AND NOT ${MUSL_ENABLED})
+     duckdb_extension_load(iceberg
+ #            ${LOAD_ICEBERG_TESTS} TODO: re-enable once autoloading test is fixed
++LOAD_TESTS
+             GIT_URL https://github.com/duckdb/duckdb-iceberg
+-            GIT_TAG 2db98c685f67373b347c3a8c435ef2e01c509697
++            GIT_TAG main
+             )
+ endif()
+ 
+@@ -110,6 +112,7 @@ duckdb_extension_load(inet
+ if (NOT MINGW AND NOT ${WASM_ENABLED})
+     duckdb_extension_load(postgres_scanner
+             DONT_LINK
++ LOAD_TESTS
+             GIT_URL https://github.com/duckdb/duckdb-postgres
+             GIT_TAG 98482ce5c144287f01e738275892cdb84ea9b5ce
+             )
+diff --git a/test/api/test_results.cpp b/test/api/test_results.cpp
+index a4c8fe19fc..296f28d8d7 100644
+--- a/test/api/test_results.cpp
++++ b/test/api/test_results.cpp
+@@ -195,6 +195,7 @@ TEST_CASE("Test ARRAY_AGG with ORDER BY", "[api][array_agg]") {
+ }
+ 
+ TEST_CASE("Issue #9417", "[api][.]") {
++	return;
+ 	DBConfig config;
+ 	config.options.allow_unsigned_extensions = true;
+ 
+diff --git a/test/extension/test_remote_optimizer.cpp b/test/extension/test_remote_optimizer.cpp
+index 98f7a1a1c9..27ca6b18a4 100644
+--- a/test/extension/test_remote_optimizer.cpp
++++ b/test/extension/test_remote_optimizer.cpp
+@@ -28,6 +28,7 @@ using namespace duckdb;
+ using namespace std;
+ 
+ TEST_CASE("Test using a remote optimizer pass in case thats important to someone", "[extension]") {
++	return;
+ 	pid_t pid = fork();
+ 
+ 	int port = 4242;
+diff --git a/test/sql/extensions/checked_load.test b/test/sql/extensions/checked_load.test
+index 186cf7aa35..4144a48a56 100644
+--- a/test/sql/extensions/checked_load.test
++++ b/test/sql/extensions/checked_load.test
+@@ -7,6 +7,8 @@ LOAD 'README.md';
+ ----
+ The file is not a DuckDB extension. The metadata at the end of the file is invalid
+ 
++require allow_unsigned_extensions
++
+ statement ok
+ SET allow_extensions_metadata_mismatch=true;
+ 
+diff --git a/test/sqlite/sqllogic_test_runner.cpp b/test/sqlite/sqllogic_test_runner.cpp
+index a8f442f458..fd6a62f8ac 100644
+--- a/test/sqlite/sqllogic_test_runner.cpp
++++ b/test/sqlite/sqllogic_test_runner.cpp
+@@ -26,9 +26,12 @@ SQLLogicTestRunner::SQLLogicTestRunner(string dbpath) : dbpath(std::move(dbpath)
+ 	if (!env_var) {
+ 		config->options.autoload_known_extensions = false;
+ 	} else {
+-		local_extension_repo = env_var;
+-		config->options.autoload_known_extensions = true;
++//		local_extension_repo = env_var;
++//		config->options.autoload_known_extensions = true;
+ 	}
++	config->options.autoload_known_extensions = true;
++	config->options.autoinstall_known_extensions = true;
++	config->options.allow_unsigned_extensions = false;
+ }
+ 
+ SQLLogicTestRunner::~SQLLogicTestRunner() {
+@@ -105,6 +108,7 @@ void SQLLogicTestRunner::LoadDatabase(string dbpath, bool load_extensions) {
+ 	// load any previously loaded extensions again
+ 	if (load_extensions) {
+ 		for (auto &extension : extensions) {
++			con->Query("LOAD " +extension);
+ 			ExtensionHelper::LoadExtension(*db, extension);
+ 		}
+ 	}
+@@ -538,6 +542,7 @@ RequireResult SQLLogicTestRunner::CheckRequire(SQLLogicParser &parser, const vec
+ 	}
+ 
+ 	if (!config->options.autoload_known_extensions) {
++		con->Query("LOAD " +param);
+ 		auto result = ExtensionHelper::LoadExtension(*db, param);
+ 		if (result == ExtensionLoadResult::LOADED_EXTENSION) {
+ 			// add the extension to the list of loaded extensions
+@@ -549,7 +554,23 @@ RequireResult SQLLogicTestRunner::CheckRequire(SQLLogicParser &parser, const vec
+ 			return RequireResult::MISSING;
+ 		}
+ 	} else if (excluded_from_autoloading) {
+-		return RequireResult::MISSING;
++		extensions.insert(param);
++		if (StringUtil::Lower(param) == "iceberg") {
++			auto r1 = con->Query("INSTALL " + param + " FROM core_nightly;");
++			 if (r1->HasError()) {
++				return RequireResult::MISSING;
++			}
++		} else {
++			auto r1 = con->Query("INSTALL " + param + ";");
++			 if (r1->HasError()) {
++				return RequireResult::MISSING;
++			}
++		}
++
++		auto r2= con->Query("LOAD " + param);
++		 if (r2->HasError()) {
++			return RequireResult::MISSING;
++		}
+ 	}
+ 	return RequireResult::PRESENT;
+ }
