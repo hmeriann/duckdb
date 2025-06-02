@@ -166,14 +166,14 @@ if (NOT MINGW AND NOT ${WASM_ENABLED} AND NOT ${MUSL_ENABLED})
             )
 endif()
 
-################# FTS
-duckdb_extension_load(fts
-        LOAD_TESTS
-        # DONT_LINK
-        GIT_URL https://github.com/duckdb/duckdb-fts
-        GIT_TAG 3aa6a180b9c101d78070f5f7214c27552bb091c8
-        TEST_DIR test/sql
-)
+# ################# FTS
+# duckdb_extension_load(fts
+#         LOAD_TESTS
+#         # DONT_LINK
+#         GIT_URL https://github.com/duckdb/duckdb-fts
+#         GIT_TAG 3aa6a180b9c101d78070f5f7214c27552bb091c8
+#         TEST_DIR test/sql
+# )
 
 ################# ENCODINGS
 if (NOT ${WASM_ENABLED})
