@@ -167,7 +167,7 @@ jobs:
       GEN: ninja
     strategy:
       matrix:
-        config: [ { runner: ubuntu-latest, duckdb_arch: linux_amd64, vckpg_triplet: x64-linux }, {runner: ubuntu-latest, duckdb_arch: linux_amd64_musl, vckpg_triplet: x64-linux }, {runner: ubuntu-24.04-arm, duckdb_arch: linux_arm64, image: arm64-linux }]
+        config: [ { runner: ubuntu-latest, duckdb_arch: linux_amd64, vckpg_triplet: x64-linux }, {runner: ubuntu-24.04-arm, duckdb_arch: linux_arm64, image: arm64-linux }]
 
     steps:
     - uses: actions/checkout@v3
