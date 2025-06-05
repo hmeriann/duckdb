@@ -419,3 +419,18 @@ jobs:
     secrets: inherit
     with:
       twine_upload: 'true'
+
+  test-install-load-extensions:
+    name: Test Linux Python Extensions
+    needs: linux-python3
+    uses: duckdb/duckdb-build-status/.github/workflows/VerifyBuild.yml@main
+    strategy:
+      matrix:
+        config: [ { runs_on: ubuntu-latest, duckdb_arch: linux_amd64, duckdb_binary: linux-amd64 }, { runs_on: ubuntu-24.04-arm, duckdb_arch: linux_arm64, duckdb_binary: linux-arm64 }]
+    with:
+      runs_on: ${{ matrix.config.runs_on }}
+      duckdb_arch: ${{ matrix.config.duckdb_arch }}
+      duckdb_binary: ${{ matrix.config.duckb_binary }}
+      nightly_build: ${{ matrix.config.duckdb_binary }}
+      branch: ${{ github.sha }}
+      workflow_name: Python.yml

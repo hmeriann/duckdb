@@ -337,7 +337,7 @@ jobs:
         echo "Check the uploaded extension_entries.hpp (in the workflow Summary), and check that in instead of src/include/duckdb/main/extension_entries.hpp"
 
  test-install-load-extensions:
-    name: Test OSX Extensions
+    name: Test Linux Extensions
     needs: 
       - linux-release-cli
       - upload-linux-extensions-64
