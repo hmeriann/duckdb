@@ -353,6 +353,7 @@ jobs:
       duckdb_binary: ${{ matrix.config.duckb_binary }}
       nightly_build: ${{ matrix.config.duckdb_binary }}
       branch: ${{ github.sha }}
+      workflow_name: LinuxRelease.yml
 
  symbol-leakage:
     name: Symbol Leakage
