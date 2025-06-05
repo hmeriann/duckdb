@@ -343,6 +343,7 @@ jobs:
       - upload-linux-extensions-64
       - upload-linux-extensions-64-musl
       - upload-linux-extensions-64-aarch64
+    if: ${{ github.event_name == 'workflow_call' }}
     uses: duckdb/duckdb-build-status/.github/workflows/VerifyBuild.yml@main
     strategy:
       matrix:
@@ -353,7 +354,7 @@ jobs:
       duckdb_binary: ${{ matrix.config.duckb_binary }}
       nightly_build: ${{ matrix.config.duckdb_binary }}
       branch: ${{ github.sha }}
-      workflow_name: LinuxRelease.yml
+      # workflow_name: LinuxRelease.yml
 
  symbol-leakage:
     name: Symbol Leakage

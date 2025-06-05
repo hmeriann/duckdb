@@ -307,6 +307,7 @@ jobs:
   test-install-load-extensions:
     name: Test OSX Extensions
     needs: upload-osx-extensions
+    if: ${{ github.event_name == 'workflow_call' }}
     uses: duckdb/duckdb-build-status/.github/workflows/VerifyBuild.yml@main
     strategy:
       matrix:

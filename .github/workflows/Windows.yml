@@ -368,6 +368,7 @@ jobs:
  test-install-load-extensions:
    name: Test Windows Extensions
    needs: win-packaged-upload
+   if: ${{ github.event_name == 'workflow_call' }}
    uses: duckdb/duckdb-build-status/.github/workflows/VerifyBuild.yml@main
    strategy:
      matrix:
@@ -378,4 +379,4 @@ jobs:
       duckdb_binary: ${{ matrix.config.duckb_binary }}
       nightly_build: ${{ matrix.config.duckdb_binary }}
       branch: ${{ github.sha }}
-      workflow_name: Windows.yml
+      # workflow_name: Windows.yml
