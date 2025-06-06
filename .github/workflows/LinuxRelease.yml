@@ -343,7 +343,7 @@ jobs:
       - upload-linux-extensions-64
       - upload-linux-extensions-64-musl
       - upload-linux-extensions-64-aarch64
-    if: ${{ github.event_name == 'workflow_call' }}
+    # if: ${{ github.event_name == 'workflow_call' }}
     uses: duckdb/duckdb-build-status/.github/workflows/VerifyBuild.yml@main
     strategy:
       matrix:
