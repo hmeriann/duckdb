@@ -1,5 +1,17 @@
 name: TestDeployed
 on:
+  push:
+     branches-ignore:
+      - 'main'
+      - 'feature'
+      - 'v*.*-*'
+     paths-ignore:
+      - '**.md'
+      - 'tools/**'
+      - '!tools/pythonpkg/**'
+      - '.github/patches/duckdb-wasm/**'
+      - '.github/workflows/**'
+      - '!.github/workflows/TestDeployed.yml'
   workflow_call:
     inputs:
       git_ref:
