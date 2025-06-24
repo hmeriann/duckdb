@@ -99,6 +99,11 @@ jobs:
       run: |
           python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest "*" --no-exit --timeout 1200
 
+    - uses: actions/upload-artifact@v4
+      with:
+        name: failures_summary_${{ github.job }}.json
+        path: failures_summary_${{ github.job }}.json
+
   release-assert-osx:
     name: Release Assertions OSX
     runs-on: macos-latest
@@ -135,6 +140,10 @@ jobs:
       shell: bash
       run: |
           python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest "*" --no-exit --timeout 1200
+    - uses: actions/upload-artifact@v4
+      with:
+        name: failures_summary_${{ github.job }}.json
+        path: failures_summary_${{ github.job }}.json
 
   release-assert-osx-storage:
     name: Release Assertions OSX Storage
@@ -172,6 +181,10 @@ jobs:
       shell: bash
       run: |
           python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest "*" --no-exit --timeout 1200 --force-storage
+    - uses: actions/upload-artifact@v4
+      with:
+        name: failures_summary_${{ github.job }}.json
+        path: failures_summary_${{ github.job }}.json
 
   smaller-binary:
     name: Smaller Binary
@@ -246,6 +259,10 @@ jobs:
       shell: bash
       run: |
           python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest "*" --no-exit --timeout 1200
+    - uses: actions/upload-artifact@v4
+      with:
+        name: failures_summary_${{ github.job }}.json
+        path: failures_summary_${{ github.job }}.json
 
   linux-tarball:
      name: Python 3 Tarball
@@ -458,7 +475,11 @@ jobs:
       - name: Test
         shell: bash
         run: python3 scripts/run_tests_one_by_one.py build/relassert/test/unittest --no-exit --timeout 600
-
+      - uses: actions/upload-artifact@v4
+        with:
+          name: failures_summary_${{ github.job }}.json
+          path: failures_summary_${{ github.job }}.json
+        
   regression-test-memory-safety:
    name: Regression Tests between safe and unsafe builds
    runs-on: ubuntu-22.04
@@ -582,7 +603,11 @@ jobs:
         run: |
           python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution
           python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution
-
+      - uses: actions/upload-artifact@v4
+        with:
+          name: failures_summary_${{ github.job }}.json
+          path: failures_summary_${{ github.job }}.json
+          
   linux-wasm-experimental:
     name: WebAssembly duckdb-wasm builds
     if: false
