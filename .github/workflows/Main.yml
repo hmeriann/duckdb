@@ -17,6 +17,7 @@ jobs:
     # We run all other jobs on PRs only if they are not draft PR
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
+
     steps:
       - name: Preliminary checks on CI 
         run: echo "Event name is ${{ github.event_name }}"
@@ -365,6 +366,12 @@ jobs:
       shell: bash
       run: |
         ./build/release/test/unittest --test-config test/configs/prefetch_all_parquet_files.json
+
+    - name: test/configs/no_local_filesystem.json
+      if: (success() || failure()) && steps.build.conclusion == 'success'
+      shell: bash
+      run: |
+        ./build/release/test/unittest --test-config test/configs/no_local_filesystem.json
 
     - name: Test dictionary_expression
       if: (success() || failure()) && steps.build.conclusion == 'success'
