@@ -41,7 +41,7 @@ jobs:
  linux-release-cli:
     needs: 
       - linux-extensions-64
-      # - check-draft
+      # # - check-draft
 
     strategy:
       fail-fast: false
@@ -181,7 +181,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - linux-extensions-64
-      - check-draft
+      # - check-draft
     strategy:
       matrix:
         duckdb_arch: [linux_amd64_musl]
@@ -228,7 +228,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     needs: 
       - linux-extensions-64
-      - check-draft
+      # - check-draft
     strategy:
       matrix:
         duckdb_arch: [linux_arm64]
