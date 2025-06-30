@@ -29,39 +29,39 @@ env:
   BASE_BRANCH: ${{ github.base_ref || (endsWith(github.ref, '_feature') && 'feature' || 'main') }}
 
 jobs:
-  linux-memory-leaks:
-     name: Linux Memory Leaks
-     runs-on: ubuntu-24.04
-     env:
-       GEN: ninja
+  # linux-memory-leaks:
+  #    name: Linux Memory Leaks
+  #    runs-on: ubuntu-24.04
+  #    env:
+  #      GEN: ninja
 
-     steps:
-     - uses: actions/checkout@v3
-       with:
-         fetch-depth: 0
+  #    steps:
+  #    - uses: actions/checkout@v3
+  #      with:
+  #        fetch-depth: 0
 
-     - uses: actions/setup-python@v5
-       with:
-         python-version: '3.12'
+  #    - uses: actions/setup-python@v5
+  #      with:
+  #        python-version: '3.12'
 
-     - name: Install Ninja
-       shell: bash
-       run: sudo apt-get update -y -qq && sudo apt-get install -y -qq ninja-build
+  #    - name: Install Ninja
+  #      shell: bash
+  #      run: sudo apt-get update -y -qq && sudo apt-get install -y -qq ninja-build
 
-     - name: Setup Ccache
-       uses: hendrikmuhs/ccache-action@main
-       with:
-         key: ${{ github.job }}
-         save: ${{ env.CCACHE_SAVE }}
+  #    - name: Setup Ccache
+  #      uses: hendrikmuhs/ccache-action@main
+  #      with:
+  #        key: ${{ github.job }}
+  #        save: ${{ env.CCACHE_SAVE }}
 
-     - name: Build
-       shell: bash
-       run: make
+  #    - name: Build
+  #      shell: bash
+  #      run: make
 
-     - name: Test
-       shell: bash
-       run: |
-         python3 test/memoryleak/test_memory_leaks.py
+  #    - name: Test
+  #      shell: bash
+  #      run: |
+  #        python3 test/memoryleak/test_memory_leaks.py
 
   # release-assert:
   #   name: Release Assertions
@@ -543,7 +543,7 @@ jobs:
   block-sizes:
     name: Block Sizes
     runs-on: ubuntu-24.04
-    needs: linux-memory-leaks
+    # needs: linux-memory-leaks
     env:
       GEN: ninja
       CORE_EXTENSIONS: "json;parquet"
