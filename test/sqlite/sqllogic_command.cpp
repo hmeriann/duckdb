@@ -6,14 +6,14 @@
 #include "duckdb/main/client_data.hpp"
 #include "duckdb/catalog/catalog_search_path.hpp"
 #include "duckdb/main/stream_query_result.hpp"
-// #include "duckdb/main/attached_database.hpp"
-// #include "duckdb/catalog/duck_catalog.hpp"
-// #include "duckdb/catalog/catalog_entry/duck_schema_entry.hpp"
-// #include "test_helpers.hpp"
-// #include "test_config.hpp"
-// #include "sqllogic_test_logger.hpp"
-// #include "catch.hpp"
-// #include <list>
+#include "duckdb/main/attached_database.hpp"
+#include "duckdb/catalog/duck_catalog.hpp"
+#include "duckdb/catalog/catalog_entry/duck_schema_entry.hpp"
+#include "test_helpers.hpp"
+#include "test_config.hpp"
+#include "sqllogic_test_logger.hpp"
+#include "catch.hpp"
+#include <list>
 
 namespace duckdb {
 
