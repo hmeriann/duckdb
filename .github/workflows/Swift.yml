@@ -1,7 +1,7 @@
 name: Swift
 on:
   workflow_dispatch:
-  repository_dispatch:
+  # repository_dispatch:
   workflow_call:
 
 concurrency:
