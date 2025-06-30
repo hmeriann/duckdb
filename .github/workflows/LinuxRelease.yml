@@ -30,18 +30,18 @@ env:
   OVERRIDE_GIT_DESCRIBE: ${{ inputs.override_git_describe }}
 
 jobs:
- check-draft:
-    # We run all other jobs on PRs only if they are not draft PR
-    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Preliminary checks on CI 
-        run: echo "Event name is ${{ github.event_name }}"
+#  check-draft:
+#     # We run all other jobs on PRs only if they are not draft PR
+#     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+#     runs-on: ubuntu-24.04
+#     steps:
+#       - name: Preliminary checks on CI 
+#         run: echo "Event name is ${{ github.event_name }}"
       
  linux-release-cli:
     needs: 
       - linux-extensions-64
-      - check-draft
+      # - check-draft
 
     strategy:
       fail-fast: false
@@ -132,7 +132,7 @@ jobs:
  linux-extensions-64:
     # Builds extensions for linux_amd64
     name: Linux Extensions (x64)
-    needs: check-draft
+    # # needs: check-draft
     runs-on: ubuntu-latest
     strategy:
       matrix:
