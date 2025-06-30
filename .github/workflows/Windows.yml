@@ -33,7 +33,6 @@ on:
       - '.github/workflows/**'
       - '!.github/workflows/Windows.yml'
 
-  merge_group:
   pull_request:
     types: [opened, reopened, ready_for_review]
     paths-ignore:
