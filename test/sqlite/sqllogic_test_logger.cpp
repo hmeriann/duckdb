@@ -137,7 +137,7 @@ void SQLLogicTestLogger::PrintErrorHeader(const string &file_name, idx_t query_l
 	}
 	const char *ci = std::getenv("CI");
 	if (ci) {
-		std::cout << "::warning::" << oss.str() << std::endl;
+		std::cout << "\n::warning::" << oss.str() << std::endl;
 	}
 	LogFailure(oss.str() + "\n");
 }

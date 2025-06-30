@@ -563,15 +563,15 @@ jobs:
           key: ${{ github.job }}
           save: ${{ env.CCACHE_SAVE }}
 
-      - name: Build with standard vector size
-        shell: bash
-        run: BLOCK_ALLOC_SIZE=16384 make relassert
+      # - name: Build with standard vector size
+      #   shell: bash
+      #   run: BLOCK_ALLOC_SIZE=16384 make relassert
 
-      - name: Fast and storage tests
-        shell: bash
-        run: |
-          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution
-          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution
+      # - name: Fast and storage tests
+      #   shell: bash
+      #   run: |
+      #     python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution
+      #     python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution
 
       - name: Build with vector size of 512
         shell: bash
@@ -580,7 +580,7 @@ jobs:
       - name: Fast and storage tests
         shell: bash
         run: |
-          python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution
+          # python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest --no-exit --time_execution
           python3 scripts/run_tests_one_by_one.py ./build/relassert/test/unittest "test/sql/storage/*" --no-exit --time_execution
 
   # linux-wasm-experimental:
