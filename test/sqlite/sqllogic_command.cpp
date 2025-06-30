@@ -14,7 +14,6 @@
 #include "sqllogic_test_logger.hpp"
 #include "catch.hpp"
 #include <list>
-#include <chrono>
 
 namespace duckdb {
 
