@@ -71,6 +71,7 @@ int main(int argc_in, char *argv[]) {
 		std::cerr << "================  FAILURES SUMMARY  ================" << std::endl;
 		std::cerr << "====================================================\n" << std::endl;
 		std::cerr << failures_summary;
+		
 	}
 
 	if (DeleteTestPath()) {

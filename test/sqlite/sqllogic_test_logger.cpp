@@ -69,6 +69,10 @@ void SQLLogicTestLogger::PrintLineSep() {
 void SQLLogicTestLogger::PrintHeader(string header) {
 	std::ostringstream oss;
 	oss << termcolor::bold << header << termcolor::reset << std::endl;
+	const char *ci = std::getenv("CI");
+ 		if (ci) {
+ 			std::cout << "::warning::" << oss.str() << std::endl;
+ 		}
 	LogFailure(oss.str());
 }
 

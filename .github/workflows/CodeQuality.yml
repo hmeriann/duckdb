@@ -6,28 +6,28 @@ on:
         description: 'Pass which checks to run or remain empty for default checks'
         type: string
   repository_dispatch:
-  push:
-    branches-ignore:
-      - 'main'
-      - 'feature'
-      - 'v*.*-*'
-    paths-ignore:
-      - '**.md'
-      - '.github/patches/duckdb-wasm/**'
-      - '.github/workflows/**'
-      - '!.github/workflows/lcov_exclude'
-      - '!.github/workflows/CodeQuality.yml'
-      - '.github/config/out_of_tree_extensions.cmake'
-  merge_group:
-  pull_request:
-    types: [opened, reopened, ready_for_review]
-    paths-ignore:
-      - '**.md'
-      - '.github/patches/duckdb-wasm/**'
-      - '.github/workflows/**'
-      - '!.github/workflows/lcov_exclude'
-      - '!.github/workflows/CodeQuality.yml'
-      - '.github/config/out_of_tree_extensions.cmake'
+  # push:
+  #   branches-ignore:
+  #     - 'main'
+  #     - 'feature'
+  #     - 'v*.*-*'
+  #   paths-ignore:
+  #     - '**.md'
+  #     - '.github/patches/duckdb-wasm/**'
+  #     - '.github/workflows/**'
+  #     - '!.github/workflows/lcov_exclude'
+  #     - '!.github/workflows/CodeQuality.yml'
+  #     - '.github/config/out_of_tree_extensions.cmake'
+  # merge_group:
+  # pull_request:
+  #   types: [opened, reopened, ready_for_review]
+  #   paths-ignore:
+  #     - '**.md'
+  #     - '.github/patches/duckdb-wasm/**'
+  #     - '.github/workflows/**'
+  #     - '!.github/workflows/lcov_exclude'
+  #     - '!.github/workflows/CodeQuality.yml'
+  #     - '.github/config/out_of_tree_extensions.cmake'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
