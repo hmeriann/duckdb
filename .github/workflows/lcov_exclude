@@ -10,13 +10,4 @@
 */extension/fts/*
 */extension/icu/*
 */extension/jemalloc/*
-*/extension/tpcds/*
-*/extension/tpch/*
-*/extension/json/yyjson/*
-*/extension_helper.cpp
-*/generated_extension_loader.hpp
-*/adbc/*
-*/enum_util.cpp
-*/enums/expression_type.cpp
-*/serialization/*
-*/json_enums.cpp
+
