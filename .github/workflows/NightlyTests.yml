@@ -24,14 +24,13 @@ concurrency:
 
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  DUCKDB_WASM_VERSION: "cf2048bd6d669ffa05c56d7d453e09e99de8b87e"
   CCACHE_SAVE: ${{ github.repository != 'duckdb/duckdb' }}
   BASE_BRANCH: ${{ github.base_ref || (endsWith(github.ref, '_feature') && 'feature' || 'main') }}
 
 jobs:
   linux-memory-leaks:
-     name: Linux Memory Leaks
-     runs-on: ubuntu-24.04
+     name: TEst
+     runs-on: macos-14
      env:
        GEN: ninja
 
@@ -46,7 +45,7 @@ jobs:
 
      - name: Install Ninja
        shell: bash
-       run: sudo apt-get update -y -qq && sudo apt-get install -y -qq ninja-build
+       run: brew install ninja
 
      - name: Setup Ccache
        uses: hendrikmuhs/ccache-action@main
