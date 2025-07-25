@@ -130,7 +130,7 @@ void SQLLogicTestLogger::PrintSQLFormatted() {
 void SQLLogicTestLogger::PrintErrorHeader(const string &file_name, idx_t query_line, const string &description) {
 	std::ostringstream oss;
 	PrintSummaryHeader(file_name);
-	oss << termcolor::red << termcolor::bold << description << " " << termcolor::reset;
+	oss << termcolor::red << termcolor::bold << description << " (" << file_name << ":" << to_string(query_line) << ")" << termcolor::reset;
 	LogFailureAnnotation(oss.str());
 }
 
@@ -316,7 +316,7 @@ void SQLLogicTestLogger::UnexpectedStatement(bool expect_ok, MaterializedQueryRe
 }
 
 void SQLLogicTestLogger::ExpectedErrorMismatch(const string &expected_error, MaterializedQueryResult &result) {
-	PrintErrorHeader("Query failed, but error message did not match expected error message: " + expected_error);
+	PrintErrorHeader("Query failed, but error message did not match expected error message:\n" + expected_error);
 	PrintLineSep();
 	PrintSQL();
 	PrintLineSep();
