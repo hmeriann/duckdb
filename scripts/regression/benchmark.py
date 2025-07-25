@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import argparse
 from typing import Optional, Union, Tuple, List
 import functools
+import os
 
 print = functools.partial(print, flush=True)
 
@@ -121,9 +122,17 @@ class BenchmarkRunner:
             timeout_seconds = self.config.max_timeout
 
         try:
+            # Determine the directory of the runner binary
+            runner_dir = os.path.dirname(self.config.benchmark_runner)
+            env = os.environ.copy()
+            env["LD_LIBRARY_PATH"] = runner_dir + ":" + env.get("LD_LIBRARY_PATH", "")
+
             proc = subprocess.run(
-                benchmark_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout_seconds
+                benchmark_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout_seconds, env=env
             )
+            # proc = subprocess.run(
+            #     benchmark_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout_seconds
+            # )
             out = proc.stdout.decode('utf8')
             err = proc.stderr.decode('utf8')
             returncode = proc.returncode
