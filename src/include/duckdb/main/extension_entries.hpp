@@ -150,6 +150,20 @@ static constexpr ExtensionFunctionEntry EXTENSION_FUNCTIONS[] = {
     {"delta_scan", "delta", CatalogType::TABLE_FUNCTION_ENTRY},
     {"drop_fts_index", "fts", CatalogType::PRAGMA_FUNCTION_ENTRY},
     {"dsdgen", "tpcds", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"duckdb_proj_compiled_version", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"duckdb_proj_version", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"ducklake_add_data_files", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_cleanup_old_files", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_expire_snapshots", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_list_files", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_merge_adjacent_files", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_options", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_set_option", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_snapshots", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_table_changes", "ducklake", CatalogType::TABLE_MACRO_ENTRY},
+    {"ducklake_table_deletions", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_table_info", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"ducklake_table_insertions", "ducklake", CatalogType::TABLE_FUNCTION_ENTRY},
     {"editdist3", "core_functions", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"element_at", "core_functions", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"encode", "core_functions", CatalogType::SCALAR_FUNCTION_ENTRY},
@@ -207,6 +221,7 @@ static constexpr ExtensionFunctionEntry EXTENSION_FUNCTIONS[] = {
     {"iceberg_metadata", "iceberg", CatalogType::TABLE_FUNCTION_ENTRY},
     {"iceberg_scan", "iceberg", CatalogType::TABLE_FUNCTION_ENTRY},
     {"iceberg_snapshots", "iceberg", CatalogType::TABLE_FUNCTION_ENTRY},
+    {"iceberg_to_ducklake", "iceberg", CatalogType::TABLE_FUNCTION_ENTRY},
     {"icu_calendar_names", "icu", CatalogType::TABLE_FUNCTION_ENTRY},
     {"icu_collate_af", "icu", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"icu_collate_am", "icu", CatalogType::SCALAR_FUNCTION_ENTRY},
@@ -538,6 +553,7 @@ static constexpr ExtensionFunctionEntry EXTENSION_FUNCTIONS[] = {
     {"st_assvg", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_astext", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_aswkb", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"st_azimuth", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_boundary", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_buffer", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_buildarea", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
@@ -561,11 +577,13 @@ static constexpr ExtensionFunctionEntry EXTENSION_FUNCTIONS[] = {
     {"st_dimension", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_disjoint", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_distance", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"st_distance_geos", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_distance_sphere", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_distance_spheroid", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_drivers", "spatial", CatalogType::TABLE_FUNCTION_ENTRY},
     {"st_dump", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_dwithin", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"st_dwithin_geos", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_dwithin_spheroid", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_endpoint", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_envelope", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
@@ -607,11 +625,13 @@ static constexpr ExtensionFunctionEntry EXTENSION_FUNCTIONS[] = {
     {"st_linestring2dfromwkb", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_linesubstring", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_m", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"st_makebox2d", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_makeenvelope", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_makeline", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_makepolygon", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_makevalid", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_maximuminscribedcircle", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"st_memunion_agg", "spatial", CatalogType::AGGREGATE_FUNCTION_ENTRY},
     {"st_minimumrotatedrectangle", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_mmax", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_mmin", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
@@ -654,6 +674,7 @@ static constexpr ExtensionFunctionEntry EXTENSION_FUNCTIONS[] = {
     {"st_simplify", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_simplifypreservetopology", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_startpoint", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
+    {"st_tileenvelope", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_touches", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_transform", "spatial", CatalogType::SCALAR_FUNCTION_ENTRY},
     {"st_translate", "spatial", CatalogType::MACRO_ENTRY},
@@ -977,6 +998,9 @@ static constexpr ExtensionEntry EXTENSION_SETTINGS[] = {
     {"ca_cert_file", "httpfs"},
     {"calendar", "icu"},
     {"disable_parquet_prefetching", "parquet"},
+    {"ducklake_max_retry_count", "ducklake"},
+    {"ducklake_retry_backoff", "ducklake"},
+    {"ducklake_retry_wait_ms", "ducklake"},
     {"enable_geoparquet_conversion", "parquet"},
     {"enable_server_cert_verification", "httpfs"},
     {"force_download", "httpfs"},
@@ -988,6 +1012,7 @@ static constexpr ExtensionEntry EXTENSION_SETTINGS[] = {
     {"http_retry_backoff", "httpfs"},
     {"http_retry_wait_ms", "httpfs"},
     {"http_timeout", "httpfs"},
+    {"httpfs_client_implementation", "httpfs"},
     {"mysql_bit1_as_boolean", "mysql_scanner"},
     {"mysql_debug_show_queries", "mysql_scanner"},
     {"mysql_experimental_filter_pushdown", "mysql_scanner"},
@@ -1007,6 +1032,7 @@ static constexpr ExtensionEntry EXTENSION_SETTINGS[] = {
     {"s3_endpoint", "httpfs"},
     {"s3_kms_key_id", "httpfs"},
     {"s3_region", "httpfs"},
+    {"s3_requester_pays", "httpfs"},
     {"s3_secret_access_key", "httpfs"},
     {"s3_session_token", "httpfs"},
     {"s3_uploader_max_filesize", "httpfs"},
@@ -1025,21 +1051,15 @@ static constexpr ExtensionEntry EXTENSION_SETTINGS[] = {
 }; // END_OF_EXTENSION_SETTINGS
 
 static constexpr ExtensionEntry EXTENSION_SECRET_TYPES[] = {
-    {"aws", "httpfs"},
-    {"azure", "azure"},
-    {"gcs", "httpfs"},
-    {"huggingface", "httpfs"},
-    {"iceberg", "iceberg"},
-    {"mysql", "mysql_scanner"},
-    {"postgres", "postgres_scanner"},
-    {"r2", "httpfs"},
-    {"s3", "httpfs"},
+    {"aws", "httpfs"},         {"azure", "azure"},     {"ducklake", "ducklake"},   {"gcs", "httpfs"},
+    {"huggingface", "httpfs"}, {"iceberg", "iceberg"}, {"mysql", "mysql_scanner"}, {"postgres", "postgres_scanner"},
+    {"r2", "httpfs"},          {"s3", "httpfs"},
 }; // END_OF_EXTENSION_SECRET_TYPES
 
 // Note: these are currently hardcoded in scripts/generate_extensions_function.py
 // TODO: automate by passing though to script via duckdb
-static constexpr ExtensionEntry EXTENSION_COPY_FUNCTIONS[] = {{"parquet", "parquet"},
-                                                              {"json", "json"}}; // END_OF_EXTENSION_COPY_FUNCTIONS
+static constexpr ExtensionEntry EXTENSION_COPY_FUNCTIONS[] = {
+    {"parquet", "parquet"}, {"json", "json"}, {"avro", "avro"}}; // END_OF_EXTENSION_COPY_FUNCTIONS
 
 // Note: these are currently hardcoded in scripts/generate_extensions_function.py
 // TODO: automate by passing though to script via duckdb
@@ -1082,8 +1102,8 @@ static constexpr ExtensionEntry EXTENSION_FILE_PREFIXES[] = {
 // Note: these are currently hardcoded in scripts/generate_extensions_function.py
 // TODO: automate by passing though to script via duckdb
 static constexpr ExtensionEntry EXTENSION_FILE_POSTFIXES[] = {
-    {".parquet", "parquet"}, {".json", "json"},    {".jsonl", "json"},  {".ndjson", "json"},
-    {".shp", "spatial"},     {".gpkg", "spatial"}, {".fgb", "spatial"}, {".xlsx", "excel"},
+    {".parquet", "parquet"}, {".json", "json"},   {".jsonl", "json"}, {".ndjson", "json"}, {".shp", "spatial"},
+    {".gpkg", "spatial"},    {".fgb", "spatial"}, {".xlsx", "excel"}, {".avro", "avro"},
 }; // END_OF_EXTENSION_FILE_POSTFIXES
 
 // Note: these are currently hardcoded in scripts/generate_extensions_function.py
@@ -1119,6 +1139,7 @@ static constexpr const char *AUTOLOADABLE_EXTENSIONS[] = {"avro",
                                                           "autocomplete",
                                                           "core_functions",
                                                           "delta",
+                                                          "ducklake",
                                                           "encodings",
                                                           "excel",
                                                           "fts",

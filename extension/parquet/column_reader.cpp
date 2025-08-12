@@ -412,7 +412,7 @@ void ColumnReader::DecompressInternal(CompressionCodec::type codec, const_data_p
 	}
 
 	default: {
-		std::stringstream codec_name;
+		duckdb::stringstream codec_name;
 		codec_name << codec;
 		throw std::runtime_error("Unsupported compression codec \"" + codec_name.str() +
 		                         "\". Supported options are uncompressed, brotli, gzip, lz4_raw, snappy or zstd");
@@ -763,6 +763,8 @@ unique_ptr<ColumnReader> CreateDecimalReader(ParquetReader &reader, const Parque
 		return make_uniq<TemplatedColumnReader<int32_t, TemplatedParquetValueConversion<T>>>(reader, schema);
 	case PhysicalType::INT64:
 		return make_uniq<TemplatedColumnReader<int64_t, TemplatedParquetValueConversion<T>>>(reader, schema);
+	case PhysicalType::INT128:
+		return make_uniq<TemplatedColumnReader<hugeint_t, TemplatedParquetValueConversion<T>>>(reader, schema);
 	default:
 		throw NotImplementedException("Unimplemented internal type for CreateDecimalReader");
 	}

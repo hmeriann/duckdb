@@ -185,15 +185,20 @@ struct ICUFromNaiveTimestamp : public ICUDateFunc {
 		}
 	}
 
-	static void AddCasts(ExtensionLoader &loader) {
+	static void AddCast(CastFunctionSet &casts, const LogicalType &source, const LogicalType &target) {
+		const auto implicit_cost = CastRules::ImplicitCast(source, target);
+		casts.RegisterCastFunction(source, target, BindCastFromNaive, implicit_cost);
+	}
 
-		const auto implicit_cost = CastRules::ImplicitCast(LogicalType::TIMESTAMP, LogicalType::TIMESTAMP_TZ);
-		loader.RegisterCastFunction(LogicalType::TIMESTAMP, LogicalType::TIMESTAMP_TZ, BindCastFromNaive,
-		                            implicit_cost);
-		loader.RegisterCastFunction(LogicalType::TIMESTAMP_MS, LogicalType::TIMESTAMP_TZ, BindCastFromNaive);
-		loader.RegisterCastFunction(LogicalType::TIMESTAMP_NS, LogicalType::TIMESTAMP_TZ, BindCastFromNaive);
-		loader.RegisterCastFunction(LogicalType::TIMESTAMP_S, LogicalType::TIMESTAMP_TZ, BindCastFromNaive);
-		loader.RegisterCastFunction(LogicalType::DATE, LogicalType::TIMESTAMP_TZ, BindCastFromNaive);
+	static void AddCasts(DatabaseInstance &db) {
+		auto &config = DBConfig::GetConfig(db);
+		auto &casts = config.GetCastFunctions();
+
+		AddCast(casts, LogicalType::TIMESTAMP, LogicalType::TIMESTAMP_TZ);
+		AddCast(casts, LogicalType::TIMESTAMP_MS, LogicalType::TIMESTAMP_TZ);
+		AddCast(casts, LogicalType::TIMESTAMP_NS, LogicalType::TIMESTAMP_TZ);
+		AddCast(casts, LogicalType::TIMESTAMP_S, LogicalType::TIMESTAMP_TZ);
+		AddCast(casts, LogicalType::DATE, LogicalType::TIMESTAMP_TZ);
 	}
 };
 

@@ -16,6 +16,8 @@ FORCE_WARN_UNUSED_FLAG ?=
 DISABLE_UNITY_FLAG ?=
 DISABLE_SANITIZER_FLAG ?=
 FORCE_32_BIT_FLAG ?=
+CONFIGS_DIR = ./test/configs
+
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 PROJ_DIR := $(dir $(MKFILE_PATH))
@@ -187,6 +189,9 @@ endif
 ifneq ($(CORE_EXTENSIONS),)
 	CMAKE_VARS:=${CMAKE_VARS} -DCORE_EXTENSIONS="$(CORE_EXTENSIONS)"
 endif
+ifeq ($(SHADOW_FORBIDDEN_FUNCTIONS),1)
+	CMAKE_VARS:=${CMAKE_VARS} -DSHADOW_FORBIDDEN_FUNCTIONS=1
+endif
 ifneq ($(SKIP_EXTENSIONS),)
 	CMAKE_VARS:=${CMAKE_VARS} -DSKIP_EXTENSIONS="$(SKIP_EXTENSIONS)"
 endif
@@ -228,9 +233,6 @@ ifeq (${RUN_SLOW_VERIFIERS}, 1)
 endif
 ifeq (${ALTERNATIVE_VERIFY}, 1)
 	CMAKE_VARS:=${CMAKE_VARS} -DALTERNATIVE_VERIFY=1
-endif
-ifeq (${PREFETCH_ALL_PARQUET_FILES}, 1)
-	CMAKE_VARS:=${CMAKE_VARS} -DPREFETCH_ALL_PARQUET_FILES=1
 endif
 ifeq (${DISABLE_POINTER_SALT}, 1)
 	CMAKE_VARS:=${CMAKE_VARS} -DDISABLE_POINTER_SALT=1
@@ -294,9 +296,6 @@ endif
 # Optional overrides
 ifneq (${STANDARD_VECTOR_SIZE}, )
 	CMAKE_VARS:=${CMAKE_VARS} -DSTANDARD_VECTOR_SIZE=${STANDARD_VECTOR_SIZE}
-endif
-ifneq (${BLOCK_ALLOC_SIZE}, )
-	CMAKE_VARS:=${CMAKE_VARS} -DBLOCK_ALLOC_SIZE=${BLOCK_ALLOC_SIZE}
 endif
 
 # Enable VCPKG for this build
@@ -478,6 +477,10 @@ format-main:
 
 format-feature:
 	python3 scripts/format.py feature --fix --noconfirm
+
+format-configs:
+	$(foreach file, $(wildcard $(CONFIGS_DIR)/*), jq . < "$(file)" > "$(file).tmp" && mv "$(file).tmp" "$(file)" ;)
+
 
 third_party/sqllogictest:
 	git clone --depth=1 --branch hawkfish-statistical-rounding https://github.com/duckdb/sqllogictest.git third_party/sqllogictest

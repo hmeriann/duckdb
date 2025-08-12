@@ -434,6 +434,28 @@ void DefaultOrderSetting::ResetGlobal(DatabaseInstance *db, DBConfig &config) {
 }
 
 //===----------------------------------------------------------------------===//
+// Disable Database Invalidation
+//===----------------------------------------------------------------------===//
+void DisableDatabaseInvalidationSetting::SetGlobal(DatabaseInstance *db, DBConfig &config, const Value &input) {
+	if (!OnGlobalSet(db, config, input)) {
+		return;
+	}
+	config.options.disable_database_invalidation = input.GetValue<bool>();
+}
+
+void DisableDatabaseInvalidationSetting::ResetGlobal(DatabaseInstance *db, DBConfig &config) {
+	if (!OnGlobalReset(db, config)) {
+		return;
+	}
+	config.options.disable_database_invalidation = DBConfig().options.disable_database_invalidation;
+}
+
+Value DisableDatabaseInvalidationSetting::GetSetting(const ClientContext &context) {
+	auto &config = DBConfig::GetConfig(context);
+	return Value::BOOLEAN(config.options.disable_database_invalidation);
+}
+
+//===----------------------------------------------------------------------===//
 // Disable Timestamptz Casts
 //===----------------------------------------------------------------------===//
 void DisableTimestamptzCastsSetting::SetLocal(ClientContext &context, const Value &input) {
@@ -503,23 +525,6 @@ void EnableFSSTVectorsSetting::ResetGlobal(DatabaseInstance *db, DBConfig &confi
 Value EnableFSSTVectorsSetting::GetSetting(const ClientContext &context) {
 	auto &config = DBConfig::GetConfig(context);
 	return Value::BOOLEAN(config.options.enable_fsst_vectors);
-}
-
-//===----------------------------------------------------------------------===//
-// Enable H T T P Logging
-//===----------------------------------------------------------------------===//
-void EnableHTTPLoggingSetting::SetLocal(ClientContext &context, const Value &input) {
-	auto &config = ClientConfig::GetConfig(context);
-	config.enable_http_logging = input.GetValue<bool>();
-}
-
-void EnableHTTPLoggingSetting::ResetLocal(ClientContext &context) {
-	ClientConfig::GetConfig(context).enable_http_logging = ClientConfig().enable_http_logging;
-}
-
-Value EnableHTTPLoggingSetting::GetSetting(const ClientContext &context) {
-	auto &config = ClientConfig::GetConfig(context);
-	return Value::BOOLEAN(config.enable_http_logging);
 }
 
 //===----------------------------------------------------------------------===//
@@ -676,23 +681,6 @@ void HomeDirectorySetting::ResetLocal(ClientContext &context) {
 Value HomeDirectorySetting::GetSetting(const ClientContext &context) {
 	auto &config = ClientConfig::GetConfig(context);
 	return Value(config.home_directory);
-}
-
-//===----------------------------------------------------------------------===//
-// H T T P Logging Output
-//===----------------------------------------------------------------------===//
-void HTTPLoggingOutputSetting::SetLocal(ClientContext &context, const Value &input) {
-	auto &config = ClientConfig::GetConfig(context);
-	config.http_logging_output = input.GetValue<string>();
-}
-
-void HTTPLoggingOutputSetting::ResetLocal(ClientContext &context) {
-	ClientConfig::GetConfig(context).http_logging_output = ClientConfig().http_logging_output;
-}
-
-Value HTTPLoggingOutputSetting::GetSetting(const ClientContext &context) {
-	auto &config = ClientConfig::GetConfig(context);
-	return Value(config.http_logging_output);
 }
 
 //===----------------------------------------------------------------------===//

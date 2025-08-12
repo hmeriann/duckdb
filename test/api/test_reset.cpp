@@ -116,7 +116,6 @@ OptionValueSet GetValueForOption(const string &name, const LogicalType &type) {
 	    {"http_proxy", {"localhost:80"}},
 	    {"http_proxy_username", {"john"}},
 	    {"http_proxy_password", {"doe"}},
-	    {"http_logging_output", {"my_cool_outputfile"}},
 	    {"allocator_flush_threshold", {"4.0 GiB"}},
 	    {"allocator_bulk_deallocation_flush_threshold", {"4.0 GiB"}},
 	    {"arrow_output_version", {"1.5"}},
@@ -152,12 +151,13 @@ bool OptionIsExcludedFromTest(const string &name) {
 	    "search_path",
 	    "debug_window_mode",
 	    "experimental_parallel_csv",
-	    "lock_configuration",         // cant change this while db is running
-	    "disabled_filesystems",       // cant change this while db is running
-	    "enable_external_access",     // cant change this while db is running
-	    "allow_unsigned_extensions",  // cant change this while db is running
-	    "allow_community_extensions", // cant change this while db is running
-	    "allow_unredacted_secrets",   // cant change this while db is running
+	    "lock_configuration",            // cant change this while db is running
+	    "disabled_filesystems",          // cant change this while db is running
+	    "enable_external_access",        // cant change this while db is running
+	    "allow_unsigned_extensions",     // cant change this while db is running
+	    "allow_community_extensions",    // cant change this while db is running
+	    "allow_unredacted_secrets",      // cant change this while db is running
+	    "disable_database_invalidation", // cant change this while db is running
 	    "enable_object_cache",
 	    "streaming_buffer_size",
 	    "log_query_path",
@@ -173,6 +173,7 @@ bool OptionIsExcludedFromTest(const string &name) {
 	    "default_block_size",
 	    "index_scan_percentage",
 	    "scheduler_process_partial",
+	    "http_logging_output",
 	    "index_scan_max_count"};
 	return excluded_options.count(name) == 1;
 }

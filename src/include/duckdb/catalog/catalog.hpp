@@ -109,6 +109,7 @@ public:
 	}
 	virtual void Initialize(bool load_builtin) = 0;
 	virtual void Initialize(optional_ptr<ClientContext> context, bool load_builtin);
+	virtual void FinalizeLoad(optional_ptr<ClientContext> context);
 
 	bool IsSystemCatalog() const;
 	bool IsTemporaryCatalog() const;
@@ -368,7 +369,7 @@ public:
 	static CatalogException UnrecognizedConfigurationError(ClientContext &context, const string &name);
 
 	//! Autoload the extension required for `configuration_name` or throw a CatalogException
-	static void AutoloadExtensionByConfigName(ClientContext &context, const string &configuration_name);
+	static string AutoloadExtensionByConfigName(ClientContext &context, const string &configuration_name);
 	//! Autoload the extension required for `function_name` or throw a CatalogException
 	static bool AutoLoadExtensionByCatalogEntry(DatabaseInstance &db, CatalogType type, const string &entry_name);
 	DUCKDB_API static bool TryAutoLoad(ClientContext &context, const string &extension_name) noexcept;

@@ -290,6 +290,16 @@
         "custom_implementation": true
     },
     {
+        "name": "disable_database_invalidation",
+        "description": "Disables invalidating the database instance when encountering a fatal error. Should be used with great care, as DuckDB cannot guarantee correct behavior after a fatal error.",
+        "type": "BOOLEAN",
+        "scope": "global",
+        "on_callbacks": [
+            "set",
+            "reset"
+        ]
+    },
+    {
         "name": "disable_timestamptz_casts",
         "description": "Disable casting from timestamp to timestamptz ",
         "type": "BOOLEAN",
@@ -364,10 +374,11 @@
     },
     {
         "name": "enable_http_logging",
-        "description": "Enables HTTP logging",
+        "description": "(deprecated) Enables HTTP logging",
         "type": "BOOLEAN",
         "scope": "local",
-        "struct": "EnableHTTPLoggingSetting"
+        "struct": "EnableHTTPLoggingSetting",
+        "custom_implementation": true
     },
     {
         "name": "enable_http_metadata_cache",
@@ -500,10 +511,11 @@
     },
     {
         "name": "http_logging_output",
-        "description": "The file to which HTTP logging output should be saved, or empty to print to the terminal",
+        "description": "(deprecated) The file to which HTTP logging output should be saved, or empty to print to the terminal",
         "type": "VARCHAR",
         "scope": "local",
-        "struct": "HTTPLoggingOutputSetting"
+        "struct": "HTTPLoggingOutputSetting",
+        "custom_implementation": true
     },
     {
         "name": "http_proxy",

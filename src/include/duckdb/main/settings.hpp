@@ -451,6 +451,20 @@ struct DefaultSecretStorageSetting {
 	static Value GetSetting(const ClientContext &context);
 };
 
+struct DisableDatabaseInvalidationSetting {
+	using RETURN_TYPE = bool;
+	static constexpr const char *Name = "disable_database_invalidation";
+	static constexpr const char *Description =
+	    "Disables invalidating the database instance when encountering a fatal error. Should be used with great care, "
+	    "as DuckDB cannot guarantee correct behavior after a fatal error.";
+	static constexpr const char *InputType = "BOOLEAN";
+	static void SetGlobal(DatabaseInstance *db, DBConfig &config, const Value &parameter);
+	static void ResetGlobal(DatabaseInstance *db, DBConfig &config);
+	static bool OnGlobalSet(DatabaseInstance *db, DBConfig &config, const Value &input);
+	static bool OnGlobalReset(DatabaseInstance *db, DBConfig &config);
+	static Value GetSetting(const ClientContext &context);
+};
+
 struct DisableTimestamptzCastsSetting {
 	using RETURN_TYPE = bool;
 	static constexpr const char *Name = "disable_timestamptz_casts";
@@ -560,7 +574,7 @@ struct EnableFSSTVectorsSetting {
 struct EnableHTTPLoggingSetting {
 	using RETURN_TYPE = bool;
 	static constexpr const char *Name = "enable_http_logging";
-	static constexpr const char *Description = "Enables HTTP logging";
+	static constexpr const char *Description = "(deprecated) Enables HTTP logging";
 	static constexpr const char *InputType = "BOOLEAN";
 	static void SetLocal(ClientContext &context, const Value &parameter);
 	static void ResetLocal(ClientContext &context);
@@ -750,7 +764,7 @@ struct HTTPLoggingOutputSetting {
 	using RETURN_TYPE = string;
 	static constexpr const char *Name = "http_logging_output";
 	static constexpr const char *Description =
-	    "The file to which HTTP logging output should be saved, or empty to print to the terminal";
+	    "(deprecated) The file to which HTTP logging output should be saved, or empty to print to the terminal";
 	static constexpr const char *InputType = "VARCHAR";
 	static void SetLocal(ClientContext &context, const Value &parameter);
 	static void ResetLocal(ClientContext &context);
