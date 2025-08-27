@@ -186,7 +186,7 @@ def launch_test(test, list_of_tests=False):
 
     start = time.time()
     try:
-        test_cmd = [unittest_program] + test
+        test_cmd = [unittest_program] + extra_args[:2] + test ### just to enable logger
         if args.valgrind:
             test_cmd = ['valgrind'] + test_cmd
         # should unset SUMMARIZE_FAILURES to avoid producing exceeding failure logs
