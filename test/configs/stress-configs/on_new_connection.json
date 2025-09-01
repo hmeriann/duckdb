@@ -1,0 +1,8 @@
+{
+  "description": "Per-connection chaos",
+  "max_threads": "8",
+  "on_init": "CREATE SCHEMA IF NOT EXISTS s; SET schema='s';",
+  "on_new_connection": "USE s; PRAGMA memory_limit='1GB';",
+  "force_restart": "true",
+  "summarize_failures": "true"
+}

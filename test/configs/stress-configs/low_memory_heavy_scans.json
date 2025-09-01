@@ -1,0 +1,7 @@
+{
+  "description": "I/O stress: low memory + heavy scans",
+  "max_threads": "12",
+  "on_init": "PRAGMA threads=12; PRAGMA memory_limit='2GB'; PRAGMA preserve_insertion_order=false;",
+  "force_restart": "true",
+  "summarize_failures": "true"
+}

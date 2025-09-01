@@ -1,0 +1,9 @@
+{
+  "description": "Concurrency + aggressive checkpointing",
+  "max_threads": "16",
+  "checkpoint_wal_size": "1048576",
+  "checkpoint_on_shutdown": "true",
+  "force_restart": "true",
+  "summarize_failures": "true",
+  "on_init": "PRAGMA threads=16; PRAGMA checkpoint_threshold=1; PRAGMA debug_print_bindings=false;"
+}

@@ -1,0 +1,139 @@
+name: NightlyTests
+on:
+  workflow_dispatch:
+  repository_dispatch:
+  push:
+    branches-ignore:
+      - 'main'
+      - 'feature'
+      - 'v*.*-*'
+    paths-ignore:
+      - '**'
+      - '!.github/workflows/NightlyTests.yml'
+      - '!.github/patches/duckdb-wasm/**'
+  pull_request:
+    types: [opened, reopened, ready_for_review, converted_to_draft]
+    paths-ignore:
+      - '**'
+      - '!.github/workflows/NightlyTests.yml'
+      - '!.github/patches/duckdb-wasm/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref || '' }}-${{ github.base_ref || '' }}-${{ github.ref != 'refs/heads/main' || github.sha }}
+  cancel-in-progress: true
+
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  DUCKDB_WASM_VERSION: "cf2048bd6d669ffa05c56d7d453e09e99de8b87e"
+  CCACHE_SAVE: ${{ github.repository != 'duckdb/duckdb' }}
+  BASE_BRANCH: ${{ github.base_ref || (endsWith(github.ref, '_feature') && 'feature' || 'main') }}
+
+jobs:
+  check-draft:
+    # We run all other jobs on PRs only if they are not draft PR
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Preliminary checks on CI
+        run: echo "Event name is ${{ github.event_name }}"
+
+  linux-memory-leaks:
+     name: Linux Memory Leaks
+     needs: check-draft
+     runs-on: ubuntu-24.04
+     env:
+       GEN: ninja
+
+     steps:
+     - uses: actions/checkout@v3
+       with:
+         fetch-depth: 0
+
+     - uses: actions/setup-python@v5
+       with:
+         python-version: '3.12'
+
+     - name: Install Ninja
+       shell: bash
+       run: sudo apt-get update -y -qq && sudo apt-get install -y -qq ninja-build
+
+     - name: Setup Ccache
+       uses: hendrikmuhs/ccache-action@main
+       with:
+         key: ${{ github.job }}
+         save: ${{ env.CCACHE_SAVE }}
+
+     - name: Build
+       shell: bash
+       run: make
+
+     - name: Test
+       shell: bash
+       run: |
+         python3 test/memoryleak/test_memory_leaks.py
+
+  linux-debug-configs:
+    name: Tests different configurations with a debug build
+    runs-on: ubuntu-24.04
+    env:
+      LSAN_OPTIONS: suppressions=${{ github.workspace }}/.sanitizer-leak-suppressions.txt
+    needs: linux-memory-leaks
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install
+        shell: bash
+        run: sudo apt-get update -y -qq && sudo apt-get install -y -qq ninja-build
+
+      - name: Setup Ccache
+        uses: hendrikmuhs/ccache-action@main
+        with:
+          key: ${{ github.job }}
+          save: ${{ env.CCACHE_SAVE }}
+
+      - name: Build
+        id: build
+        shell: bash
+        env:
+          CORE_EXTENSIONS: "json;parquet;icu;tpch;tpcds"
+          GEN: ninja
+        run: make debug
+
+      - name: test/configs/stress-configs/alt_storage.json
+        if: steps.build.conclusion == 'success'
+        shell: bash
+        run: |
+          ./build/debug/test/unittest --test-config test/configs/stress-configs/alt_storage.json
+
+      - name: test/configs/stress-configs/concurrency.json
+        if: steps.build.conclusion == 'success'
+        shell: bash
+        run: |
+          ./build/debug/test/unittest --test-config test/configs/stress-configs/concurrency.json
+
+      - name: test/configs/stress-configs/low_memory_heavy_scans.json
+        if: steps.build.conclusion == 'success'
+        shell: bash
+        run: |
+          ./build/debug/test/unittest --test-config test/configs/stress-configs/low_memory_heavy_scans.json
+
+      - name: test/configs/stress-configs/on_new_connection.json
+        if: steps.build.conclusion == 'success'
+        shell: bash
+        run: |
+          ./build/debug/test/unittest --test-config test/configs/stress-configs/on_new_connection.json
+
+      - name: test/configs/stress-configs/slow_verifiers.json
+        if: steps.build.conclusion == 'success'
+        shell: bash
+        run: |
+          ./build/debug/test/unittest --test-config test/configs/stress-configs/slow_verifiers.json
+
+      - name: test/configs/stress-configs/verify_vector_all.json
+        if: steps.build.conclusion == 'success'
+        shell: bash
+        run: |
+          ./build/debug/test/unittest --test-config test/configs/stress-configs/verify_vector_all.json

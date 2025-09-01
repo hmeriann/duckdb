@@ -1,0 +1,9 @@
+{
+  "description": "Encrypted DB backend",
+  "initial_db": "file:encrypted.duckdb",
+  "on_init": "PRAGMA key='test_password';",
+  "checkpoint_on_shutdown": "true",
+  "force_restart": "true",
+  "summarize_failures": "true",
+  "skip_tests": ["tests/that/are/not_applicable.test"]
+}
