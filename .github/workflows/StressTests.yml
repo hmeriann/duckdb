@@ -1,4 +1,4 @@
-name: NightlyTests
+name: StressTest
 on:
   workflow_dispatch:
   repository_dispatch:
@@ -9,13 +9,13 @@ on:
       - 'v*.*-*'
     paths-ignore:
       - '**'
-      - '!.github/workflows/NightlyTests.yml'
+      - '!.github/workflows/StressTest.yml'
       - '!.github/patches/duckdb-wasm/**'
   pull_request:
     types: [opened, reopened, ready_for_review, converted_to_draft]
     paths-ignore:
       - '**'
-      - '!.github/workflows/NightlyTests.yml'
+      - '!.github/workflows/StressTest.yml'
       - '!.github/patches/duckdb-wasm/**'
 
 concurrency:
