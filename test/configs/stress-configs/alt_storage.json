@@ -1,7 +1,7 @@
 {
   "description": "Encrypted DB backend",
   "initial_db": "file:encrypted.duckdb",
-  "on_init": "PRAGMA key='test_password';",
+  "on_init": "PRAGMA key='test_password';CALL enable_logging(level='trace', storage='stdout')",
   "checkpoint_on_shutdown": "true",
   "force_restart": "true",
   "summarize_failures": "true",

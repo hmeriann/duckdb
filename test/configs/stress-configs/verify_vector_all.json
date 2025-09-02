@@ -4,5 +4,6 @@
   "verify_vector": "ALL",
   "debug_initialize": "ones",
   "force_restart": "true",
-  "summarize_failures": "true"
+  "summarize_failures": "true",
+  "on_init": "CALL enable_logging(level='trace', storage='stdout');"
 }

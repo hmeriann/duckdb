@@ -103,37 +103,37 @@ jobs:
         run: make debug
 
       - name: test/configs/stress-configs/alt_storage.json
-        if: steps.build.conclusion == 'success'
+        if: always()
         shell: bash
         run: |
           ./build/debug/test/unittest --test-config test/configs/stress-configs/alt_storage.json
 
       - name: test/configs/stress-configs/concurrency.json
-        if: steps.build.conclusion == 'success'
+        if: always()
         shell: bash
         run: |
           ./build/debug/test/unittest --test-config test/configs/stress-configs/concurrency.json
 
       - name: test/configs/stress-configs/low_memory_heavy_scans.json
-        if: steps.build.conclusion == 'success'
+        if: always()
         shell: bash
         run: |
           ./build/debug/test/unittest --test-config test/configs/stress-configs/low_memory_heavy_scans.json
 
       - name: test/configs/stress-configs/on_new_connection.json
-        if: steps.build.conclusion == 'success'
+        if: always()
         shell: bash
         run: |
           ./build/debug/test/unittest --test-config test/configs/stress-configs/on_new_connection.json
 
       - name: test/configs/stress-configs/slow_verifiers.json
-        if: steps.build.conclusion == 'success'
+        if: always()
         shell: bash
         run: |
           ./build/debug/test/unittest --test-config test/configs/stress-configs/slow_verifiers.json
 
       - name: test/configs/stress-configs/verify_vector_all.json
-        if: steps.build.conclusion == 'success'
+        if: always()
         shell: bash
         run: |
           ./build/debug/test/unittest --test-config test/configs/stress-configs/verify_vector_all.json
