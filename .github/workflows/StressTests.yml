@@ -78,6 +78,9 @@ jobs:
     env:
       LSAN_OPTIONS: suppressions=${{ github.workspace }}/.sanitizer-leak-suppressions.txt
     needs: linux-memory-leaks
+    strategy:
+      matrix:
+        config: ["alt_storage", "concurrency", "low_memory_heavy_scans", "on_new_connection", "slow_verifiers", "verify_vector_all"]
 
     steps:
       - uses: actions/checkout@v3
@@ -102,38 +105,38 @@ jobs:
           GEN: ninja
         run: make debug
 
-      - name: test/configs/stress-configs/alt_storage.json
+      - name: ${{ matrix.config }}
         if: always()
         shell: bash
         run: |
-          ./build/debug/test/unittest --test-config test/configs/stress-configs/alt_storage.json
+          ./build/debug/test/unittest --test-config "test/configs/stress-configs/${{ matrix.config }}.json"
 
-      - name: test/configs/stress-configs/concurrency.json
-        if: always()
-        shell: bash
-        run: |
-          ./build/debug/test/unittest --test-config test/configs/stress-configs/concurrency.json
+      # - name: test/configs/stress-configs/concurrency.json
+      #   if: always()
+      #   shell: bash
+      #   run: |
+      #     ./build/debug/test/unittest --test-config test/configs/stress-configs/concurrency.json
 
-      - name: test/configs/stress-configs/low_memory_heavy_scans.json
-        if: always()
-        shell: bash
-        run: |
-          ./build/debug/test/unittest --test-config test/configs/stress-configs/low_memory_heavy_scans.json
+      # - name: test/configs/stress-configs/low_memory_heavy_scans.json
+      #   if: always()
+      #   shell: bash
+      #   run: |
+      #     ./build/debug/test/unittest --test-config test/configs/stress-configs/low_memory_heavy_scans.json
 
-      - name: test/configs/stress-configs/on_new_connection.json
-        if: always()
-        shell: bash
-        run: |
-          ./build/debug/test/unittest --test-config test/configs/stress-configs/on_new_connection.json
+      # - name: test/configs/stress-configs/on_new_connection.json
+      #   if: always()
+      #   shell: bash
+      #   run: |
+      #     ./build/debug/test/unittest --test-config test/configs/stress-configs/on_new_connection.json
 
-      - name: test/configs/stress-configs/slow_verifiers.json
-        if: always()
-        shell: bash
-        run: |
-          ./build/debug/test/unittest --test-config test/configs/stress-configs/slow_verifiers.json
+      # - name: test/configs/stress-configs/slow_verifiers.json
+      #   if: always()
+      #   shell: bash
+      #   run: |
+      #     ./build/debug/test/unittest --test-config test/configs/stress-configs/slow_verifiers.json
 
-      - name: test/configs/stress-configs/verify_vector_all.json
-        if: always()
-        shell: bash
-        run: |
-          ./build/debug/test/unittest --test-config test/configs/stress-configs/verify_vector_all.json 
+      # - name: test/configs/stress-configs/verify_vector_all.json
+      #   if: always()
+      #   shell: bash
+      #   run: |
+      #     ./build/debug/test/unittest --test-config test/configs/stress-configs/verify_vector_all.json 
