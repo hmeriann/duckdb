@@ -21,7 +21,7 @@ select from_json_strict('42', '"UBIGINT"')
 statement error
 select from_json_strict('42', '"DATE"')
 ----
-<REGEX>:.*Invalid Input Error.*Unable to cast.*
+Invalid Input Error: Unable to cast
 
 # singletons
 statement error
