@@ -136,4 +136,4 @@ jobs:
         if: always()
         shell: bash
         run: |
-          ./build/debug/test/unittest --test-config test/configs/stress-configs/verify_vector_all.json
+          ./build/debug/test/unittest --test-config test/configs/stress-configs/verify_vector_all.json 
