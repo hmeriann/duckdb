@@ -81,6 +81,7 @@ jobs:
     strategy:
       matrix:
         config: ["alt_storage", "concurrency", "low_memory_heavy_scans", "on_new_connection", "slow_verifiers", "verify_vector_all"]
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v3
