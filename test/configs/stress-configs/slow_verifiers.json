@@ -1,6 +1,6 @@
 {
   "description": "Nightly: slow verifiers",
-  "verify_vector": "ALL",
+  "verify_vector": "true",
   "test_memory_leaks": "true",
   "summarize_failures": "true",
   "force_restart": "true",

@@ -1,7 +1,7 @@
 {
   "description": "Leak + vector verification",
   "test_memory_leaks": "true",
-  "verify_vector": "ALL",
+  "verify_vector": "true",
   "force_restart": "true",
   "summarize_failures": "true",
   "skip_compiled": "true",
