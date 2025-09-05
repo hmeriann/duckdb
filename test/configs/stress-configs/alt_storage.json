@@ -5,6 +5,7 @@
   "checkpoint_on_shutdown": "true",
   "force_restart": "true",
   "summarize_failures": "true",
+  "skip_compiled": "true",
   "skip_tests": [
     {
       "reason": "Contains explicit use of the memory catalog.",

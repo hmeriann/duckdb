@@ -5,5 +5,6 @@
   "checkpoint_on_shutdown": "true",
   "force_restart": "true",
   "summarize_failures": "true",
+  "skip_compiled": "true",
   "on_init": "CALL enable_logging(level='trace', storage='stdout');PRAGMA threads=16; PRAGMA checkpoint_threshold='1gb'; PRAGMA debug_print_bindings=false;"
 }

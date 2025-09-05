@@ -6,5 +6,6 @@
   "summarize_failures": "true",
   "force_restart": "true",
   "on_load": "skip",
+  "skip_compiled": "true",
   "on_init": "CALL enable_logging(level='trace', storage='stdout');"
 }

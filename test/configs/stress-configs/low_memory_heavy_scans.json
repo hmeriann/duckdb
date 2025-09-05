@@ -3,5 +3,6 @@
   "max_threads": "12",
   "on_init": "CALL enable_logging(level='trace', storage='stdout');PRAGMA threads=12; PRAGMA memory_limit='2GB'; PRAGMA preserve_insertion_order=false;",
   "force_restart": "true",
-  "summarize_failures": "true"
+  "summarize_failures": "true",
+  "skip_compiled": "true"
 }

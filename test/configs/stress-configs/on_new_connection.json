@@ -4,5 +4,6 @@
   "on_init": "CALL enable_logging(level='trace', storage='stdout');CREATE SCHEMA IF NOT EXISTS s; SET schema='s';",
   "on_new_connection": "USE s; PRAGMA memory_limit='1GB';",
   "force_restart": "true",
+  "skip_compiled": "true",
   "summarize_failures": "true"
 }
