@@ -100,7 +100,7 @@ jobs:
 
       - name: Build
         id: build
-        shell: bash
+        shell: bash 
         env:
           CORE_EXTENSIONS: "json;parquet;icu;tpch;tpcds"
           GEN: ninja
