@@ -9,25 +9,27 @@ permissions:
   pull-requests: read
   contents: read
 
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
 jobs:
   approve:
-    if: github.event.label.name == 'approved'
+    if: contains(github.event.pull_request.labels.*.name, 'approved')
     runs-on: ubuntu-latest
     steps:
       - name: Check actor is org member
         id: orgcheck
         run: |
-            resp=$(curl -sSL \
-            -H "Authorization: Bearer ${{ github.token }}" \
+            resp=$(curl -sS \
+            -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/orgs/duckdb/members/${{ github.actor }})
-            if echo "$resp" | grep -q '"login"'; then
-                echo "${{ github.actor }} is a duckdb org member"
-            else
-                echo "${{ github.actor }} is NOT in duckdb org"
-                exit 1
+            https://api.github.com/orgs/duckdb/memberships/${{ github.actor }})
+
+            state=$(jq -r '.state // empty' <<< $resp)
+            if [ "$state" != "active" ]; then
+                echo "Not an org member (or token lacks read:org)"; exit 1
             fi
   code-quality:
     needs: approve 
-    uses: ./.github/workflows/CodeQuality.yml
+    uses: ./.github/workflows/Example.yml
     secrets: inherit
