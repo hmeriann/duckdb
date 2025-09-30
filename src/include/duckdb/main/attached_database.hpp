@@ -23,6 +23,7 @@ class StorageExtension;
 class DatabaseManager;
 
 struct AttachInfo;
+struct StoredDatabasePath;
 
 enum class AttachedDatabaseType {
 	READ_WRITE_DATABASE,
@@ -31,12 +32,17 @@ enum class AttachedDatabaseType {
 	TEMP_DATABASE,
 };
 
+class DatabaseFilePathManager;
+
 struct StoredDatabasePath {
-	StoredDatabasePath(DatabaseManager &manager, string path, const string &name);
+	StoredDatabasePath(DatabaseFilePathManager &manager, string path, const string &name);
 	~StoredDatabasePath();
 
-	DatabaseManager &manager;
+	DatabaseFilePathManager &manager;
 	string path;
+
+public:
+	void OnDetach();
 };
 
 //! AttachOptions holds information about a database we plan to attach. These options are generalized, i.e.,
@@ -55,6 +61,8 @@ struct AttachOptions {
 	unordered_map<string, Value> options;
 	//! (optionally) a catalog can be provided with a default table
 	QualifiedName default_table;
+	//! The stored database path (in the path manager)
+	unique_ptr<StoredDatabasePath> stored_database_path;
 };
 
 //! The AttachedDatabase represents an attached database instance.
@@ -98,12 +106,10 @@ public:
 	void SetInitialDatabase();
 	void SetReadOnlyDatabase();
 	void OnDetach(ClientContext &context);
+	string StoredPath() const;
 
 	static bool NameIsReserved(const string &name);
 	static string ExtractDatabaseName(const string &dbpath, FileSystem &fs);
-
-private:
-	void InsertDatabasePath(const string &path);
 
 private:
 	DatabaseInstance &db;
