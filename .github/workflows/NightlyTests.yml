@@ -366,6 +366,11 @@ jobs:
           sparse-checkout: scripts
           path: httpfs
 
+      - run: |
+          sudo apt-get remove --purge containerd.io docker-ce docker-ce-cli containerd
+          sudo apt update
+          sudo apt install docker-ce docker-ce-cli containerd
+
       - name: Start Minio
         shell: bash
         run: |
