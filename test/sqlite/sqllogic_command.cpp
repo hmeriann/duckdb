@@ -15,8 +15,6 @@
 #include "catch.hpp"
 
 #include <list>
-#include <thread>
-#include <chrono>
 
 namespace duckdb {
 
